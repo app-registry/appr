@@ -68,6 +68,7 @@ class Package(PackageBase):
             packages = etcd_client.read(path, recursive=True)
         except etcd.EtcdKeyNotFound:
             etcd_client.write(path, None, dir=True)
+            packages = etcd_client.read(path, recursive=True)
 
         for child in packages.children:
             m = re.match("^/%s(.+)/(.+)/releases/(.+)$" % ETCD_PREFIX, child.key)

@@ -1,7 +1,6 @@
 import datetime
 import semantic_version
 import cnr.packager as packager
-from cnr.manifest_jsonnet import ManifestJsonnet
 from cnr.semver import last_version, select_version
 from cnr.exception import (InvalidVersion,
                            PackageAlreadyExists,
@@ -19,9 +18,6 @@ class PackageBase(object):
         self.created_at = None
         self.packager = None
         self.blob = blob
-
-    def manifest(self, tla_codes=None):
-        return ManifestJsonnet(self.packager, tla_codes)
 
     def channels(self, channel_class):
         """ Returns all available channels for a package """

@@ -62,7 +62,7 @@ def push():
     if 'force' in values:
         force = 'true' == values['force']
 
-    r = cnr.api.impl.registry.push(package, version, blob, force)
+    r = cnr.api.impl.registry.push(package, version, blob, force, Package)
     return jsonify(r)
 
 
