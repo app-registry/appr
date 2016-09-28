@@ -11,9 +11,6 @@ except ImportError:
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
-
 requirements = [
     'futures',
     'python-etcd',
@@ -35,7 +32,7 @@ setup(
     name='cnr',
     version='0.0.1',
     description="CNR server",
-    long_description=readme + '\n\n' + history,
+    long_description=readme,
     author="Antoine Legrand",
     author_email='2t.antoine@gmail.com',
     url='https://github.com/ant31/cn-app-registry/cnr-server',

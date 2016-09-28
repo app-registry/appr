@@ -5,7 +5,7 @@ import cnr.semver as semver
 logger = logging.getLogger(__name__)
 
 
-def _get_package(package, version_query='default', package_class):
+def _get_package(package, version_query, package_class):
     """
       Fetch the package data from the datastore
       and instantiate a :obj:`cnr.models.package_base.PackageModelBase`
@@ -28,12 +28,14 @@ def _get_package(package, version_query='default', package_class):
       :obj:`cnr.exception.PackageVersionNotFound`: version-query didn't match any release
 
     """
-    # if version is None; Find default version
+
+    if version_query is None:
+        version_query = 'default'
     p = package_class.get(package, version_query)
     return p
 
 
-def pull(package, version='default', package_class):
+def pull(package, version, package_class):
     """
     Retrives the package blob from the datastore
 
@@ -76,7 +78,7 @@ def pull(package, version='default', package_class):
     return resp
 
 
-def push(package, version, blob, force=False, package_class):
+def push(package, version, blob, force, package_class):
     """
     Push a new package release in the the datastore
 
@@ -110,7 +112,7 @@ def push(package, version, blob, force=False, package_class):
 
 
 def search_reindex(package_class):
-    Package.reindex()
+    package_class.reindex()
     return {"status": "ok"}
 
 
@@ -141,7 +143,7 @@ def search(query, package_class):
     return p
 
 
-def list_packages(namespace=None, package_class):
+def list_packages(namespace, package_class):
     """
     List all packages, filters can be applied
     Must have at least a release to be visible
@@ -187,7 +189,7 @@ def list_packages(namespace=None, package_class):
 
 
 def show_package(package,
-                 version="default",
+                 version,
                  channel_class,
                  package_class):
     """
@@ -393,7 +395,7 @@ def delete_channel(package, name, channel_class):
     return {"channel": channel.name, "package": package, "action": 'delete'}
 
 
-def delete_package(package, version="default", package_class, channel_class):
+def delete_package(package, version, package_class, channel_class):
     packagemodel = _get_package(package, version, package_class)
     package_class.delete(packagemodel.package, packagemodel.version, channel_class)
     return {"status": "delete", "package": packagemodel.package, "version": packagemodel.version}
