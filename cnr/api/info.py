@@ -23,8 +23,7 @@ def pre_request_logging():
         "original_url": request.url,
         "path": request.path,
         "data":  values,
-        "headers": dict(request.headers.to_list())}
-    )
+        "headers": dict(request.headers.to_list())})
 
 
 @info_app.route("/")
@@ -40,8 +39,6 @@ def index_discovery():
     <body>
     </body>
     </html>""".format(domain=domain, host=host)
-
-    return jsonify({"cnr-api": cnr.__version__})
 
 
 @info_app.route("/version")

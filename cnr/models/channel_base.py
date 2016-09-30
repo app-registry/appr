@@ -23,18 +23,20 @@ class ChannelBase(object):
         raise NotImplementedError
 
     @classmethod
-    def all_channels(self, package):
+    def all_channels(cls, package):
         """ Returns all available channels for a package """
-        channel_names = self.all(package)
+        channel_names = cls.all(package)
         result = {}
-        for channel in channel_names:
-            c = self(channel, package)
-            releases = c.releases()
-            result[str(channel)] = {"releases": releases, "name": channel, "current": c.current_release(releases)}
+        for channel_name in channel_names:
+            channel = cls(channel_name, package)
+            releases = channel.releases()
+            result[str(channel)] = {"releases": releases,
+                                    "name": channel_name,
+                                    "current": channel.current_release(releases)}
         return result
 
     @classmethod
-    def all(self, package):
+    def all(cls, package):
         raise NotImplementedError
 
     def releases(self):
@@ -78,12 +80,12 @@ class ChannelBase(object):
             return True
 
     def _new_chan_release(self, version):
-        d = {'release': version,
-             'created_at': datetime.datetime.utcnow().isoformat()}
-        return d
+        data = {'release': version,
+                'created_at': datetime.datetime.utcnow().isoformat()}
+        return data
 
     @classmethod
-    def _raise_not_found(self, package, channel=None, version=None):
+    def _raise_not_found(cls, package, channel=None, version=None):
         if channel is None:
             raise ChannelNotFound("No channel found for package '%s'" % (package),
                                   {'package': package})
@@ -92,7 +94,7 @@ class ChannelBase(object):
                                   {'channel': channel, 'package': package, 'version': version})
 
     @classmethod
-    def _raise_already_exists(self, channel, package, version=None):
+    def _raise_already_exists(cls, channel, package, version=None):
         if version is None:
             raise ChannelAlreadyExists("Channel '%s' exists already for package '%s'" % (channel, package),
                                        {'package': package, 'channel': channel})
@@ -101,7 +103,7 @@ class ChannelBase(object):
                                        {'package': package, 'channel': channel, 'version': version})
 
     def to_dict(self):
-        r = self.releases()
-        return ({"releases": r,
+        releases = self.releases()
+        return ({"releases": releases,
                  "name": self.name,
-                 "current": self.current_release(r)})
+                 "current": self.current_release(releases)})

@@ -16,6 +16,7 @@ from cnr.exception import (CnrException,
 from cnr.models.etcd.package import Package
 from cnr.models.etcd.channel import Channel
 
+
 registry_app = Blueprint('registry', __name__,)
 
 
@@ -42,12 +43,12 @@ def test_error():
 def pull(package):
     values = getvalues()
     version = values.get("version", None)
-    r = cnr.api.impl.registry.pull(package, version, Package)
+    data = cnr.api.impl.registry.pull(package, version, Package)
     if 'format' in values and values['format'] == 'json':
-        resp = jsonify({"package": r['package'], "blob": r['blob']})
+        resp = jsonify({"package": data['package'], "blob": data['blob']})
     else:
-        resp = current_app.make_response(b64decode(r['blob']))
-        resp.headers['Content-Disposition'] = r['filename']
+        resp = current_app.make_response(b64decode(data['blob']))
+        resp.headers['Content-Disposition'] = data['filename']
         resp.mimetype = 'application/x-gzip'
     return resp
 

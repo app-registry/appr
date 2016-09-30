@@ -7,7 +7,7 @@ import io
 import os
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def authorized_files():
@@ -20,8 +20,8 @@ def authorized_files():
 
 def pack_app(app):
     tar = tarfile.open(app, "w:gz")
-    for f in authorized_files():
-        tar.add(f)
+    for filename in authorized_files():
+        tar.add(filename)
     tar.close()
 
 
@@ -55,18 +55,17 @@ class Package(object):
         self._load_blob(blob, b64_encoded)
         self.io_file = io.BytesIO(self.blob)
         self.tar = tarfile.open(fileobj=self.io_file, mode='r:gz')
-        for m in self.tar.getmembers():
-            tf = self.tar.extractfile(m)
-            if tf is not None:
-                self.files[tf.name] = tf.read()
+        for member in self.tar.getmembers():
+            tfile = self.tar.extractfile(member)
+            if tfile is not None:
+                self.files[tfile.name] = tfile.read()
 
     def extract(self, dest):
         self.tar.extractall(dest)
 
     def pack(self, dest):
-        f = open(dest, "wb")
-        f.write(self.blob)
-        f.close()
+        with open(dest, "wb") as destfile:
+            destfile.write(self.blob)
 
     def tree(self, directory=None):
         files = self.files.keys()
