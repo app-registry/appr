@@ -78,7 +78,6 @@ class CnrClient(object):
         resp.raise_for_status()
         return resp.json()
 
-
     def delete_package(self, name, version=None):
         organization, name = name.split("/")
         path = "/api/v1/packages/%s/%s" % (organization, name)
