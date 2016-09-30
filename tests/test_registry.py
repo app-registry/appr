@@ -15,8 +15,7 @@ def test_headers_without_auth():
 
 
 def test_headers_with_auth():
-    r = CnrClient()
-    r.auth.token = "titi"
+    r = CnrClient(auth="titi")
     assert sorted(r.headers.keys()) == ["Authorization", 'Content-Type', 'User-Agent']
     assert r.headers["Authorization"] == "titi"
     assert r.headers["Content-Type"] == "application/json"
@@ -103,47 +102,6 @@ def test_list_packages_orga_and_user():
         response = '{"packages": "true"}'
         m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages?username=titi&organization=ant31", complete_qs=True, text=response)
         assert json.dumps(r.list_packages(user="titi", organization="ant31")) == response
-
-
-def test_signup():
-    r = CnrClient()
-    with requests_mock.mock() as m:
-        response = '{"email": "al@cnr.sh", "token": "signup_token"}'
-        m.post(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/users", complete_qs=True, text=response)
-        sign_r = r.signup("ant31", "plop", "plop", "al@cnr.sh")
-        assert json.dumps(sign_r) == json.dumps(json.loads(response))
-        assert r.auth.token == "signup_token"
-
-
-# @TODO
-def test_signup_existing():
-    r = CnrClient()
-    with requests_mock.mock() as m:
-        response = '{"email": "al@cnr.sh", "token": "signup_token"}'
-        m.post(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/users", complete_qs=True, text=response, status_code=401)
-        with pytest.raises(requests.HTTPError):
-            sign_r = r.signup("ant31", "plop", "plop", "al@cnr.sh")
-
-
-def test_login():
-    r = CnrClient()
-    with requests_mock.mock() as m:
-        response = '{"email": "al@cnr.sh", "token": "login_token"}'
-        m.post(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/users/login", complete_qs=True, text=response)
-        login_r = r.login("ant31", "plop")
-        assert json.dumps(login_r) == json.dumps(json.loads(response))
-        assert r.auth.token == "login_token"
-
-
-def test_login_failed():
-    r = CnrClient()
-    with requests_mock.mock() as m:
-        response = '{"email": "al@cnr.sh", "token": "login_token"}'
-        m.post(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/users/login",
-               complete_qs=True,
-               text=response, status_code=401)
-        with pytest.raises(requests.HTTPError):
-            login_r = r.login("ant31", "plop")
 
 
 def test_delete_package():

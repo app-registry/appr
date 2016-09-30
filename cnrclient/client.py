@@ -3,7 +3,6 @@ import logging
 from urlparse import urlparse, urljoin
 import requests
 import cnrclient
-from cnrclient.auth import CnrAuth
 from cnrclient.discovery import ishosted, discover_sources
 
 
@@ -13,21 +12,25 @@ DEFAULT_PREFIX = "/cnr"
 
 
 class CnrClient(object):
-    def __init__(self, endpoint=DEFAULT_REGISTRY, api_prefix=DEFAULT_PREFIX):
+    def __init__(self, endpoint=DEFAULT_REGISTRY, api_prefix=DEFAULT_PREFIX, auth=None):
         self.api_prefix = api_prefix
         if endpoint is None:
             endpoint = DEFAULT_REGISTRY
+        self.auth = auth
         self.endpoint = urlparse(endpoint)
-        self.auth = CnrAuth()
         self._headers = {'Content-Type': 'application/json',
                          'User-Agent': "cnrpy-cli: %s" % cnrclient.__version__}
 
     def _url(self, path):
         return urljoin(self.endpoint.geturl(), self.endpoint.path + self.api_prefix + path)
 
+    def auth_token(self):
+        """ return the Authorization bearer """
+        return self.auth
+
     @property
     def headers(self):
-        token = self.auth.token
+        token = self.auth_token()
         headers = {}
         headers.update(self._headers)
         if token is not None:
@@ -75,30 +78,6 @@ class CnrClient(object):
         resp.raise_for_status()
         return resp.json()
 
-    def login(self, username, password):
-        path = "/api/v1/users/login"
-        self.auth.delete_token()
-        resp = requests.post(self._url(path),
-                             data=json.dumps({"user": {"username": username, "password": password}}),
-                             headers=self.headers)
-        resp.raise_for_status()
-        result = resp.json()
-        self.auth.token = result['token']
-        return result
-
-    def signup(self, username, password, password_confirmation, email):
-        path = "/api/v1/users"
-        self.auth.delete_token()
-        resp = requests.post(self._url(path),
-                             data=json.dumps({"user": {"username": username,
-                                                       "password": password,
-                                                       "password_confirmation": password_confirmation,
-                                                       "email": email}}),
-                             headers=self.headers)
-        resp.raise_for_status()
-        result = resp.json()
-        self.auth.token = result['token']
-        return result
 
     def delete_package(self, name, version=None):
         organization, name = name.split("/")
