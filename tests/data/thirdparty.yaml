@@ -1,0 +1,11 @@
+apiVersion: extensions/v1beta1
+kind: ThirdPartyResource
+metadata:
+  name: kpm.sh/kpm-package
+spec:
+  version: 1.4.3
+  namespace: kube-system
+  variables:
+    var1: value1
+    var2: value2
+  endpoint: https://kpm.kubespray.io
