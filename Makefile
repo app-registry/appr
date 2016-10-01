@@ -96,3 +96,6 @@ flake8:
 
 coveralls: test
 	coveralls
+
+pylint:
+	pylint --rcfile=~/.pylintrc cnr
