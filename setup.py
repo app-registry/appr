@@ -29,7 +29,7 @@ test_requirements = [
 ]
 
 setup(
-    name='cnr',
+    name='cnr-server',
     version='0.0.2',
     description="cloud-native app registry server",
     long_description=readme,
