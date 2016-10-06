@@ -11,6 +11,7 @@ endef
 export BROWSER_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 VERSION := `cat VERSION`
+dbclass := "cnr.models.kv.filesystem.db:FilesystemDB"
 
 help:
 	@echo "clean - remove all build, test, coverage and Python artifacts"
@@ -53,7 +54,7 @@ test-cli:
 	py.test --cov=cnr --cov=bin/cnr --cov-report=html --cov-report=term-missing  --verbose tests -m "cli" --cov-config=.coverage-cli.ini
 
 test:
-	py.test --cov=cnr --cov-report=html --cov-report=term-missing  --verbose tests -m "not cli" --cov-config=.coverage-unit.ini
+	CNR_DB_CLASSES=$(dbclass) py.test --cov=cnr --cov-report=html --cov-report=term-missing  --verbose tests --cov-config=.coverage-unit.ini -m 'not live' -m 'not redis or filesystem'
 
 test-all:
 	py.test --cov=cnr --cov-report=html --cov-report=term-missing  --verbose tests
@@ -88,7 +89,6 @@ dist: clean
 	ls -l dist
 
 install: clean
-	pip install -r requirements.txt
 	python setup.py install
 
 flake8:

@@ -1,6 +1,5 @@
-import datetime
-from cnr.exception import ChannelNotFound, ChannelAlreadyExists
 import cnr.semver as semver
+from cnr.exception import PackageVersionNotFound, raise_channel_not_found
 
 
 class ChannelBase(object):
@@ -8,32 +7,51 @@ class ChannelBase(object):
         self.package = package
         self.name = name
         self._iscreated = None
+        self.current = None
 
     def exists(self):
         return self._exists()
 
-    def _exists(self):
-        """ Check if the channel is saved already """
-        raise NotImplementedError
+    def current_release(self, releases=None):
+        if self.current:
+            return self.current
 
-    def save(self):
-        raise NotImplementedError
+        if releases is None:
+            releases = self.releases()
+        if not releases:
+            return None
+        ordered_versions = [str(x) for x in sorted(semver.versions(releases, False),
+                                                   reverse=True)]
+        return ordered_versions[0]
 
-    def delete(self):
-        raise NotImplementedError
+    def add_release(self, version, package_class):
+        if self._check_release(version, package_class) is False:
+            raise PackageVersionNotFound("Release %s doesn't exist for package %s" % (version, self.package),
+                                         {"package": self.package, "version": version})
+        if not self.exists():
+            self.save()
+        return self._add_release(version)
 
-    @classmethod
-    def all_channels(cls, package):
-        """ Returns all available channels for a package """
-        channel_names = cls.all(package)
-        result = {}
-        for channel_name in channel_names:
-            channel = cls(channel_name, package)
-            releases = channel.releases()
-            result[str(channel)] = {"releases": releases,
-                                    "name": channel_name,
-                                    "current": channel.current_release(releases)}
-        return result
+    def remove_release(self, version):
+        if not self.exists():
+            raise_channel_not_found(self.package, self.name)
+        return self._remove_release(version)
+
+    def _check_release(self, release_name, package_class):
+        version = package_class.get_version(self.package, release_name)
+        if version is None or str(version) != release_name:
+            return False
+        else:
+            return True
+
+    def to_dict(self):
+        releases = self.releases()
+        return ({"releases": releases,
+                 "name": self.name,
+                 "current": self.current_release(releases)})
+
+    def __repr__(self):
+        return "%s(%s, %s)" % (self.__class__, self.name, self.package)
 
     @classmethod
     def all(cls, package):
@@ -51,59 +69,16 @@ class ChannelBase(object):
         # etcdctl put /{self.package/channels/{self.name}/version
         raise NotImplementedError
 
-    def current_release(self, releases=None):
-        if releases is None:
-            releases = self.releases()
-        if not releases:
-            return None
-        ordered_versions = [str(x) for x in sorted(semver.versions(releases, False),
-                                                   reverse=True)]
-        return ordered_versions[0]
+    def _exists(self):
+        """ Check if the channel is saved already """
+        raise NotImplementedError
 
-    def add_release(self, version, package_class):
-        if self._check_release(version, package_class) is False:
-            raise ValueError("Release %s doesn't exist for package %s" % (version, self.package))
-        if not self.exists():
-            self.save()
-        return self._add_release(version)
+    def save(self, force=False):
+        raise NotImplementedError
 
-    def remove_release(self, version):
-        if not self.exists():
-            self.save()
-        return self._remove_release(version)
-
-    def _check_release(self, release_name, package_class):
-        version = package_class.get_version(self.package, release_name)
-        if version is None or str(version) != release_name:
-            return False
-        else:
-            return True
-
-    def _new_chan_release(self, version):
-        data = {'release': version,
-                'created_at': datetime.datetime.utcnow().isoformat()}
-        return data
+    def delete(self):
+        raise NotImplementedError
 
     @classmethod
-    def _raise_not_found(cls, package, channel=None, version=None):
-        if channel is None:
-            raise ChannelNotFound("No channel found for package '%s'" % (package),
-                                  {'package': package})
-        else:
-            raise ChannelNotFound("Channel '%s' doesn't exist for package '%s'" % (channel, package),
-                                  {'channel': channel, 'package': package, 'version': version})
-
-    @classmethod
-    def _raise_already_exists(cls, channel, package, version=None):
-        if version is None:
-            raise ChannelAlreadyExists("Channel '%s' exists already for package '%s'" % (channel, package),
-                                       {'package': package, 'channel': channel})
-        else:
-            raise ChannelAlreadyExists("Realease '%s' exists already in channel '%s'" % (version, channel),
-                                       {'package': package, 'channel': channel, 'version': version})
-
-    def to_dict(self):
-        releases = self.releases()
-        return ({"releases": releases,
-                 "name": self.name,
-                 "current": self.current_release(releases)})
+    def dump_all(cls, package_class=None):
+        """ produce a dict with all packages """

@@ -11,14 +11,18 @@ except ImportError:
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
+
 requirements = [
     'futures',
+    'redis',
     'python-etcd',
     'semantic_version',
+    'peewee',
     'flask',
     'Flask>=0.10.1',
     'flask-cors',
 ]
+
 
 test_requirements = [
     "pytest",
@@ -27,6 +31,7 @@ test_requirements = [
     "pytest-ordering",
     "requests-mock"
 ]
+
 
 setup(
     name='cnr-server',
@@ -38,10 +43,14 @@ setup(
     url='https://github.com/ant31/cn-app-registry/cnr-server',
     packages=[
         'cnr',
+        'cnr.tests',
         'cnr.api',
         'cnr.api.impl',
         'cnr.models',
-        'cnr.models.etcd'
+        'cnr.models.kv',
+        'cnr.models.kv.etcd',
+        'cnr.models.kv.redis',
+        'cnr.models.kv.filesystem',
     ],
     package_dir={'cnr':
                  'cnr'},
@@ -58,5 +67,10 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
     test_suite='tests',
+    setup_requries=['pytest-runner'],
     tests_require=test_requirements,
+    dependency_links=[
+        'https://github.com/jplana/python-etcd/archive/0d0145f5e835aa032c97a0a5e09c4c68b7a03f66.zip#egg=python-etcd'
+    ]
+
 )
