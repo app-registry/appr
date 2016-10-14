@@ -106,7 +106,7 @@ def push(package, version, blob, force, package_class):
        * :obj:`cnr.api.registry.push`
 
     """
-    p = package_class(package, version, blob)
+    p = package_class(package, version, 'kpm', blob)
     p.save(force=force)
     return {"status": "ok"}
 
@@ -139,8 +139,7 @@ def search(query, package_class):
        * :obj:`cnr.api.registry.search`
 
     """
-    p = package_class.search(query)
-    return p
+    return package_class.search(query)
 
 
 def list_packages(namespace, package_class):
@@ -251,14 +250,16 @@ def show_package(package,
     """
     stable = False
     packagemodel = _get_package(package, version, package_class)
-    manifest = packagemodel.manifest()
-    response = {"manifest": packagemodel.packager.manifest,
+    # manifest = packagemodel.manifest()
+    # optional = {"manifest": packagemodel.packager.manifest,
+    # "variables": manifest.variables,
+    # "dependencies": manifest.dependencies}
+
+    response = {
                 "version": packagemodel.version,
                 "name":  package,
                 "created_at": packagemodel.created_at,
                 "digest": packagemodel.digest,
-                "variables": manifest.variables,
-                "dependencies": manifest.dependencies,
                 "channels": packagemodel.channels(channel_class),
                 "available_releases": [str(x) for x in sorted(semver.versions(packagemodel.versions(), stable),
                                                               reverse=True)]}

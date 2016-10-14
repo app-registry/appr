@@ -15,15 +15,14 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
     setting = os.getenv('APP_ENV', "development")
-
     if setting != 'production':
         app.config.from_object('cnr.api.config.DevelopmentConfig')
     else:
         app.config.from_object('cnr.api.config.ProductionConfig')
     from cnr.api.info import info_app
     from cnr.api.registry import registry_app
-    app.register_blueprint(info_app, url_prefix='/cnr')
-    app.register_blueprint(registry_app, url_prefix='/cnr')
+    app.register_blueprint(info_app, url_prefix='')
+    app.register_blueprint(registry_app, url_prefix='')
     app.logger.info("Start service")
     return app
 

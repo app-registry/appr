@@ -41,9 +41,19 @@ class PackageNotFound(CnrException):
     errorcode = "package-not-found"
 
 
+class ResourceNotFound(CnrException):
+    status_code = 404
+    errorcode = "resource-not-found"
+
+
 class ChannelNotFound(CnrException):
     status_code = 404
     errorcode = "channel-not-found"
+
+
+class Forbidden(CnrException):
+    status_code = 403
+    errorcode = "forbidden"
 
 
 class PackageVersionNotFound(CnrException):
@@ -54,3 +64,27 @@ class PackageVersionNotFound(CnrException):
 class UnauthorizedAccess(CnrException):
     status_code = 401
     errorcode = "unauthorized-access"
+
+
+class Unsupported(CnrException):
+    status_code = 501
+    errorcode = "unsupported"
+
+
+class UnableToLockResource(CnrException):
+    status_code = 409
+    errorcode = "resource-in-use"
+
+
+def raise_package_not_found(package, version=None, media_type=None):
+    raise PackageNotFound("package %s doesn't exist, v: %s, type: %s" % (package, str(version), str(media_type)),
+                          {'package': package, 'version': version, 'media_type': media_type})
+
+
+def raise_channel_not_found(package, channel=None, version=None):
+    if channel is None:
+        raise ChannelNotFound("No channel found for package '%s'" % (package),
+                              {'package': package})
+    else:
+        raise ChannelNotFound("Channel '%s' doesn't exist for package '%s'" % (channel, package),
+                              {'channel': channel, 'package': package, 'version': version})

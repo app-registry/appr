@@ -31,6 +31,7 @@ def unpack_app(app, dest="."):
     tar.close()
 
 
+# @TODO RENAME CLASS
 class Package(object):
     def __init__(self, blob=None, b64_encoded=True):
         self.files = {}

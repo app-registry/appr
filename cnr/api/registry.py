@@ -6,23 +6,28 @@ import cnr.api.impl.registry
 from cnr.exception import (CnrException,
                            InvalidUsage,
                            InvalidVersion,
+                           UnableToLockResource,
+                           UnauthorizedAccess,
+                           Unsupported,
                            PackageAlreadyExists,
                            ChannelAlreadyExists,
                            PackageNotFound,
                            ChannelNotFound,
                            PackageVersionNotFound)
 
-# @TODO chose data model from configuration
-from cnr.models.etcd.package import Package
-from cnr.models.etcd.channel import Channel
+from cnr.models import Package
+from cnr.models import Channel
 
 
 registry_app = Blueprint('registry', __name__,)
 
 
+@registry_app.errorhandler(Unsupported)
 @registry_app.errorhandler(PackageAlreadyExists)
 @registry_app.errorhandler(ChannelAlreadyExists)
 @registry_app.errorhandler(InvalidVersion)
+@registry_app.errorhandler(UnableToLockResource)
+@registry_app.errorhandler(UnauthorizedAccess)
 @registry_app.errorhandler(PackageNotFound)
 @registry_app.errorhandler(PackageVersionNotFound)
 @registry_app.errorhandler(CnrException)
@@ -54,15 +59,15 @@ def pull(package):
 
 
 @registry_app.route("/api/v1/packages", methods=['POST'], strict_slashes=False)
-def push():
+@registry_app.route("/api/v1/packages/<path:package>", methods=['POST'], strict_slashes=False)
+def push(package=None):
     values = getvalues()
     blob = values['blob']
-    package = values['package']
+    package = values.get('package', package)
     version = values['version']
     force = False
     if 'force' in values:
-        force = 'true' == values['force']
-
+        force = ('true' == values['force'])
     r = cnr.api.impl.registry.push(package, version, blob, force, Package)
     return jsonify(r)
 
