@@ -36,7 +36,8 @@ class PackageKvBase(PackageBase):
             releaseindex = cls.index_class(package_name)
             for release in releaseindex.releases():
                 for _, package_data in releaseindex.release_manifests(release).iteritems():
-                    package_data['channels'] = cls.index_class(package_name).release_channels(release)
+                    package_data['channels'] = releaseindex.release_channels(release)
+                    package_data['blob'] = releaseindex.get_blob(package_data['content']['digest'])
                     result.append(package_data)
         return result
 

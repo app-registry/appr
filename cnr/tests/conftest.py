@@ -1,6 +1,7 @@
 import os
 import json
 import pytest
+from cnr.models.db_base import CnrDB
 from cnr.utils import symbol_by_name
 
 
@@ -153,6 +154,11 @@ def kv_prefix(monkeypatch):
     monkeypatch.setenv("CNR_KV_PREFIX", "cnr-tests/packages/")
 
 
+@pytest.fixture()
+def db():
+    return CnrDB
+
+
 @pytest.fixture(scope='session')
 def dbdata1():
     with open(LOCAL_DIR + "/data/backup1.json", "rb") as f:
@@ -166,8 +172,10 @@ def db_class(db, monkeypatch, kv_prefix):
     monkeypatch.setattr('cnr.models.CnrDB', db)
     monkeypatch.setattr('cnr.models.Package', db.Package)
     monkeypatch.setattr('cnr.models.Channel', db.Channel)
+    monkeypatch.setattr('cnr.models.Blob', db.Blob)
     monkeypatch.setattr('cnr.api.registry.Package', db.Package)
     monkeypatch.setattr('cnr.api.registry.Channel', db.Channel)
+    monkeypatch.setattr('cnr.api.registry.Blob', db.Blob)
     return db
 
 

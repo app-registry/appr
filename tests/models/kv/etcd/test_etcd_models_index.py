@@ -2,6 +2,7 @@ import json
 import etcd
 import pytest
 from cnr.models.kv.etcd.package import Package
+from cnr.models.kv.etcd.blob import Blob
 from cnr.exception import (
     InvalidVersion,
     UnableToLockResource
@@ -92,5 +93,5 @@ def test_locked(monkeypatch, package_b64blob):
     monkeypatch.setattr("cnr.models.kv.etcd.etcd_client.read", read)
     monkeypatch.setattr("cnr.models.kv.etcd.etcd_client.write", write)
     with pytest.raises(UnableToLockResource):
-        p = Package('a/b', "1.0.1", 'kpm', package_b64blob)
+        p = Package('a/b', "1.0.1", 'kpm', Blob("a/b", package_b64blob))
         p.save()

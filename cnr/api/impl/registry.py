@@ -35,10 +35,10 @@ def _get_package(package, version_query, media_type, package_class):
 
 def pull_blob(package, digest, blob_class):
     blob = blob_class.get(package, digest)
-    return blob.blob
+    return blob.b64blob
 
 
-def pull(package, version, media_type, package_class):
+def pull(package, version, media_type, package_class, blob_class):
     """
     Retrives the package blob from the datastore
 
@@ -74,8 +74,9 @@ def pull(package, version, media_type, package_class):
     """
 
     packagemodel = _get_package(package, version, media_type, package_class=package_class)
+    blob = blob_class.get(package, packagemodel.digest)
     resp = {"package": package,
-            "blob": packagemodel.blob,
+            "blob": blob.b64blob,
             "version": packagemodel.version,
             "filename": "%s_%s.tar.gz" % (packagemodel.package.replace("/", "_"), packagemodel.version)}
     return resp

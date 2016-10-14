@@ -6,8 +6,8 @@ from cnr.exception import (InvalidVersion,
                            PackageAlreadyExists,
                            raise_package_not_found,
                            PackageVersionNotFound)
-from cnr.models import Blob, DEFAULT_MEDIA_TYPE
-
+from cnr.models import DEFAULT_MEDIA_TYPE
+from cnr.models.blob_base import BlobBase
 
 SCHEMA_VERSION = "v1"
 
@@ -15,7 +15,7 @@ SCHEMA_VERSION = "v1"
 class PackageBase(object):
 
     def __init__(self, package_name, version=None,
-                 media_type=DEFAULT_MEDIA_TYPE, b64blob=None):
+                 media_type=DEFAULT_MEDIA_TYPE, blob=None):
         self.package = package_name
         self.media_type = media_type
         self.namespace, self.name = package_name.split("/")
@@ -26,8 +26,19 @@ class PackageBase(object):
         self._blob = None
         self._blob_size = 0
         self._digest = None
-        if b64blob:
-            self.set_blob(b64blob)
+        self._blob = None
+        self.blob = blob
+
+    @property
+    def blob(self):
+        return self._blob
+
+    @blob.setter
+    def blob(self, value):
+        if value is not None:
+            if not isinstance(value, BlobBase):
+                raise ValueError("blob must be a BlobBase instance")
+        self._blob = value
 
     def channels(self, channel_class):
         """ Returns all available channels for a package """
@@ -38,15 +49,6 @@ class PackageBase(object):
             if self.version in releases:
                 result.append(channel)
         return result
-
-    @property
-    def blob(self):
-        if not self._blob:
-            self._blob = Blob.get(self.package, self.digest)
-        return self._blob
-
-    def set_blob(self, value):
-        self._blob = Blob(self.package, value)
 
     @property
     def digest(self):
@@ -189,6 +191,6 @@ class PackageBase(object):
         raise NotImplementedError
 
     @classmethod
-    def dump_all(cls):
+    def dump_all(cls, blob_cls):
         """ produce a dict with all packages """
         raise NotImplementedError

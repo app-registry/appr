@@ -2,6 +2,7 @@ import json
 import os
 
 from cnr.exception import (Forbidden, PackageAlreadyExists)
+from cnr.models.blob_base import BlobBase
 from cnr.models.channel_base import ChannelBase
 from cnr.models.package_base import PackageBase
 
@@ -9,6 +10,7 @@ from cnr.models.package_base import PackageBase
 class CnrDB(object):
     Channel = ChannelBase
     Package = PackageBase
+    Blob = BlobBase
 
     @classmethod
     def restore_backup(cls, data):
@@ -18,22 +20,25 @@ class CnrDB(object):
         for package_data in data['packages']:
             i += 1
             package = cls.Package(package_data['package'],
-                                  package_data['release'],
-                                  package_data['media_type'])
+                                  package_data['release'])
+
             package.data = package_data
+            package.blob = cls.Blob(package.package, package_data['blob'])
             try:
                 package.save(False)
-                print '%s/%s  restored: %s(%s) - %s' % (str(i), str(size),
-                                                        package.package, package.version, package.media_type)
+
+                # print '%s/%s  restored: %s(%s) - %s' % (str(i), str(size),
+                #                                        package.package, package.version, package.media_type)
             except PackageAlreadyExists:
-                print '%s/%s  existed: %s(%s) - %s' % (str(i), str(size),
-                                                       package.package, package.version, package.media_type)
+                pass
+                # print '%s/%s  existed: %s(%s) - %s' % (str(i), str(size),
+                #                                   package.package, package.version, package.media_type)
 
             for channel_name in package_data['channels']:
                 channel = cls.Channel(channel_name, package.package)
                 channel.add_release(package.version, cls.Package)
-                print "%s/%s  restored-channel-release: %s, %s, %s" % (str(i), str(size),
-                                                                       channel.package, channel.name, package.version)
+                # print "%s/%s  restored-channel-release: %s, %s, %s" % (str(i), str(size),
+                #                                                       channel.package, channel.name, package.version)
 
         i = 0
         size = len(data['channels'])
@@ -61,7 +66,7 @@ class CnrDB(object):
 
     @classmethod
     def backup(cls):
-        data = {'packages': cls.Package.dump_all(),
+        data = {'packages': cls.Package.dump_all(cls.Blob),
                 'channels': cls.Channel.dump_all()}
         return data
 

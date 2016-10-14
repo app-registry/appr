@@ -51,7 +51,7 @@ def test_error():
 def blobs(package, digest):
     data = cnr.api.impl.registry.pull_blob(package, digest, blob_class=Blob)
     resp = current_app.make_response(data)
-    resp.headers['Content-Disposition'] = "%s_%s.tar.gz" % (package.replace("/", "_"), digest)
+    resp.headers['Content-Disposition'] = "%s_%s.tar.gz" % (package.replace("/", "_"), digest[0:8])
     resp.mimetype = 'application/x-gzip'
     return resp
 
@@ -62,7 +62,7 @@ def pull(package):
     version = values.get("version", None)
     media_type = values.get('media_type',
                             request.headers.get('Content-Type', DEFAULT_MEDIA_TYPE))
-    data = cnr.api.impl.registry.pull(package, version, media_type, Package)
+    data = cnr.api.impl.registry.pull(package, version, media_type, Package, blob_class=Blob)
     if 'format' in values and values['format'] == 'json':
         resp = jsonify({"package": data['package'], "blob": data['blob']})
     else:
@@ -76,11 +76,11 @@ def pull(package):
 @registry_app.route("/api/v1/packages/<path:package>", methods=['POST'], strict_slashes=False)
 def push(package=None):
     values = getvalues()
-    blob = values['blob']
     package = values.get('package', package)
     version = values['version']
     media_type = values.get('media_type', DEFAULT_MEDIA_TYPE)
     force = (values.get('force', 'false') == 'true')
+    blob = Blob(package, values['blob'])
     r = cnr.api.impl.registry.push(package, version, media_type, blob, force, Package)
     return jsonify(r)
 
