@@ -20,3 +20,6 @@ class FilesystemDB(CnrDB):
             filesystem_client.flushall(cnr.models.kv.CNR_KV_PREFIX)
         else:
             raise Forbidden("Reset DB is deactivated")
+
+
+CnrDB = FilesystemDB

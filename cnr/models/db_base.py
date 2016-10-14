@@ -2,8 +2,8 @@ import json
 import os
 
 from cnr.exception import (Forbidden, PackageAlreadyExists)
-from cnr.models.package_base import PackageBase
 from cnr.models.channel_base import ChannelBase
+from cnr.models.package_base import PackageBase
 
 
 class CnrDB(object):

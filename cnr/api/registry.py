@@ -15,6 +15,7 @@ from cnr.exception import (CnrException,
                            ChannelNotFound,
                            PackageVersionNotFound)
 
+from cnr.models import Blob, DEFAULT_MEDIA_TYPE
 from cnr.models import Package
 from cnr.models import Channel
 
@@ -44,11 +45,24 @@ def test_error():
     raise InvalidUsage("error message", {"path": request.path})
 
 
+@registry_app.route("/api/v1/packages/<path:package>/blobs/sha256/<string:digest>",
+                    methods=['GET'],
+                    strict_slashes=False)
+def blobs(package, digest):
+    data = cnr.api.impl.registry.pull_blob(package, digest, blob_class=Blob)
+    resp = current_app.make_response(data)
+    resp.headers['Content-Disposition'] = "%s_%s.tar.gz" % (package.replace("/", "_"), digest)
+    resp.mimetype = 'application/x-gzip'
+    return resp
+
+
 @registry_app.route("/api/v1/packages/<path:package>/pull", methods=['GET'], strict_slashes=False)
 def pull(package):
     values = getvalues()
     version = values.get("version", None)
-    data = cnr.api.impl.registry.pull(package, version, Package)
+    media_type = values.get('media_type',
+                            request.headers.get('Content-Type', DEFAULT_MEDIA_TYPE))
+    data = cnr.api.impl.registry.pull(package, version, media_type, Package)
     if 'format' in values and values['format'] == 'json':
         resp = jsonify({"package": data['package'], "blob": data['blob']})
     else:
@@ -65,10 +79,9 @@ def push(package=None):
     blob = values['blob']
     package = values.get('package', package)
     version = values['version']
-    force = False
-    if 'force' in values:
-        force = ('true' == values['force'])
-    r = cnr.api.impl.registry.push(package, version, blob, force, Package)
+    media_type = values.get('media_type', DEFAULT_MEDIA_TYPE)
+    force = (values.get('force', 'false') == 'true')
+    r = cnr.api.impl.registry.push(package, version, media_type, blob, force, Package)
     return jsonify(r)
 
 
@@ -100,7 +113,10 @@ def search_reindex():
 def show_package(package):
     values = getvalues()
     version = values.get("version", 'default')
+    media_type = values.get('media_type',
+                            request.headers.get('Content-Type', DEFAULT_MEDIA_TYPE))
     r = cnr.api.impl.registry.show_package(package, version,
+                                           media_type,
                                            channel_class=Channel,
                                            package_class=Package)
     return jsonify(r)
@@ -159,7 +175,10 @@ def delete_package(namespace, name):
     package = "%s/%s" % (namespace, name)
     values = getvalues()
     version = values.get("version", "default")
-    r = cnr.api.impl.registry.delete_package(package, version,
-                                             package_class=Package,
-                                             channel_class=Channel)
+    media_type = values.get('media_type',
+                            request.headers.get('Content-Type', DEFAULT_MEDIA_TYPE))
+    r = cnr.api.impl.registry.delete_package(package,
+                                             version,
+                                             media_type,
+                                             package_class=Package)
     return jsonify(r)

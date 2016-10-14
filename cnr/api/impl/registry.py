@@ -1,11 +1,9 @@
 import logging
-import cnr.semver as semver
-
 
 logger = logging.getLogger(__name__)
 
 
-def _get_package(package, version_query, package_class):
+def _get_package(package, version_query, media_type, package_class):
     """
       Fetch the package data from the datastore
       and instantiate a :obj:`cnr.models.package_base.PackageModelBase`
@@ -31,11 +29,16 @@ def _get_package(package, version_query, package_class):
 
     if version_query is None:
         version_query = 'default'
-    p = package_class.get(package, version_query)
+    p = package_class.get(package, version_query, media_type)
     return p
 
 
-def pull(package, version, package_class):
+def pull_blob(package, digest, blob_class):
+    blob = blob_class.get(package, digest)
+    return blob.blob
+
+
+def pull(package, version, media_type, package_class):
     """
     Retrives the package blob from the datastore
 
@@ -70,7 +73,7 @@ def pull(package, version, package_class):
 
     """
 
-    packagemodel = _get_package(package, version, package_class=package_class)
+    packagemodel = _get_package(package, version, media_type, package_class=package_class)
     resp = {"package": package,
             "blob": packagemodel.blob,
             "version": packagemodel.version,
@@ -78,7 +81,7 @@ def pull(package, version, package_class):
     return resp
 
 
-def push(package, version, blob, force, package_class):
+def push(package, version, media_type, blob, force, package_class):
     """
     Push a new package release in the the datastore
 
@@ -106,7 +109,7 @@ def push(package, version, blob, force, package_class):
        * :obj:`cnr.api.registry.push`
 
     """
-    p = package_class(package, version, 'kpm', blob)
+    p = package_class(package, version, media_type, blob)
     p.save(force=force)
     return {"status": "ok"}
 
@@ -189,6 +192,7 @@ def list_packages(namespace, package_class):
 
 def show_package(package,
                  version,
+                 media_type,
                  channel_class,
                  package_class):
     """
@@ -248,21 +252,14 @@ def show_package(package,
     See Also:
        * :obj:`cnr.api.registry.show_package`
     """
-    stable = False
-    packagemodel = _get_package(package, version, package_class)
+    packagemodel = _get_package(package, version, media_type, package_class)
     # manifest = packagemodel.manifest()
     # optional = {"manifest": packagemodel.packager.manifest,
     # "variables": manifest.variables,
     # "dependencies": manifest.dependencies}
 
-    response = {
-                "version": packagemodel.version,
-                "name":  package,
-                "created_at": packagemodel.created_at,
-                "digest": packagemodel.digest,
-                "channels": packagemodel.channels(channel_class),
-                "available_releases": [str(x) for x in sorted(semver.versions(packagemodel.versions(), stable),
-                                                              reverse=True)]}
+    response = {"channels": packagemodel.channels(channel_class)}
+    response.update(packagemodel.data)
     return response
 
 
@@ -396,7 +393,7 @@ def delete_channel(package, name, channel_class):
     return {"channel": channel.name, "package": package, "action": 'delete'}
 
 
-def delete_package(package, version, package_class, channel_class):
-    packagemodel = _get_package(package, version, package_class)
-    package_class.delete(packagemodel.package, packagemodel.version, channel_class)
-    return {"status": "delete", "package": packagemodel.package, "version": packagemodel.version}
+def delete_package(package, version, media_type, package_class):
+    packagemodel = _get_package(package, version, media_type, package_class)
+    package_class.delete(packagemodel.package, packagemodel.version, media_type)
+    return {"status": "deleted", "package": packagemodel.package, "version": packagemodel.version}

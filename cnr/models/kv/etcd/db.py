@@ -24,3 +24,6 @@ class EtcdDB(CnrDB):
                 pass
         else:
             raise Forbidden("Reset DB is deactivated")
+
+
+CnrDB = EtcdDB

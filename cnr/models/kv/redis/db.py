@@ -20,3 +20,6 @@ class RedisDB(CnrDB):
             redis_client.flushall()
         else:
             raise Forbidden("Reset DB is deactivated")
+
+
+CnrDB = RedisDB

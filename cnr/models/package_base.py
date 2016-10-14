@@ -1,19 +1,21 @@
+import re
 import datetime
 import semantic_version
-import cnr.packager as packager
 from cnr.semver import last_version, select_version
 from cnr.exception import (InvalidVersion,
                            PackageAlreadyExists,
                            raise_package_not_found,
                            PackageVersionNotFound)
+from cnr.models import Blob, DEFAULT_MEDIA_TYPE
 
 
-DEFAULT_MEDIA_TYPE = 'kpm'
+SCHEMA_VERSION = "v1"
 
 
 class PackageBase(object):
+
     def __init__(self, package_name, version=None,
-                 media_type=DEFAULT_MEDIA_TYPE, blob=None):
+                 media_type=DEFAULT_MEDIA_TYPE, b64blob=None):
         self.package = package_name
         self.media_type = media_type
         self.namespace, self.name = package_name.split("/")
@@ -21,7 +23,11 @@ class PackageBase(object):
         self._data = None
         self.created_at = None
         self.packager = None
-        self.blob = blob
+        self._blob = None
+        self._blob_size = 0
+        self._digest = None
+        if b64blob:
+            self.set_blob(b64blob)
 
     def channels(self, channel_class):
         """ Returns all available channels for a package """
@@ -35,18 +41,41 @@ class PackageBase(object):
 
     @property
     def blob(self):
-        if self.packager is not None:
-            return self.packager.b64blob
+        if not self._blob:
+            self._blob = Blob.get(self.package, self.digest)
+        return self._blob
 
-    @blob.setter
-    def blob(self, value):
-        if value is not None:
-            self.packager = packager.Package(value)
+    def set_blob(self, value):
+        self._blob = Blob(self.package, value)
 
     @property
     def digest(self):
-        if self.packager is not None:
-            return self.packager.digest
+        if not self._digest and self.blob:
+            self._digest = self.blob.digest
+        return self._digest
+
+    @property
+    def blob_size(self):
+        if not self._blob_size and self.blob:
+            self._blob_size = self.blob.size
+        return self._blob_size
+
+    @property
+    def content_media_type(self):
+        return "application/vnd.cnr.package.%s.%s.tar+gzip" % (self.media_type, SCHEMA_VERSION)
+
+    @property
+    def manifest_media_type(self):
+        return "application/vnd.cnr.package-manifest.%s.%s+json" % (self.media_type, SCHEMA_VERSION)
+
+    def set_media_type(self, mediatype):
+        self.media_type = re.match(r"application/vnd\.cnr\.package-manifest\.(.+?)\.(.+)+json", mediatype).group(1)
+
+    def content_descriptor(self):
+        return {"mediaType": self.content_media_type,
+                "size": self.blob_size,
+                "digest": self.digest,
+                "urls": []}
 
     @property
     def data(self):
@@ -54,20 +83,19 @@ class PackageBase(object):
             self._data = {'created_at': datetime.datetime.utcnow().isoformat()}
         d = {"package": self.package,
              "release": self.version,
-             "media_type": self.media_type,
-             "blob": self.blob,
-             "digest": self.digest}
-
+             "mediaType": self.manifest_media_type,
+             "content": self.content_descriptor()}
         self._data.update(d)
         return self._data
 
     @data.setter
     def data(self, data):
         self._data = data
-        self.blob = data['blob']
         self.created_at = data['created_at']
         self.version = data['release']
-#        self.media_type = data['media_type']
+        self._digest = data['content']['digest']
+        self._blob_size = data['content']['size']
+        self.set_media_type(data['mediaType'])
 
     @classmethod
     def check_version(cls, version):
@@ -119,6 +147,7 @@ class PackageBase(object):
         if self.isdeleted_release(self.package, self.version) and not force:
             raise PackageAlreadyExists("Package release %s existed" % self.package,
                                        {"package": self.package, "version": self.version})
+        self.blob.save()
         self._save(force)
 
     def versions(self):
