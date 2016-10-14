@@ -1,3 +1,4 @@
+import json
 import datetime
 from cnr.exception import (ResourceNotFound,
                            raise_channel_not_found,
@@ -32,6 +33,34 @@ class ModelsIndexBase(object):
             except ResourceNotFound:
                 raise_package_not_found(self.package)
         return self._releases
+
+    def blob_key(self, digest, mod="sha256"):
+        return "%s/digests/%s/%s" % (self.package, mod, digest)
+
+    def add_blob(self, b64blob, digest):
+        try:
+            path = self.blob_key(digest)
+            self.get_lock(path)
+            self._write_raw_data(path, b64blob)
+            return True
+        finally:
+            self.release_lock(path)
+
+    def delete_blob(self, digest):
+        try:
+            path = self.blob_key(digest)
+            self.get_lock(path)
+            self._delete_data(path)
+            return True
+        finally:
+            self.release_lock(path)
+
+    def get_blob(self, digest):
+        try:
+            path = self.blob_key(digest)
+            return self._fetch_raw_data(path)
+        except ResourceNotFound:
+            raise_package_not_found(self.package, digest)
 
     def add_package(self, package_name):
         try:
@@ -88,19 +117,16 @@ class ModelsIndexBase(object):
     def delete_release(self, release, media_type):
         try:
             self.get_lock(self.releases_key)
-            try:
-                data = self.releases_data
-                if release not in data['releases'] or media_type not in data['releases'][release]['manifests']:
-                    raise_package_not_found(self.package)
-                data['releases'][release]['manifests'].pop(media_type)
-                if not data['releases'][release]['manifests']:
-                    data['releases'].pop(release)
-                if not data['releases']:
-                    self.delete_package(self.package)
-                self._write_data(self.releases_key, data)
-                return True
-            except PackageNotFound:
-                return False
+            data = self.releases_data
+            if release not in data['releases'] or media_type not in data['releases'][release]['manifests']:
+                raise_package_not_found(self.package)
+            data['releases'][release]['manifests'].pop(media_type)
+            if not data['releases'][release]['manifests']:
+                data['releases'].pop(release)
+            if not data['releases']:
+                self.delete_package(self.package)
+            self._write_data(self.releases_key, data)
+            return True
         finally:
             self.release_lock(self.releases_key)
 
@@ -291,7 +317,16 @@ class ModelsIndexBase(object):
         raise NotImplementedError
 
     def _fetch_data(self, key):
+        return json.loads(self._fetch_raw_data(key))
+
+    def _fetch_raw_data(self, key):
         raise NotImplementedError
 
     def _write_data(self, key, data):
+        return self._write_raw_data(key, json.dumps(data))
+
+    def _write_raw_data(self, key, data):
+        raise NotImplementedError
+
+    def _delete_data(self, key):
         raise NotImplementedError

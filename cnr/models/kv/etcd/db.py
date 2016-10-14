@@ -8,11 +8,13 @@ import cnr.models.kv
 from cnr.models.kv.etcd import etcd_client
 from cnr.models.kv.etcd.package import Package
 from cnr.models.kv.etcd.channel import Channel
+from cnr.models.kv.etcd.blob import Blob
 
 
 class EtcdDB(CnrDB):
     Channel = Channel
     Package = Package
+    Blob = Blob
 
     @classmethod
     def reset_db(cls, force=False):
@@ -24,3 +26,6 @@ class EtcdDB(CnrDB):
                 pass
         else:
             raise Forbidden("Reset DB is deactivated")
+
+
+CnrDB = EtcdDB

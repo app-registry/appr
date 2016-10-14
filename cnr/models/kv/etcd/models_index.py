@@ -1,4 +1,3 @@
-import json
 import time
 import etcd
 
@@ -10,17 +9,24 @@ from cnr.exception import (UnableToLockResource,
 
 
 class ModelsIndexEtcd(ModelsIndexBase):
-    def _fetch_data(self, path):
+    def _fetch_raw_data(self, path):
         path = cnr.models.kv.CNR_KV_PREFIX + path
         try:
-            package_data = json.loads(etcd_client.read(path).value)
+            data = etcd_client.read(path).value
         except etcd.EtcdKeyError as excp:
             raise ResourceNotFound(excp.message, {"path": path})
-        return package_data
+        return data
 
-    def _write_data(self, key, data):
+    def _write_raw_data(self, key, data):
         path = cnr.models.kv.CNR_KV_PREFIX + key
-        etcd_client.write(path, json.dumps(data))
+        etcd_client.write(path, data)
+
+    def _delete_data(self, key):
+        path = cnr.models.kv.CNR_KV_PREFIX + key
+        try:
+            etcd_client.delete(path)
+        except etcd.EtcdKeyError:
+            pass
 
     def _get_lock(self, lock_key, ttl=3, timeout=4):
         if timeout is not None:
@@ -39,7 +45,4 @@ class ModelsIndexEtcd(ModelsIndexBase):
         return "%s%s.lock" % (cnr.models.kv.CNR_KV_PREFIX, key)
 
     def _release_lock(self, lock_key):
-        try:
-            etcd_client.delete(lock_key)
-        except etcd.EtcdKeyError:
-            pass
+        return self._delete_data(lock_key.replace(cnr.models.kv.CNR_KV_PREFIX, ""))

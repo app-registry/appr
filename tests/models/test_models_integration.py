@@ -1,5 +1,5 @@
 import pytest
-from cnr.tests.models import CnrTestModels
+from cnr.tests.test_models import CnrTestModels
 
 
 @pytest.mark.redis

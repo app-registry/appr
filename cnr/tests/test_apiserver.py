@@ -1,3 +1,4 @@
+import os
 import urllib
 import json
 import requests
@@ -43,9 +44,9 @@ class BaseTestServer(object):
     def _url_for(self, path):
         return "/" + self.api_prefix + path
 
-    @pytest.fixture(autouse=True)
-    def api_prefix(self, api_prefix):
-        self.api_prefix = api_prefix
+    @property
+    def api_prefix(self):
+        return os.getenv("CNR_API_PREFIX", "")
 
     def test_version(self, client):
         url = self._url_for("version")
@@ -90,7 +91,8 @@ class BaseTestServer(object):
         res = self.Client(client).get(url, params={'version': '1.0.1', 'media_type': 'kpm', 'format': 'json'})
         assert res.status_code == 200
         p = db_with_data1.Package.get('titi/rocketchat', '1.0.1', 'kpm')
-        assert self.json(res)['blob'] == p.blob
+        blob = db_with_data1.Blob.get(p.package, p.digest)
+        assert self.json(res)['blob'] == blob.b64blob
 
     def test_push_package(self, newdb, package_b64blob, client):
         package = "titi/rocketchat"
@@ -100,7 +102,8 @@ class BaseTestServer(object):
                                                   'blob': package_b64blob})
         assert res.status_code == 200
         p = newdb.Package.get('titi/rocketchat', '2.4.1', 'kpm')
-        assert p.blob == package_b64blob
+        blob = newdb.Blob.get(p.package, p.digest)
+        assert blob.b64blob == package_b64blob
 
     def test_push_package_url2(self, newdb, package_b64blob, client):
         package = "titi/rocketchat"
@@ -111,7 +114,8 @@ class BaseTestServer(object):
                                                   'blob': package_b64blob})
         assert res.status_code == 200
         p = newdb.Package.get('titi/rocketchat', '2.4.1', 'kpm')
-        assert p.blob == package_b64blob
+        blob = newdb.Blob.get(p.package, p.digest)
+        assert blob.b64blob == package_b64blob
 
     def test_push_package_bad_version(self, newdb, package_b64blob, client):
         package = "titi/rocketchat"

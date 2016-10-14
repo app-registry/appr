@@ -39,6 +39,7 @@ class Package(object):
         self.blob = None
         self.io_file = None
         self._digest = None
+        self._size = None
         self.b64blob = None
         if blob is not None:
             self.load(blob, b64_encoded)
@@ -79,6 +80,13 @@ class Package(object):
 
     def file(self, filename):
         return self.files[filename]
+
+    @property
+    def size(self):
+        if self._size is None:
+            self.io_file.seek(0, os.SEEK_END)
+            self._size = self.io_file.tell()
+        return self._size
 
     @property
     def digest(self):

@@ -1,4 +1,3 @@
-import json
 import time
 
 import cnr.models.kv
@@ -9,17 +8,21 @@ from cnr.exception import (UnableToLockResource,
 
 
 class ModelsIndexRedis(ModelsIndexBase):
-    def _fetch_data(self, path):
+    def _fetch_raw_data(self, path):
         path = cnr.models.kv.CNR_KV_PREFIX + path
         datablob = redis_client.get(path)
         if datablob is None:
             raise ResourceNotFound("resource %s not found" % path, {"path": path})
-        package_data = json.loads(datablob)
+        package_data = datablob
         return package_data
 
-    def _write_data(self, key, data):
+    def _write_raw_data(self, key, data):
         path = cnr.models.kv.CNR_KV_PREFIX + key
-        redis_client.set(path, json.dumps(data))
+        redis_client.set(path, data)
+
+    def _delete_data(self, key):
+        path = cnr.models.kv.CNR_KV_PREFIX + key
+        return redis_client.delete(path) == 1
 
     def _get_lock(self, lock_key, ttl=3, timeout=4):
         if timeout is not None:

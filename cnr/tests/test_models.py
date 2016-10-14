@@ -27,9 +27,10 @@ class CnrTestModels:
     def test_package_set_blob(self, db_class, package_b64blob):
         p = db_class.Package("titi/toot", '1.2.0', 'helm', None)
         assert p._data is None
-        p.blob = package_b64blob
-        assert p.data['blob'] == package_b64blob
-        assert p.data['digest'] == "8dc8a2c479f770fd710e0dddaa7af0e6b495bc6375cdf2b4a649f4c2b03e27d5"
+        p.blob = db_class.Blob("titi/rocketchat", package_b64blob)
+        assert p.blob.b64blob == package_b64blob
+        assert p.data['content']['digest'] == "8dc8a2c479f770fd710e0dddaa7af0e6b495bc6375cdf2b4a649f4c2b03e27d5"
+        assert p.blob.digest == "8dc8a2c479f770fd710e0dddaa7af0e6b495bc6375cdf2b4a649f4c2b03e27d5"
 
     @pytest.mark.integration
     def test_db_restore(self, newdb, dbdata1):
@@ -50,7 +51,13 @@ class CnrTestModels:
         assert p.package == "titi/rocketchat"
         assert p.version == "2.0.1"
         assert p.digest == "d3b54b7912fe770a61b59ab612a442eac52a8a5d8d05dbe92bf8f212d68aaa80"
-        assert p.blob is not None
+
+    @pytest.mark.integration
+    def test_get_blob(self, db_with_data1):
+        blob = db_with_data1.Blob.get("titi/rocketchat",
+                                      "d3b54b7912fe770a61b59ab612a442eac52a8a5d8d05dbe92bf8f212d68aaa80")
+        assert blob.digest == "d3b54b7912fe770a61b59ab612a442eac52a8a5d8d05dbe92bf8f212d68aaa80"
+        assert blob.size == 778L
 
     @pytest.mark.integration
     def test_get_package_absent_manifest(self, db_with_data1):
@@ -83,14 +90,18 @@ class CnrTestModels:
     @pytest.mark.integration
     def test_save_package(self, newdb, package_b64blob):
         assert newdb.Package.all() == []
-        p = newdb.Package("titi/rocketchat", '2.3.4', 'kpm', package_b64blob)
+        blob = newdb.Blob("titi/rocketchat", package_b64blob)
+        p = newdb.Package("titi/rocketchat", '2.3.4', 'kpm', blob)
         p.save()
-        assert newdb.Package.get('titi/rocketchat', '2.3.4', 'kpm').blob == package_b64blob
+        fetchpackage = newdb.Package.get('titi/rocketchat', '2.3.4', 'kpm')
+        assert fetchpackage.digest == "8dc8a2c479f770fd710e0dddaa7af0e6b495bc6375cdf2b4a649f4c2b03e27d5"
+        assert newdb.Blob.get('titi/rocketchat', fetchpackage.digest).size == fetchpackage.blob_size
 
     @pytest.mark.integration
     def test_save_package_exists(self, newdb, package_b64blob):
         assert newdb.Package.all() == []
-        p = newdb.Package("titi/rocketchat", '2.3.4', 'kpm', package_b64blob)
+        blob = newdb.Blob("titi/rocketchat", package_b64blob)
+        p = newdb.Package("titi/rocketchat", '2.3.4', 'kpm', blob)
         p.save()
         assert newdb.Package.get("titi/rocketchat", "2.3.4") is not None
         with pytest.raises(PackageAlreadyExists):
@@ -99,7 +110,8 @@ class CnrTestModels:
     @pytest.mark.integration
     def test_save_package_exists_force(self, newdb, package_b64blob):
         assert newdb.Package.all() == []
-        p = newdb.Package("titi/rocketchat", '2.3.4', 'kpm', package_b64blob)
+        blob = newdb.Blob("titi/rocketchat", package_b64blob)
+        p = newdb.Package("titi/rocketchat", '2.3.4', 'kpm', blob)
         p.save()
         p.save(True)
 
@@ -108,7 +120,8 @@ class CnrTestModels:
     @pytest.mark.xfail
     def test_save_package_deleted(self, newdb, package_b64blob):
         assert newdb.Package.all() == []
-        p = newdb.Package("titi/rocketchat", '2.3.4', 'kpm', package_b64blob)
+        blob = newdb.Blob("titi/rocketchat", package_b64blob)
+        p = newdb.Package("titi/rocketchat", '2.3.4', 'kpm', blob)
         p.save()
         newdb.Package.delete("titi/rocketchat", '2.3.4', 'kpm')
         with pytest.raises(PackageAlreadyExists):
