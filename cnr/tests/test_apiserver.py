@@ -146,9 +146,6 @@ class BaseTestServer(object):
         assert res.status_code == 200
 
 
-@pytest.mark.integration
-@pytest.mark.api
-@pytest.mark.live
 @pytest.mark.usefixtures('live_server')
 class LiveTestServer(BaseTestServer):
     class Client(object):

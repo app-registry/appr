@@ -4,9 +4,9 @@ from cnr.tests.conftest import db_names
 
 
 if 'redis' in db_names():
-    class TestLiveServerRedis(LiveTestServer):
-        from cnr.models.kv.redis.db import RedisDB
-        DB_CLASS = RedisDB
+    # class TestLiveServerRedis(LiveTestServer):
+    #     from cnr.models.kv.redis.db import RedisDB
+    #     DB_CLASS = RedisDB
 
     class TestServerRedis(BaseTestServer):
         from cnr.models.kv.redis.db import RedisDB
@@ -14,10 +14,9 @@ if 'redis' in db_names():
 
 
 if 'etcd' in db_names():
-    class TestServerEtcd(BaseTestServer):
-        from cnr.models.kv.etcd.db import EtcdDB
-        DB_CLASS = EtcdDB
-
+    # class TestServerEtcd(BaseTestServer):
+    #     from cnr.models.kv.etcd.db import EtcdDB
+    #     DB_CLASS = EtcdDB
 
     class TestLiveServerEtcd(LiveTestServer):
         from cnr.models.kv.etcd.db import EtcdDB
@@ -25,9 +24,9 @@ if 'etcd' in db_names():
 
 
 if 'filesystem' in db_names():
-    class TestLiveServerFilesystem(LiveTestServer):
-        from cnr.models.kv.filesystem.db import FilesystemDB
-        DB_CLASS = FilesystemDB
+    # class TestLiveServerFilesystem(LiveTestServer):
+    #     from cnr.models.kv.filesystem.db import FilesystemDB
+    #     DB_CLASS = FilesystemDB
 
 
     class TestServerFilesystem(BaseTestServer):
