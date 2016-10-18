@@ -68,7 +68,8 @@ def blobs(namespace, package_name, digest):
     return resp
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/pull", methods=['GET'], strict_slashes=False)
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/pull",
+                    methods=['GET'], strict_slashes=False)
 def pull(namespace, package_name):
     reponame = repo_name(namespace, package_name)
     values = getvalues()
@@ -85,12 +86,11 @@ def pull(namespace, package_name):
     return resp
 
 
-@registry_app.route("/api/v1/packages", methods=['POST'], strict_slashes=False)
-def push():
-    values = getvalues()
-    reponame = values['package']
-    namespace, package_name = reponame.split("/")
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>",
+                    methods=['POST'], strict_slashes=False)
+def push(namespace, package_name):
     reponame = repo_name(namespace, package_name)
+    values = getvalues()
     version = values['version']
     media_type = values.get('media_type', DEFAULT_MEDIA_TYPE)
     force = (values.get('force', 'false') == 'true')
@@ -138,7 +138,8 @@ def show_package(namespace, package_name):
 
 
 # CHANNELS
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/channels", methods=['GET'], strict_slashes=False)
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/channels",
+                    methods=['GET'], strict_slashes=False)
 def list_channels(namespace, package_name):
     reponame = repo_name(namespace, package_name)
     result = cnr.api.impl.registry.list_channels(reponame, Channel)
@@ -147,25 +148,28 @@ def list_channels(namespace, package_name):
     return resp
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/channels/<string:channel_name>", methods=['GET'], strict_slashes=False)
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/channels/<string:channel_name>",
+                    methods=['GET'], strict_slashes=False)
 def show_channel(namespace, package_name, channel_name):
     reponame = repo_name(namespace, package_name)
     result = cnr.api.impl.registry.show_channel(reponame, channel_name, Channel)
     return jsonify(result)
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/channels/<string:channel_name>/<string:release>",
-                    methods=['POST'], strict_slashes=False)
+@registry_app.route(
+    "/api/v1/packages/<string:namespace>/<string:package_name>/channels/<string:channel_name>/<string:release>",
+    methods=['POST'], strict_slashes=False)
 def add_channel_release(namespace, package_name, channel_name, release):
     reponame = repo_name(namespace, package_name)
     result = cnr.api.impl.registry.add_channel_release(reponame, channel_name, release,
-                                                  channel_class=Channel,
-                                                  package_class=Package)
+                                                       channel_class=Channel,
+                                                       package_class=Package)
     return jsonify(result)
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/channels/<string:channel_name>/<string:release>",
-                    methods=['DELETE'], strict_slashes=False)
+@registry_app.route(
+    "/api/v1/packages/<string:namespace>/<string:package_name>/channels/<string:channel_name>/<string:release>",
+    methods=['DELETE'], strict_slashes=False)
 def delete_channel_release(namespace, package_name, channel_name, release):
     reponame = repo_name(namespace, package_name)
     result = cnr.api.impl.registry.delete_channel_release(reponame, channel_name, release,
@@ -191,7 +195,8 @@ def delete_channel(namespace, package_name, channel_name):
     return jsonify(result)
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>", methods=['DELETE'], strict_slashes=False)
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>",
+                    methods=['DELETE'], strict_slashes=False)
 def delete_package(namespace, package_name):
     reponame = "%s/%s" % (namespace, package_name)
     values = getvalues()

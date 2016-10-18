@@ -1,7 +1,6 @@
 import os
 import json
 import pytest
-from cnr.tests.test_apiserver import BaseTestServer, LiveTestServer
 from cnr.models.db_base import CnrDB
 from cnr.utils import symbol_by_name
 
@@ -196,7 +195,3 @@ def newdb(kv_prefix, db_class):
 def db_with_data1(newdb, dbdata1):
     newdb.restore_backup(dbdata1)
     return newdb
-
-@pytest.fixture(params=[BaseTestServer])
-def server_class(request):
-    return request.param
