@@ -131,6 +131,11 @@ def svc_resource(deploy):
     return kubeui['resources'][2]
 
 
+@pytest.fixture(scope="session")
+def db_names():
+    return os.getenv("CNR_TEST_DB", "filesystem,redis,etcd").replace(r" ", "").split(",")
+
+
 def get_db_classes():
     class_names = os.getenv("CNR_DB_CLASSES",
                             "cnr.models.kv.etcd.db:EtcdDB,\

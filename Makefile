@@ -11,7 +11,7 @@ endef
 export BROWSER_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 VERSION := `cat VERSION`
-dbclass := "cnr.models.kv.filesystem.db:FilesystemDB"
+db := "filesystem"
 
 help:
 	@echo "clean - remove all build, test, coverage and Python artifacts"
@@ -54,7 +54,7 @@ test-cli:
 	py.test --cov=cnr --cov=bin/cnr --cov-report=html --cov-report=term-missing  --verbose tests -m "cli" --cov-config=.coverage-cli.ini
 
 test:
-	CNR_DB_CLASSES=$(dbclass) py.test --cov=cnr --cov-report=html --cov-report=term-missing  --verbose tests --cov-config=.coverage-unit.ini -m 'not live' -m 'not redis or filesystem'
+	CNR_TEST_DB=$(db) py.test --cov=cnr --cov-report=html --cov-report=term-missing  --verbose tests --cov-config=.coverage-unit.ini -m 'not live'
 
 test-all:
 	py.test --cov=cnr --cov-report=html --cov-report=term-missing  --verbose tests
