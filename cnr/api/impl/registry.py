@@ -35,7 +35,7 @@ def _get_package(package, version_query, media_type, package_class):
 
 def pull_blob(package, digest, blob_class):
     blob = blob_class.get(package, digest)
-    return blob.b64blob
+    return blob
 
 
 def pull(package, version, media_type, package_class, blob_class):
@@ -112,11 +112,6 @@ def push(package, version, media_type, blob, force, package_class):
     """
     p = package_class(package, version, media_type, blob)
     p.save(force=force)
-    return {"status": "ok"}
-
-
-def search_reindex(package_class):
-    package_class.reindex()
     return {"status": "ok"}
 
 
@@ -287,7 +282,7 @@ def list_channels(package, channel_class):
     See Also:
        * :obj:`cnr.api.registry.list_channels`
     """
-    channels = channel_class.all_channels(package).values()
+    channels = [c.to_dict() for c in channel_class.all(package)]
     return channels
 
 

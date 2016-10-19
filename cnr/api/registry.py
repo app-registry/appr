@@ -61,8 +61,8 @@ def test_error():
                     strict_slashes=False)
 def blobs(namespace, package_name, digest):
     reponame = repo_name(namespace, package_name)
-    data = cnr.api.impl.registry.pull_blob(reponame, digest, blob_class=Blob)
-    resp = current_app.make_response(data)
+    blob = cnr.api.impl.registry.pull_blob(reponame, digest, blob_class=Blob)
+    resp = current_app.make_response(blob.blob)
     resp.headers['Content-Disposition'] = "%s_%s.tar.gz" % (reponame.replace("/", "_"), digest[0:8])
     resp.mimetype = 'application/x-gzip'
     return resp
@@ -99,6 +99,21 @@ def push(namespace, package_name):
     return jsonify(result)
 
 
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>",
+                    methods=['DELETE'], strict_slashes=False)
+def delete_package(namespace, package_name):
+    reponame = "%s/%s" % (namespace, package_name)
+    values = getvalues()
+    version = values.get("version", "default")
+    media_type = values.get('media_type',
+                            request.headers.get('Content-Type', DEFAULT_MEDIA_TYPE))
+    result = cnr.api.impl.registry.delete_package(reponame,
+                                                  version,
+                                                  media_type,
+                                                  package_class=Package)
+    return jsonify(result)
+
+
 @registry_app.route("/api/v1/packages", methods=['GET'], strict_slashes=False)
 def list_packages():
     values = getvalues()
@@ -114,12 +129,6 @@ def search_packages():
     values = getvalues()
     query = values.get("q")
     result = cnr.api.impl.registry.search(query, Package)
-    return jsonify(result)
-
-
-@registry_app.route("/api/v1/packages/search_reindex", methods=['POST'], strict_slashes=False)
-def search_reindex():
-    result = cnr.api.impl.registry.search_reindex(Package)
     return jsonify(result)
 
 
@@ -192,19 +201,4 @@ def delete_channel(namespace, package_name, channel_name):
     reponame = repo_name(namespace, package_name)
     result = cnr.api.impl.registry.delete_channel(reponame, channel_name,
                                                   channel_class=Channel)
-    return jsonify(result)
-
-
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>",
-                    methods=['DELETE'], strict_slashes=False)
-def delete_package(namespace, package_name):
-    reponame = "%s/%s" % (namespace, package_name)
-    values = getvalues()
-    version = values.get("version", "default")
-    media_type = values.get('media_type',
-                            request.headers.get('Content-Type', DEFAULT_MEDIA_TYPE))
-    result = cnr.api.impl.registry.delete_package(reponame,
-                                                  version,
-                                                  media_type,
-                                                  package_class=Package)
     return jsonify(result)

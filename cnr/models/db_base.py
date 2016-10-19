@@ -59,7 +59,7 @@ class CnrDB(object):
     @classmethod
     def reset_db(cls, force=False):
         """ clean the database """
-        if os.getenv("CNR_DB_ALLOW_RESET", "false") == "true":
+        if os.getenv("CNR_DB_ALLOW_RESET", "false") == "true" or force:
             raise NotImplementedError
         else:
             raise Forbidden("Reset DB is deactivated")

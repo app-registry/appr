@@ -9,8 +9,8 @@ from cnr.exception import (InvalidVersion,
 
 
 @pytest.mark.models
-class CnrTestModels:
-    from cnr.models.db_base import CnrDB
+class TestModels:
+    from cnr.models.kv.filesystem.db import CnrDB
     DB_CLASS = CnrDB
 
     @pytest.fixture()
@@ -268,3 +268,6 @@ class CnrTestModels:
     @pytest.mark.integration
     def test_search_package(self, db_with_data1):
         assert db_with_data1.Package.search('rocket') == ['titi/rocketchat']
+
+
+CnrTestModels = TestModels
