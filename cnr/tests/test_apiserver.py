@@ -105,21 +105,9 @@ class BaseTestServer(object):
         blob = newdb.Blob.get(p.package, p.digest)
         assert blob.b64blob == package_b64blob
 
-    def test_push_package_url2(self, newdb, package_b64blob, client):
-        package = "titi/rocketchat"
-        url = self._url_for("api/v1/packages")
-        res = self.Client(client).post(url, body={'package': package,
-                                                  'version': '2.4.1',
-                                                  'media_type': 'kpm',
-                                                  'blob': package_b64blob})
-        assert res.status_code == 200
-        p = newdb.Package.get('titi/rocketchat', '2.4.1', 'kpm')
-        blob = newdb.Blob.get(p.package, p.digest)
-        assert blob.b64blob == package_b64blob
-
     def test_push_package_bad_version(self, newdb, package_b64blob, client):
         package = "titi/rocketchat"
-        url = self._url_for("api/v1/packages")
+        url = self._url_for("api/v1/packages/%s" % package)
         res = self.Client(client).post(url, body={'package': package,
                                                   'version': 'anc',
                                                   'media_type': 'kpm',
@@ -128,7 +116,7 @@ class BaseTestServer(object):
 
     def test_push_package_already_exists(self, db_with_data1, package_b64blob, client):
         package = "titi/rocketchat"
-        url = self._url_for("api/v1/packages")
+        url = self._url_for("api/v1/packages/%s" % package)
         res = self.Client(client).post(url, body={'package': package,
                                                   'version': '1.0.1',
                                                   'media_type': 'kpm',
@@ -137,7 +125,7 @@ class BaseTestServer(object):
 
     def test_push_package_already_exists_force(self, db_with_data1, package_b64blob, client):
         package = "titi/rocketchat"
-        url = self._url_for("api/v1/packages")
+        url = self._url_for("api/v1/packages/%s" % package)
         res = self.Client(client).post(url, body={'package': package,
                                                   'version': '1.0.1',
                                                   'force': 'true',
@@ -146,9 +134,6 @@ class BaseTestServer(object):
         assert res.status_code == 200
 
 
-@pytest.mark.integration
-@pytest.mark.api
-@pytest.mark.live
 @pytest.mark.usefixtures('live_server')
 class LiveTestServer(BaseTestServer):
     class Client(object):
@@ -179,3 +164,13 @@ class LiveTestServer(BaseTestServer):
 
     def json(self, res):
         return res.json()
+
+
+def get_server_class():
+    if os.getenv("CNR_TEST_LIVESERVER", "false") == 'true':
+        return LiveTestServer
+    else:
+        return BaseTestServer
+
+
+ServerTest = get_server_class()

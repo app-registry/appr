@@ -26,6 +26,11 @@ class InvalidVersion(CnrException):
     errorcode = "invalid-version"
 
 
+class InvalidParams(CnrException):
+    status_code = 422
+    errorcode = "invalid-parameters"
+
+
 class PackageAlreadyExists(CnrException):
     status_code = 409
     errorcode = "package-exists"
