@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/cn-app-registry/cnr-server/badge.svg)](https://coveralls.io/github/cn-app-registry/cnr-server)
+
 # cnr-server
 ## Install
 1. git clone https://github.com/cn-app-registry/cnr-server.git && cd cnr-server
