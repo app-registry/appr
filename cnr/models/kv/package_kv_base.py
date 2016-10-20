@@ -83,3 +83,8 @@ class PackageKvBase(PackageBase):
     @classmethod
     def reindex(cls):
         raise Unsupported("Reindex is not yet supported")
+
+    @classmethod
+    def manifests(cls, package, release):
+        releaseindex = cls.index_class(package)
+        return releaseindex.release_manifests(release).values()

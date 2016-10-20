@@ -68,16 +68,30 @@ class PackageBase(object):
 
     @property
     def manifest_media_type(self):
-        return "application/vnd.cnr.package-manifest.%s.%s+json" % (self.media_type, SCHEMA_VERSION)
+        return "application/vnd.cnr.package-manifest.%s.%s.json" % (self.media_type, SCHEMA_VERSION)
 
     def set_media_type(self, mediatype):
-        self.media_type = re.match(r"application/vnd\.cnr\.package-manifest\.(.+?)\.(.+)+json", mediatype).group(1)
+        self.media_type = re.match(r"application/vnd\.cnr\.package-manifest\.(.+?)\.(.+).json", mediatype).group(1)
 
     def content_descriptor(self):
         return {"mediaType": self.content_media_type,
                 "size": self.blob_size,
                 "digest": self.digest,
                 "urls": []}
+
+    @classmethod
+    def view_manifests(cls, package, release):
+        view = {'name': package}
+        view['release'] = release
+        view['manifests'] = cls.manifests(package, release)
+        return view
+
+    @classmethod
+    def view_releases(cls, package):
+        result = []
+        for release in cls.all_versions(package):
+            result.append(cls.view_manifests(package, release))
+        return result
 
     @property
     def data(self):
@@ -193,4 +207,8 @@ class PackageBase(object):
     @classmethod
     def dump_all(cls, blob_cls):
         """ produce a dict with all packages """
+        raise NotImplementedError
+
+    @classmethod
+    def manifests(cls, package, release):
         raise NotImplementedError

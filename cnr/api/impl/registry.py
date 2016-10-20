@@ -259,6 +259,17 @@ def show_package(package,
     return response
 
 
+def show_package_releases(package,
+                          package_class):
+    return package_class.view_releases(package)
+
+
+def show_package_manifests(package,
+                           release,
+                           package_class):
+    return package_class.view_manifests(package, release)
+
+
 # CHANNELS
 def list_channels(package, channel_class):
     """
