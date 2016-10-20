@@ -68,14 +68,12 @@ def blobs(namespace, package_name, digest):
     return resp
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/pull",
-                    methods=['GET'], strict_slashes=False)
-def pull(namespace, package_name):
+@registry_app.route(
+    "/api/v1/packages/<string:namespace>/<string:package_name>/<string:version>/<string:media_type>/pull",
+    methods=['GET'], strict_slashes=False)
+def pull(namespace, package_name, version, media_type):
     reponame = repo_name(namespace, package_name)
     values = getvalues()
-    version = values.get("version", None)
-    media_type = values.get('media_type',
-                            request.headers.get('Content-Type', DEFAULT_MEDIA_TYPE))
     data = cnr.api.impl.registry.pull(reponame, version, media_type, Package, blob_class=Blob)
     if 'format' in values and values['format'] == 'json':
         resp = jsonify({"package": data['package'], "blob": data['blob']})
@@ -99,14 +97,11 @@ def push(namespace, package_name):
     return jsonify(result)
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>",
-                    methods=['DELETE'], strict_slashes=False)
-def delete_package(namespace, package_name):
+@registry_app.route(
+    "/api/v1/packages/<string:namespace>/<string:package_name>/<string:version>/<string:media_type>",
+    methods=['DELETE'], strict_slashes=False)
+def delete_package(namespace, package_name, version, media_type):
     reponame = "%s/%s" % (namespace, package_name)
-    values = getvalues()
-    version = values.get("version", "default")
-    media_type = values.get('media_type',
-                            request.headers.get('Content-Type', DEFAULT_MEDIA_TYPE))
     result = cnr.api.impl.registry.delete_package(reponame,
                                                   version,
                                                   media_type,
@@ -132,17 +127,33 @@ def search_packages():
     return jsonify(result)
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>", methods=['GET'], strict_slashes=False)
-def show_package(namespace, package_name):
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/<string:version>/<string:media_type>",
+                    methods=['GET'], strict_slashes=False)
+def show_package(namespace, package_name, version, media_type):
     reponame = repo_name(namespace, package_name)
-    values = getvalues()
-    version = values.get("version", 'default')
-    media_type = values.get('media_type',
-                            request.headers.get('Content-Type', DEFAULT_MEDIA_TYPE))
     result = cnr.api.impl.registry.show_package(reponame, version,
                                                 media_type,
                                                 channel_class=Channel,
                                                 package_class=Package)
+    return jsonify(result)
+
+
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/",
+                    methods=['GET'], strict_slashes=False)
+def show_package_releasses(namespace, package_name):
+    reponame = repo_name(namespace, package_name)
+    result = cnr.api.impl.registry.show_package_releases(reponame,
+                                                         package_class=Package)
+    return jsonify(result)
+
+
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/<string:version>",
+                    methods=['GET'], strict_slashes=False)
+def show_package_releasse_manifests(namespace, package_name, version):
+    reponame = repo_name(namespace, package_name)
+    result = cnr.api.impl.registry.show_package_manifests(reponame,
+                                                          version,
+                                                          package_class=Package)
     return jsonify(result)
 
 
