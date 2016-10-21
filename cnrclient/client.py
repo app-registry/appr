@@ -1,6 +1,6 @@
 import json
 import logging
-from urlparse import urlparse, urljoin
+from urlparse import urlparse
 import requests
 import cnrclient
 from cnrclient.discovery import ishosted, discover_sources
@@ -8,7 +8,7 @@ from cnrclient.discovery import ishosted, discover_sources
 
 logger = logging.getLogger(__name__)
 DEFAULT_REGISTRY = 'http://localhost:5000'
-DEFAULT_PREFIX = "/cnr"
+DEFAULT_PREFIX = "/"
 
 
 class CnrClient(object):
@@ -22,7 +22,7 @@ class CnrClient(object):
                          'User-Agent': "cnrpy-cli: %s" % cnrclient.__version__}
 
     def _url(self, path):
-        return urljoin(self.endpoint.geturl(), self.endpoint.path + self.api_prefix + path)
+        return self.endpoint.geturl() + self.endpoint.path + self.api_prefix + path
 
     def auth_token(self):
         """ return the Authorization bearer """
@@ -43,15 +43,14 @@ class CnrClient(object):
         resp.raise_for_status()
         return resp.json()
 
-    def pull(self, name, version=None):
+    def pull(self, name, version, media_type):
         if ishosted(name):
             sources = discover_sources(name)
             path = sources[0]
         else:
             organization, name = name.split("/")
-            path = self._url("/api/v1/packages/%s/%s/pull" % (organization, name))
-        params = {"version": version}
-        resp = requests.get(path, params=params, headers=self.headers)
+            path = self._url("/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version, media_type))
+        resp = requests.get(path, headers=self.headers)
         resp.raise_for_status()
         return resp.content
 
@@ -78,13 +77,10 @@ class CnrClient(object):
         resp.raise_for_status()
         return resp.json()
 
-    def delete_package(self, name, version=None):
+    def delete_package(self, name, version, media_type):
         organization, name = name.split("/")
-        path = "/api/v1/packages/%s/%s" % (organization, name)
-        params = {}
-        if version:
-            params['version'] = version
-        resp = requests.delete(self._url(path), params=params, headers=self.headers)
+        path = "/api/v1/packages/%s/%s/%s/%s" % (organization, name, version, media_type)
+        resp = requests.delete(self._url(path), headers=self.headers)
         resp.raise_for_status()
         return resp.json()
 
