@@ -25,7 +25,7 @@ test_requirements = [
 
 setup(
     name='cnrclient',
-    version='0.1.0',
+    version='0.2.0',
     description="cloud-native app registry server",
     long_description=readme,
     author="Antoine Legrand",
