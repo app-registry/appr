@@ -20,15 +20,15 @@ class PackageKvBase(PackageBase):
         return index.release(release, media_type)
 
     def channels(self, channel_class=None):
-        return self.index.release_channels(self.version)
+        return self.index.release_channels(self.release)
 
     @classmethod
-    def all_versions(cls, package, media_type=None):
+    def all_releases(cls, package, media_type=None):
         index = cls.index_class(package)
         return index.releases(media_type)
 
     @classmethod
-    def dump_all(cls):
+    def dump_all(cls, blob_cls):
         index = cls.index_class()
         result = []
         for package_info in index.packages():
@@ -54,20 +54,20 @@ class PackageKvBase(PackageBase):
                                                          reverse=True)]
             view = {'available_releases': available_releases,
                     'available_manifests': releaseindex.release_formats(),
-                    'version': available_releases[0],
+                    'release': available_releases[0],
                     'name': package_name,
                     'created_at': created_at}
             result.append(view)
         return result
 
     @classmethod
-    def isdeleted_release(cls, package, version):
+    def isdeleted_release(cls, package, release):
         """ TODO """
         return False
 
     def _save(self, force=False):
         index = self.index_class(self.package)
-        return index.add_release(self.data, self.version, self.media_type, force)
+        return index.add_release(self.data, self.release, self.media_type, force)
 
     @classmethod
     def search(cls, query):
@@ -76,9 +76,9 @@ class PackageKvBase(PackageBase):
         return re.findall(r"(.*%s.*)" % query, searchindex)
 
     @classmethod
-    def _delete(cls, package, version, media_type):
+    def _delete(cls, package, release, media_type):
         index = cls.index_class(package)
-        return index.delete_release(version, media_type)
+        return index.delete_release(release, media_type)
 
     @classmethod
     def reindex(cls):

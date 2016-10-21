@@ -38,7 +38,7 @@ def pull_blob(package, digest, blob_class):
     return blob
 
 
-def pull(package, version, media_type, package_class, blob_class):
+def pull(package, version_query, media_type, package_class, blob_class):
     """
     Retrives the package blob from the datastore
 
@@ -73,22 +73,22 @@ def pull(package, version, media_type, package_class, blob_class):
 
     """
 
-    packagemodel = _get_package(package, version, media_type, package_class=package_class)
+    packagemodel = _get_package(package, version_query, media_type, package_class=package_class)
     blob = blob_class.get(package, packagemodel.digest)
     resp = {"package": package,
             "blob": blob.b64blob,
-            "version": packagemodel.version,
-            "filename": "%s_%s.tar.gz" % (packagemodel.package.replace("/", "_"), packagemodel.version)}
+            "release": packagemodel.release,
+            "filename": "%s_%s.tar.gz" % (packagemodel.package.replace("/", "_"), packagemodel.release)}
     return resp
 
 
-def push(package, version, media_type, blob, force, package_class):
+def push(package, release, media_type, blob, force, package_class):
     """
     Push a new package release in the the datastore
 
     Args:
       package (:obj:`str`): package name in the format "namespace/name" or "domain.com/name"
-      version (:obj:`str`): the 'exact' package version (this is not a version_query)
+      release (:obj:`str`): the 'exact' package release (this is not a release_query)
       blob (:obj:`str`): the package directory in `tar.gz` and encoded in base64
       force (:obj:`boolean`): if the package exists already, overwrite it
       package_class (:obj:`cnr.models.package_base:PackageBase`): the implemented Package class to use
@@ -110,7 +110,7 @@ def push(package, version, media_type, blob, force, package_class):
        * :obj:`cnr.api.registry.push`
 
     """
-    p = package_class(package, version, media_type, blob)
+    p = package_class(package, release, media_type, blob)
     p.save(force=force)
     return {"status": "ok"}
 
@@ -160,7 +160,7 @@ def list_packages(namespace, package_class):
         * available_releases (list of str):  All releases
         * created_at (datetime, optional): package creation date
         * downloads (int, optional): number of downloads
-        * version: release name
+        * release: release name
 
     Example:
       >>> cnr.api.impl.registry.list_packages()
@@ -168,14 +168,14 @@ def list_packages(namespace, package_class):
        {
         'available_releases': ['0.1.0'],
         'name': u'quentinm/rados-gateway',
-        'version': '0.1.0',
+        'release': '0.1.0',
         'created_at": "2016-04-22T11:58:34.103Z",
         'downloads': 41
        },
        {
         'available_releases': ['0.1.0'],
         'name': u'quentinm/nova',
-        'version': '0.1.0'
+        'release': '0.1.0'
        },
       ]
 
@@ -187,7 +187,7 @@ def list_packages(namespace, package_class):
 
 
 def show_package(package,
-                 version,
+                 release,
                  media_type,
                  channel_class,
                  package_class):
@@ -196,13 +196,13 @@ def show_package(package,
 
     Args:
       package (:obj:`str`): package name in the format "namespace/name" or "domain.com/name"
-      version (:obj:`str`): the 'exact' package version (this is not a version_query)
+      release (:obj:`str`): the 'exact' package release (this is not a release_query)
       channel_class (:obj:`cnr.models.channel_base:ChannelBase`): the implemented Channel class to use
       package_class (:obj:`cnr.models.package_base:PackageBase`): the implemented Package class to use
 
     Returns:
       :obj:`dict`: package data
-        * version (str)
+        * release (str)
         * name (str)
         * created_at (str)
         * digest (str)
@@ -215,7 +215,7 @@ def show_package(package,
     Example:
       >>> cnr.api.impl.registry.show_package("ns/mypackage")
       {
-      "version": "3.2.0-rc",
+      "release": "3.2.0-rc",
       "name": "ns/mypackage",
       "created_at": "2016-08-25T10:16:16.366758",
       "digest": "93de60f59238f9aebce5b9f8bc708e02a0d740364fcd4b185c6da7fc1cdfe1ba",
@@ -242,13 +242,13 @@ def show_package(package,
 
     Raises:
       :obj:`cnr.exception.PackageNotFound`: package not found
-      :obj:`cnr.exception.InvalidVersion`: version-query malformated
-      :obj:`cnr.exception.PackageVersionNotFound`: version-query didn't match any release
+      :obj:`cnr.exception.InvalidRelease`: release-query malformated
+      :obj:`cnr.exception.PackageReleaseNotFound`: release-query didn't match any release
 
     See Also:
        * :obj:`cnr.api.registry.show_package`
     """
-    packagemodel = _get_package(package, version, media_type, package_class)
+    packagemodel = _get_package(package, release, media_type, package_class)
     # manifest = packagemodel.manifest()
     # optional = {"manifest": packagemodel.packager.manifest,
     # "variables": manifest.variables,
@@ -331,7 +331,7 @@ def add_channel_release(package, name, release, channel_class, package_class):
     Args:
       package (:obj:`str`): package name in the format "namespace/name" or "domain.com/name"
       name (:obj:`str`): channel name to inspect
-      release (:obj:`str`): package version to add
+      release (:obj:`str`): package release to add
       channel_class (:obj:`cnr.models.channel_base:ChannelBase`): the implemented Channel class to use
       package_class (:obj:`cnr.models.package_base:PackageBase`): the implemented Package class to use
 
@@ -363,7 +363,7 @@ def delete_channel_release(package, name, release, channel_class, package_class)
     Args:
       package (:obj:`str`): package name in the format "namespace/name" or "domain.com/name"
       name (:obj:`str`): channel name to inspect
-      release (:obj:`str`): package version to add
+      release (:obj:`str`): package release to add
       channel_class (:obj:`cnr.models.channel_base:ChannelBase`): the implemented Channel class to use
       package_class (:obj:`cnr.models.package_base:PackageBase`): the implemented Package class to use
 
@@ -400,7 +400,7 @@ def delete_channel(package, name, channel_class):
     return {"channel": channel.name, "package": package, "action": 'delete'}
 
 
-def delete_package(package, version, media_type, package_class):
-    packagemodel = _get_package(package, version, media_type, package_class)
-    package_class.delete(packagemodel.package, packagemodel.version, media_type)
-    return {"status": "deleted", "package": packagemodel.package, "version": packagemodel.version}
+def delete_package(package, release, media_type, package_class):
+    packagemodel = _get_package(package, release, media_type, package_class)
+    package_class.delete(packagemodel.package, packagemodel.release, media_type)
+    return {"status": "deleted", "package": packagemodel.package, "release": packagemodel.release}

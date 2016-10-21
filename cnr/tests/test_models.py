@@ -1,7 +1,7 @@
 import pytest
-from cnr.exception import (InvalidVersion,
+from cnr.exception import (InvalidRelease,
                            PackageAlreadyExists,
-                           PackageVersionNotFound,
+                           PackageReleaseNotFound,
                            Forbidden,
                            ChannelNotFound,
                            ChannelAlreadyExists,
@@ -21,7 +21,7 @@ class TestModels:
         p = db_class.Package("titi/toot", '1.2.0', 'helm')
         assert p.name == "toot"
         assert p.namespace == "titi"
-        assert p.version == "1.2.0"
+        assert p.release == "1.2.0"
         assert p.package == "titi/toot"
 
     def test_package_set_blob(self, db_class, package_b64blob):
@@ -34,11 +34,11 @@ class TestModels:
 
     @pytest.mark.integration
     def test_db_restore(self, newdb, dbdata1):
-        assert newdb.Package.dump_all() == []
-        assert newdb.Channel.dump_all() == []
+        assert newdb.Package.dump_all(newdb.Blob) == []
+        assert newdb.Channel.dump_all(newdb.Blob) == []
         newdb.restore_backup(dbdata1)
-        assert sorted(newdb.Package.dump_all()) == sorted(dbdata1['packages'])
-        assert sorted(newdb.Channel.dump_all()) == sorted(dbdata1['channels'])
+        assert sorted(newdb.Package.dump_all(newdb.Blob)) == sorted(dbdata1['packages'])
+        assert sorted(newdb.Channel.dump_all(newdb.Blob)) == sorted(dbdata1['channels'])
 
     @pytest.mark.integration
     def test_get_default_package(self, db_with_data1):
@@ -46,10 +46,10 @@ class TestModels:
         assert p.package == "titi/rocketchat"
 
     @pytest.mark.integration
-    def test_get_package_version_query(self, db_with_data1):
+    def test_get_package_release_query(self, db_with_data1):
         p = db_with_data1.Package.get("titi/rocketchat", ">1.2", 'kpm')
         assert p.package == "titi/rocketchat"
-        assert p.version == "2.0.1"
+        assert p.release == "2.0.1"
         assert p.digest == "d3b54b7912fe770a61b59ab612a442eac52a8a5d8d05dbe92bf8f212d68aaa80"
 
     @pytest.mark.integration
@@ -65,25 +65,25 @@ class TestModels:
             db_with_data1.Package.get("titi/rocketchat", ">1.2", 'bad')
 
     @pytest.mark.integration
-    def test_get_package_absent_version(self, db_with_data1):
-        with pytest.raises(PackageVersionNotFound):
+    def test_get_package_absent_release(self, db_with_data1):
+        with pytest.raises(PackageReleaseNotFound):
             db_with_data1.Package.get("titi/rocketchat", "2.0.2", 'kpm')
 
     @pytest.mark.integration
-    def test_get_package_bad_version_query(self, db_with_data1):
-        with pytest.raises(InvalidVersion):
+    def test_get_package_bad_release_query(self, db_with_data1):
+        with pytest.raises(InvalidRelease):
             db_with_data1.Package.get("titi/rocketchat", "abc", 'kpm')
 
     @pytest.mark.integration
-    def test_pull_package_absent_version(self, db_with_data1):
-        with pytest.raises(PackageVersionNotFound):
+    def test_pull_package_absent_release(self, db_with_data1):
+        with pytest.raises(PackageReleaseNotFound):
             p = db_with_data1.Package("titi/rocketchat", '4.3.0', 'kpm')
             p.pull()
 
     @pytest.mark.integration
-    def test_save_package_bad_version(self, newdb):
+    def test_save_package_bad_release(self, newdb):
         assert newdb.Package.all() == []
-        with pytest.raises(InvalidVersion):
+        with pytest.raises(InvalidRelease):
             p = newdb.Package("titi/rocketchat", 'abc', 'kpm')
             p.save()
 
@@ -128,9 +128,9 @@ class TestModels:
             p.save()
 
     @pytest.mark.integration
-    def test_list_package_versions(self, db_with_data1):
+    def test_list_package_releases(self, db_with_data1):
         p = db_with_data1.Package.get("titi/rocketchat")
-        assert sorted(p.versions()) == sorted(['0.0.1', '1.0.1', '2.0.1'])
+        assert sorted(p.releases()) == sorted(['0.0.1', '1.0.1', '2.0.1'])
 
     @pytest.mark.integration
     def test_list_package_channels(self, db_with_data1):
@@ -212,14 +212,14 @@ class TestModels:
     def test_channel_add_bad_releases(self, db_with_data1):
         channel = db_with_data1.Channel('stable', 'titi/rocketchat')
         db_with_data1.Package.get('titi/rocketchat', '1.0.1')
-        with pytest.raises(InvalidVersion):
+        with pytest.raises(InvalidRelease):
             channel.add_release('1.a.1', db_with_data1.Package)
 
     @pytest.mark.integration
     def test_channel_add_absent_releases(self, db_with_data1):
         channel = db_with_data1.Channel('stable', 'titi/rocketchat')
         db_with_data1.Package.get('titi/rocketchat', '1.0.1')
-        with pytest.raises(PackageVersionNotFound):
+        with pytest.raises(PackageReleaseNotFound):
             channel.add_release('1.4.1', db_with_data1.Package)
 
     @pytest.mark.integration

@@ -1,5 +1,5 @@
 import cnr.semver as semver
-from cnr.exception import PackageVersionNotFound, raise_channel_not_found
+from cnr.exception import PackageReleaseNotFound, raise_channel_not_found
 
 
 class ChannelBase(object):
@@ -20,26 +20,26 @@ class ChannelBase(object):
             releases = self.releases()
         if not releases:
             return None
-        ordered_versions = [str(x) for x in sorted(semver.versions(releases, False),
+        ordered_releases = [str(x) for x in sorted(semver.versions(releases, False),
                                                    reverse=True)]
-        return ordered_versions[0]
+        return ordered_releases[0]
 
-    def add_release(self, version, package_class):
-        if self._check_release(version, package_class) is False:
-            raise PackageVersionNotFound("Release %s doesn't exist for package %s" % (version, self.package),
-                                         {"package": self.package, "version": version})
+    def add_release(self, release, package_class):
+        if self._check_release(release, package_class) is False:
+            raise PackageReleaseNotFound("Release %s doesn't exist for package %s" % (release, self.package),
+                                         {"package": self.package, "release": release})
         if not self.exists():
             self.save()
-        return self._add_release(version)
+        return self._add_release(release)
 
-    def remove_release(self, version):
+    def remove_release(self, release):
         if not self.exists():
             raise_channel_not_found(self.package, self.name)
-        return self._remove_release(version)
+        return self._remove_release(release)
 
     def _check_release(self, release_name, package_class):
-        version = package_class.get_version(self.package, release_name)
-        if version is None or str(version) != release_name:
+        release = package_class.get_release(self.package, release_name)
+        if release is None or str(release) != release_name:
             return False
         else:
             return True
@@ -58,15 +58,13 @@ class ChannelBase(object):
         raise NotImplementedError
 
     def releases(self):
-        """ Returns the list of versions """
+        """ Returns the list of releases """
         raise NotImplementedError
 
-    def _add_release(self, version):
-        # etcdctl put /{self.package/channels/{self.name}/version
+    def _add_release(self, release):
         raise NotImplementedError
 
-    def _remove_release(self, version):
-        # etcdctl put /{self.package/channels/{self.name}/version
+    def _remove_release(self, release):
         raise NotImplementedError
 
     def _exists(self):

@@ -28,17 +28,17 @@ class CnrDB(object):
                 package.save(False)
 
                 # print '%s/%s  restored: %s(%s) - %s' % (str(i), str(size),
-                #                                        package.package, package.version, package.media_type)
+                #                                        package.package, package.release, package.media_type)
             except PackageAlreadyExists:
                 pass
                 # print '%s/%s  existed: %s(%s) - %s' % (str(i), str(size),
-                #                                   package.package, package.version, package.media_type)
+                #                                   package.package, package.release, package.media_type)
 
             for channel_name in package_data['channels']:
                 channel = cls.Channel(channel_name, package.package)
-                channel.add_release(package.version, cls.Package)
+                channel.add_release(package.release, cls.Package)
                 # print "%s/%s  restored-channel-release: %s, %s, %s" % (str(i), str(size),
-                #                                                       channel.package, channel.name, package.version)
+                #                                                       channel.package, channel.name, package.release)
 
         i = 0
         size = len(data['channels'])

@@ -2,10 +2,10 @@ import re
 import datetime
 import semantic_version
 from cnr.semver import last_version, select_version
-from cnr.exception import (InvalidVersion,
+from cnr.exception import (InvalidRelease,
                            PackageAlreadyExists,
                            raise_package_not_found,
-                           PackageVersionNotFound)
+                           PackageReleaseNotFound)
 from cnr.models import DEFAULT_MEDIA_TYPE
 from cnr.models.blob_base import BlobBase
 
@@ -13,13 +13,12 @@ SCHEMA_VERSION = "v1"
 
 
 class PackageBase(object):
-
-    def __init__(self, package_name, version=None,
+    def __init__(self, package_name, release=None,
                  media_type=DEFAULT_MEDIA_TYPE, blob=None):
         self.package = package_name
         self.media_type = media_type
         self.namespace, self.name = package_name.split("/")
-        self.version = version
+        self.release = release
         self._data = None
         self.created_at = None
         self.packager = None
@@ -46,7 +45,7 @@ class PackageBase(object):
         result = []
         for channel in channels:
             releases = channel.releases()
-            if self.version in releases:
+            if self.release in releases:
                 result.append(channel)
         return result
 
@@ -89,7 +88,7 @@ class PackageBase(object):
     @classmethod
     def view_releases(cls, package):
         result = []
-        for release in cls.all_versions(package):
+        for release in cls.all_releases(package):
             result.append(cls.view_manifests(package, release))
         return result
 
@@ -98,7 +97,7 @@ class PackageBase(object):
         if self._data is None:
             self._data = {'created_at': datetime.datetime.utcnow().isoformat()}
         d = {"package": self.package,
-             "release": self.version,
+             "release": self.release,
              "mediaType": self.manifest_media_type,
              "content": self.content_descriptor()}
         self._data.update(d)
@@ -108,70 +107,70 @@ class PackageBase(object):
     def data(self, data):
         self._data = data
         self.created_at = data['created_at']
-        self.version = data['release']
+        self.release = data['release']
         self._digest = data['content']['digest']
         self._blob_size = data['content']['size']
         self.set_media_type(data['mediaType'])
 
     @classmethod
-    def check_version(cls, version):
+    def check_release(cls, release):
         try:
-            semantic_version.Version(version)
+            semantic_version.Version(release)
         except ValueError as e:
-            raise InvalidVersion(e.message, {"version": version})
+            raise InvalidRelease(e.message, {"version": release})
         return None
 
     @classmethod
-    def get(cls, package, version='default', media_type=DEFAULT_MEDIA_TYPE):
+    def get(cls, package, release='default', media_type=DEFAULT_MEDIA_TYPE):
         """
         package: string following "namespace/package_name" format
-        version: version query. If None return latest version
+        release: release query. If None return latest release
 
-        returns: (package blob(targz) encoded in base64, version)
+        returns: (package blob(targz) encoded in base64, release)
         """
-        p = cls(package, version)
-        p.pull(version, media_type)
+        p = cls(package, release)
+        p.pull(release, media_type)
         return p
 
     @classmethod
-    def get_version(cls, package, version_query, stable=False):
-        versions = cls.all_versions(package)
-        if not versions:
-            raise_package_not_found(package, version=version_query)
-        if version_query is None or version_query == 'default':
-            return last_version(versions, stable)
+    def get_release(cls, package, release_query, stable=False):
+        releases = cls.all_releases(package)
+        if not releases:
+            raise_package_not_found(package, release=release_query)
+        if release_query is None or release_query == 'default':
+            return last_version(releases, stable)
         else:
             try:
-                return select_version(versions, str(version_query), stable)
+                return select_version(releases, str(release_query), stable)
             except ValueError as e:
-                raise InvalidVersion(e.message, {"version": version_query})
+                raise InvalidRelease(e.message, {"release": release_query})
 
-    def pull(self, version_query=None, media_type=DEFAULT_MEDIA_TYPE):
-        if version_query is None:
-            version_query = self.version
+    def pull(self, release_query=None, media_type=DEFAULT_MEDIA_TYPE):
+        if release_query is None:
+            release_query = self.release
         package = self.package
-        version = self.get_version(package, version_query)
-        if version is None:
-            raise PackageVersionNotFound("No version match '%s' for package '%s'" % (version_query, package),
-                                         {"package": package, "version_query": version_query})
+        release = self.get_release(package, release_query)
+        if release is None:
+            raise PackageReleaseNotFound("No release match '%s' for package '%s'" % (release_query, package),
+                                         {"package": package, "release_query": release_query})
 
-        self.data = self._fetch(package, str(version), media_type)
+        self.data = self._fetch(package, str(release), media_type)
         return self
 
     def save(self, force=False):
-        self.check_version(self.version)
-        if self.isdeleted_release(self.package, self.version) and not force:
+        self.check_release(self.release)
+        if self.isdeleted_release(self.package, self.release) and not force:
             raise PackageAlreadyExists("Package release %s existed" % self.package,
-                                       {"package": self.package, "version": self.version})
+                                       {"package": self.package, "release": self.release})
         self.blob.save()
         self._save(force)
 
-    def versions(self):
-        return self.all_versions(self.package)
+    def releases(self):
+        return self.all_releases(self.package)
 
     @classmethod
-    def delete(cls, package, version, media_type):
-        cls._delete(package, version, media_type)
+    def delete(cls, package, release, media_type):
+        cls._delete(package, release, media_type)
 
     def _save(self, force=False):
         raise NotImplementedError
@@ -181,15 +180,15 @@ class PackageBase(object):
         raise NotImplementedError
 
     @classmethod
-    def _fetch(cls, package, version, media_type=DEFAULT_MEDIA_TYPE):
+    def _fetch(cls, package, release, media_type=DEFAULT_MEDIA_TYPE):
         raise NotImplementedError
 
     @classmethod
-    def _delete(cls, package, version, media_type):
+    def _delete(cls, package, release, media_type):
         raise NotImplementedError
 
     @classmethod
-    def all_versions(cls, package, media_type=None):
+    def all_releases(cls, package, media_type=None):
         raise NotImplementedError
 
     @classmethod
@@ -197,7 +196,7 @@ class PackageBase(object):
         raise NotImplementedError
 
     @classmethod
-    def isdeleted_release(cls, package, version):
+    def isdeleted_release(cls, package, release):
         raise NotImplementedError
 
     @classmethod

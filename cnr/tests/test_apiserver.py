@@ -69,33 +69,33 @@ class TestServer:
     # @TODO check content
     def test_pull_package(self, db_with_data1, client):
         package = "titi/rocketchat"
-        version = "1.0.1"
+        release = "1.0.1"
         media_type = "kpm"
-        url = self._url_for("api/v1/packages/%s/%s/%s/pull" % (package, version, media_type))
+        url = self._url_for("api/v1/packages/%s/%s/%s/pull" % (package, release, media_type))
         res = self.Client(client).get(url)
         assert res.status_code == 200
 
-    def test_pull_package_no_version(self, db_with_data1, client):
+    def test_pull_package_no_release(self, db_with_data1, client):
         package = "titi/rocketchat"
-        version = "1.0.3"
+        release = "1.0.3"
         media_type = "kpm"
-        url = self._url_for("api/v1/packages/%s/%s/%s/pull" % (package, version, media_type))
+        url = self._url_for("api/v1/packages/%s/%s/%s/pull" % (package, release, media_type))
         res = self.Client(client).get(url)
         assert res.status_code == 404
 
-    def test_pull_package_bad_version(self, db_with_data1, client):
+    def test_pull_package_bad_release(self, db_with_data1, client):
         package = "titi/rocketchat"
-        version = "abc"
+        release = "abc"
         media_type = "kpm"
-        url = self._url_for("api/v1/packages/%s/%s/%s/pull" % (package, version, media_type))
+        url = self._url_for("api/v1/packages/%s/%s/%s/pull" % (package, release, media_type))
         res = self.Client(client).get(url)
         assert res.status_code == 422
 
     def test_pull_package_json(self, db_with_data1, client):
         package = "titi/rocketchat"
-        version = "1.0.1"
+        release = "1.0.1"
         media_type = "kpm"
-        url = self._url_for("api/v1/packages/%s/%s/%s/pull" % (package, version, media_type))
+        url = self._url_for("api/v1/packages/%s/%s/%s/pull" % (package, release, media_type))
         res = self.Client(client).get(url, params={'format': 'json'})
         assert res.status_code == 200
         p = db_with_data1.Package.get(package, '1.0.1', 'kpm')
@@ -105,7 +105,7 @@ class TestServer:
     def test_push_package(self, newdb, package_b64blob, client):
         package = "titi/rocketchat"
         url = self._url_for("api/v1/packages/%s" % package)
-        res = self.Client(client).post(url, body={'version': '2.4.1',
+        res = self.Client(client).post(url, body={'release': '2.4.1',
                                                   'media_type': 'kpm',
                                                   'blob': package_b64blob})
         assert res.status_code == 200
@@ -113,11 +113,11 @@ class TestServer:
         blob = newdb.Blob.get(p.package, p.digest)
         assert blob.b64blob == package_b64blob
 
-    def test_push_package_bad_version(self, newdb, package_b64blob, client):
+    def test_push_package_bad_release(self, newdb, package_b64blob, client):
         package = "titi/rocketchat"
         url = self._url_for("api/v1/packages/%s" % package)
         res = self.Client(client).post(url, body={'package': package,
-                                                  'version': 'anc',
+                                                  'release': 'anc',
                                                   'media_type': 'kpm',
                                                   'blob': package_b64blob})
         assert res.status_code == 422
@@ -126,7 +126,7 @@ class TestServer:
         package = "titi/rocketchat"
         url = self._url_for("api/v1/packages/%s" % package)
         res = self.Client(client).post(url, body={'package': package,
-                                                  'version': '1.0.1',
+                                                  'release': '1.0.1',
                                                   'media_type': 'kpm',
                                                   'blob': package_b64blob})
         assert res.status_code == 409
@@ -135,7 +135,7 @@ class TestServer:
         package = "titi/rocketchat"
         url = self._url_for("api/v1/packages/%s" % package)
         res = self.Client(client).post(url, body={'package': package,
-                                                  'version': '1.0.1',
+                                                  'release': '1.0.1',
                                                   'force': 'true',
                                                   'media_type': 'kpm',
                                                   'blob': package_b64blob})
@@ -177,9 +177,9 @@ class TestServer:
 
     def test_delete_package(self, db_with_data1, client):
         package = "titi/rocketchat"
-        version = "1.0.1"
+        release = "1.0.1"
         media_type = "kpm"
-        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, version, media_type))
+        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, release, media_type))
         res = self.Client(client).get(url)
         assert res.status_code == 200
         res = self.Client(client).delete(url)
@@ -189,17 +189,17 @@ class TestServer:
 
     def test_delete_absent_package(self, newdb, client):
         package = "titi/rocketchat"
-        version = "1.0.1"
+        release = "1.0.1"
         media_type = "kpm"
-        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, version, media_type))
+        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, release, media_type))
         res = self.Client(client).delete(url)
         assert res.status_code == 404
 
     def test_show_package(self, db_with_data1, client):
         package = "titi/rocketchat"
-        version = "1.0.1"
+        release = "1.0.1"
         media_type = "kpm"
-        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, version, media_type))
+        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, release, media_type))
         res = self.Client(client).get(url)
         assert res.status_code == 200
         p = db_with_data1.Package.get(package, "1.0.1", "kpm")
@@ -224,26 +224,26 @@ class TestServer:
 
     def test_show_package_absent(self, newdb, client):
         package = "titi/rocketchat"
-        version = "1.0.1"
+        release = "1.0.1"
         media_type = "kpm"
-        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, version, media_type))
+        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, release, media_type))
         res = self.Client(client).get(url)
         assert res.status_code == 404
 
-    def test_show_package_bad_version(self, db_with_data1, client):
+    def test_show_package_bad_release(self, db_with_data1, client):
         package = "titi/rocketchat"
-        version = "abc"
+        release = "abc"
         media_type = "kpm"
-        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, version, media_type))
+        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, release, media_type))
         res = self.Client(client).get(url)
         assert res.status_code == 422
 
     def test_show_package_media_type(self, db_with_data1, client):
         package = "titi/rocketchat"
         package = "titi/rocketchat"
-        version = "0.0.1"
+        release = "0.0.1"
         media_type = "helm"
-        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, version, media_type))
+        url = self._url_for("api/v1/packages/%s/%s/%s" % (package, release, media_type))
         res = self.Client(client).get(url)
         assert res.status_code == 200
         p = db_with_data1.Package.get(package, "0.0.1", "helm")
@@ -288,61 +288,61 @@ class TestServer:
     def test_add_channel_release(self, db_with_data1, client):
         package = "titi/rocketchat"
         channel = 'default'
-        version = '1.0.1'
+        release = '1.0.1'
         url = self._url_for("api/v1/packages/%s/channels/%s" % (package, channel))
         res = self.Client(client).get(url)
         assert res.status_code == 200
         assert self.json(res)['releases'] == []
-        url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, version))
+        url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, release))
         res = self.Client(client).post(url)
         assert res.status_code == 200
-        assert self.json(res)['releases'] == [version]
+        assert self.json(res)['releases'] == [release]
 
     def test_add_channel_release_new_chan(self, db_with_data1, client):
         package = "titi/rocketchat"
         channel = 'newchan'
-        version = '1.0.1'
+        release = '1.0.1'
         chanurl = self._url_for("api/v1/packages/%s/channels/%s" % (package, channel))
         res = self.Client(client).get(chanurl)
         # assert res.status_code == 404  # @TODO uncomment
-        url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, version))
+        url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, release))
         res = self.Client(client).post(url)
         assert res.status_code == 200
         chanurl = self._url_for("api/v1/packages/%s/channels/%s" % (package, channel))
         res = self.Client(client).get(chanurl)
         assert res.status_code == 200
-        assert self.json(res)['releases'] == [version]
+        assert self.json(res)['releases'] == [release]
 
     def test_add_channel_release_absent_release(self, db_with_data1, client):
         package = "titi/rocketchat"
         channel = 'default'
-        version = '1.0.2'
-        url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, version))
+        release = '1.0.2'
+        url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, release))
         res = self.Client(client).post(url)
         assert res.status_code == 404
 
     def test_delete_channel_release(self, db_with_data1, client):
         package = "titi/rocketchat"
         channel = 'stable'
-        version = '1.0.1'
+        release = '1.0.1'
         url = self._url_for("api/v1/packages/%s/channels/%s" % (package, channel))
         res = self.Client(client).get(url)
         assert res.status_code == 200
-        assert version in self.json(res)['releases']
-        url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, version))
+        assert release in self.json(res)['releases']
+        url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, release))
         res = self.Client(client).delete(url)
         assert res.status_code == 200
-        assert version not in self.json(res)['releases']
+        assert release not in self.json(res)['releases']
 
     def test_delete_channel_release_absent_release(self, db_with_data1, client):
         package = "titi/rocketchat"
         channel = 'stable'
-        version = '1.0.2'
+        release = '1.0.2'
         url = self._url_for("api/v1/packages/%s/channels/%s" % (package, channel))
         res = self.Client(client).get(url)
         assert res.status_code == 200
-        assert version not in self.json(res)['releases']
-        url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, version))
+        assert release not in self.json(res)['releases']
+        url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, release))
         res = self.Client(client).delete(url)
         assert res.status_code == 404
 
