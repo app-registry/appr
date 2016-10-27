@@ -93,3 +93,8 @@ def raise_channel_not_found(package, channel=None, release=None):
     else:
         raise ChannelNotFound("Channel '%s' doesn't exist for package '%s'" % (channel, package),
                               {'channel': channel, 'package': package, 'release': release})
+
+
+def raise_package_exists(package, release, media_type):
+    raise PackageAlreadyExists("%s - %s - %s exists already " % (package, release, media_type),
+                               {"package": package, "release": release, "media_type": media_type})
