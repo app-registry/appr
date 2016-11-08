@@ -215,10 +215,10 @@ class ModelsIndexBase(object):
         try:
             self.get_lock(self.releases_key)
             data = self.releases_data
-            if channel in data['channels']:
-                data['channels'].pop(channel)
             for release in self.channel_releases(channel):
                 self._releases = self._delete_channel_release(channel, release)
+            if channel in data['channels']:
+                data['channels'].pop(channel)
             self._write_data(self.releases_key, data)
         finally:
             self.release_lock(self.releases_key)
@@ -252,7 +252,7 @@ class ModelsIndexBase(object):
             data = self._delete_channel_release(channel, release)
             releases = self.channel_releases(channel)
             if not releases:
-                self.delete_channel(channel)
+                data['channels'].pop(channel)
             else:
                 self.set_channel_default(channel, releases[0])
             self._write_data(self.releases_key, data)
@@ -269,6 +269,9 @@ class ModelsIndexBase(object):
         return data
 
     def channel_releases(self, channel):
+        if not self.ischannel_exists(channel):
+            raise_channel_not_found(self.package, channel)
+
         releases = [release for release, x in self.releases_data['releases'].iteritems() if channel in x['channels']]
         ordered_releases = [str(x) for x in sorted(cnr.semver.versions(releases, False),
                                                    reverse=True)]

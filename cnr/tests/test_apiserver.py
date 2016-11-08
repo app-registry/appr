@@ -302,8 +302,7 @@ class TestServer:
         release = '1.0.1'
         url = self._url_for("api/v1/packages/%s/channels/%s" % (package, channel))
         res = self.Client(client, self.headers()).get(url)
-        assert res.status_code == 200
-        assert self.json(res)['releases'] == []
+        assert res.status_code == 404
         url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, release))
         res = self.Client(client, self.headers()).post(url)
         assert res.status_code == 200

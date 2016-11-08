@@ -167,13 +167,15 @@ class TestModels:
     @pytest.mark.integration
     def test_channel_no_releases(self, db_with_data1):
         channel = db_with_data1.Channel('default', 'titi/rocketchat')
-        assert sorted(channel.releases()) == sorted([])
+        with pytest.raises(ChannelNotFound):
+            channel.releases()
 
     @pytest.mark.integration
     def test_channel_add_release(self, db_with_data1):
         channel = db_with_data1.Channel('default', 'titi/rocketchat')
         package = db_with_data1.Package.get('titi/rocketchat', '1.0.1')
-        assert sorted(channel.releases()) == sorted([])
+        with pytest.raises(ChannelNotFound):
+            channel.releases()
         assert 'default' not in package.channels()
         channel.add_release('1.0.1', db_with_data1.Package)
         assert sorted(channel.releases()) == sorted(['1.0.1'])
@@ -184,7 +186,6 @@ class TestModels:
         channel = db_with_data1.Channel('newone', 'titi/rocketchat')
         assert channel.exists() is False
         package = db_with_data1.Package.get('titi/rocketchat', '1.0.1')
-        assert sorted(channel.releases()) == sorted([])
         assert 'newone' not in package.channels()
         channel.add_release('1.0.1', db_with_data1.Package)
         assert sorted(channel.releases()) == sorted(['1.0.1'])
