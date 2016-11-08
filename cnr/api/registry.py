@@ -11,7 +11,6 @@ from cnr.exception import (CnrException,
                            UnauthorizedAccess,
                            Unsupported,
                            PackageAlreadyExists,
-                           ChannelAlreadyExists,
                            PackageNotFound,
                            ChannelNotFound,
                            PackageReleaseNotFound)
@@ -26,7 +25,6 @@ registry_app = Blueprint('registry', __name__,)
 
 @registry_app.errorhandler(Unsupported)
 @registry_app.errorhandler(PackageAlreadyExists)
-@registry_app.errorhandler(ChannelAlreadyExists)
 @registry_app.errorhandler(InvalidRelease)
 @registry_app.errorhandler(UnableToLockResource)
 @registry_app.errorhandler(UnauthorizedAccess)
@@ -194,14 +192,6 @@ def delete_channel_release(namespace, package_name, channel_name, release):
     result = cnr.api.impl.registry.delete_channel_release(reponame, channel_name, release,
                                                           channel_class=Channel,
                                                           package_class=Package)
-    return jsonify(result)
-
-
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/channels/<string:channel_name>",
-                    methods=['POST'], strict_slashes=False)
-def create_channel(namespace, package_name, channel_name):
-    reponame = repo_name(namespace, package_name)
-    result = cnr.api.impl.registry.create_channel(reponame, channel_name, Channel)
     return jsonify(result)
 
 

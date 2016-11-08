@@ -36,11 +36,6 @@ class PackageAlreadyExists(CnrException):
     errorcode = "package-exists"
 
 
-class ChannelAlreadyExists(CnrException):
-    status_code = 409
-    errorcode = "channel-exists"
-
-
 class PackageNotFound(CnrException):
     status_code = 404
     errorcode = "package-not-found"

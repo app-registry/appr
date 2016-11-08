@@ -9,7 +9,16 @@ from cnr.exception import (InvalidRelease,
 from cnr.models import DEFAULT_MEDIA_TYPE
 from cnr.models.blob_base import BlobBase
 
+
 SCHEMA_VERSION = "v1"
+
+
+def content_media_type(media_type):
+    return "application/vnd.cnr.package.%s.%s.tar+gzip" % (media_type, SCHEMA_VERSION)
+
+
+def manifest_media_type(media_type):
+    return "application/vnd.cnr.package-manifest.%s.%s.json" % (media_type, SCHEMA_VERSION)
 
 
 class PackageBase(object):
@@ -63,11 +72,11 @@ class PackageBase(object):
 
     @property
     def content_media_type(self):
-        return "application/vnd.cnr.package.%s.%s.tar+gzip" % (self.media_type, SCHEMA_VERSION)
+        return content_media_type(self.media_type)
 
     @property
     def manifest_media_type(self):
-        return "application/vnd.cnr.package-manifest.%s.%s.json" % (self.media_type, SCHEMA_VERSION)
+        return manifest_media_type(self.media_type)
 
     def set_media_type(self, mediatype):
         self.media_type = re.match(r"application/vnd\.cnr\.package-manifest\.(.+?)\.(.+).json", mediatype).group(1)
@@ -157,13 +166,13 @@ class PackageBase(object):
         self.data = self._fetch(package, str(release), media_type)
         return self
 
-    def save(self, force=False):
+    def save(self, force=False, **kwargs):
         self.check_release(self.release)
         if self.isdeleted_release(self.package, self.release) and not force:
             raise PackageAlreadyExists("Package release %s existed" % self.package,
                                        {"package": self.package, "release": self.release})
         self.blob.save()
-        self._save(force)
+        self._save(force, **kwargs)
 
     def releases(self):
         return self.all_releases(self.package)
@@ -172,11 +181,11 @@ class PackageBase(object):
     def delete(cls, package, release, media_type):
         cls._delete(package, release, media_type)
 
-    def _save(self, force=False):
+    def _save(self, force=False, **kwargs):
         raise NotImplementedError
 
     @classmethod
-    def all(cls, namespace=None):
+    def all(cls, namespace=None, **kwargs):
         raise NotImplementedError
 
     @classmethod
@@ -192,7 +201,7 @@ class PackageBase(object):
         raise NotImplementedError
 
     @classmethod
-    def search(cls, query):
+    def search(cls, query, **kwargs):
         raise NotImplementedError
 
     @classmethod

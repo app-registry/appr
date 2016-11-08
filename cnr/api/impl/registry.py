@@ -73,7 +73,6 @@ def pull(package, version_query, media_type, package_class, blob_class):
        * :obj:`cnr.api.registry.pull`
 
     """
-
     packagemodel = _get_package(package, version_query, media_type, package_class=package_class)
     blob = blob_class.get(package, packagemodel.digest)
     resp = {"package": package,
@@ -83,7 +82,7 @@ def pull(package, version_query, media_type, package_class, blob_class):
     return resp
 
 
-def push(package, release, media_type, blob, force, package_class):
+def push(package, release, media_type, blob, force, package_class, **kwargs):
     """
     Push a new package release in the the datastore
 
@@ -112,11 +111,11 @@ def push(package, release, media_type, blob, force, package_class):
 
     """
     p = package_class(package, release, media_type, blob)
-    p.save(force=force)
+    p.save(force=force, **kwargs)
     return {"status": "ok"}
 
 
-def search(query, package_class):
+def search(query, package_class, **kwargs):
     """
     Search packages
 
@@ -139,10 +138,10 @@ def search(query, package_class):
        * :obj:`cnr.api.registry.search`
 
     """
-    return package_class.search(query)
+    return package_class.search(query, **kwargs)
 
 
-def list_packages(namespace, package_class):
+def list_packages(namespace, package_class, **kwargs):
     """
     List all packages, filters can be applied
     Must have at least a release to be visible
@@ -183,7 +182,7 @@ def list_packages(namespace, package_class):
     See Also:
        * :obj:`cnr.api.registry.list_packages`
     """
-    resp = package_class.all(namespace)
+    resp = package_class.all(namespace, **kwargs)
     return resp
 
 
@@ -386,12 +385,6 @@ def delete_channel_release(package, name, release, channel_class, package_class)
     """
     channel = channel_class(name, package)
     channel.remove_release(release)
-    return channel.to_dict()
-
-
-def create_channel(package, name, channel_class):
-    channel = channel_class(name, package)
-    channel.save()
     return channel.to_dict()
 
 
