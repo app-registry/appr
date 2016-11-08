@@ -1,7 +1,6 @@
 import os
 import json
 import pytest
-from cnr.models.db_base import CnrDB
 from cnr.utils import symbol_by_name
 
 
@@ -145,8 +144,8 @@ def get_db_classes():
 
 
 DB_CLASSES = get_db_classes()
-PACKAGE_CLASSES = [db.Package for db in DB_CLASSES]
-CHANNEL_CLASSES = [db.Channel for db in DB_CLASSES]
+PACKAGE_CLASSES = [dbc.Package for dbc in DB_CLASSES]
+CHANNEL_CLASSES = [dbc.Channel for dbc in DB_CLASSES]
 
 
 def class_name(obj):
@@ -161,6 +160,7 @@ def kv_prefix(monkeypatch):
 
 @pytest.fixture()
 def db():
+    from cnr.models.db_base import CnrDB
     return CnrDB
 
 

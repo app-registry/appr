@@ -45,8 +45,7 @@ class CnrDB(object):
         for channel_data in data['channels']:
             i += 1
             channel = cls.Channel(channel_data['name'], channel_data['package'])
-            channel.current = channel_data['current']
-            channel.save(True)
+            channel.add_release(channel_data['current'], cls.Package)
             print "%s/%s  restored-channel: %s" % (str(i), str(size), channel.name)
 
     @classmethod

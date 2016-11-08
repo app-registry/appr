@@ -1,36 +1,28 @@
-import cnr.semver as semver
 from cnr.exception import PackageReleaseNotFound, raise_channel_not_found
 
 
 class ChannelBase(object):
-    def __init__(self, name, package):
+    def __init__(self, name, package, current=None):
         self.package = package
         self.name = name
-        self._iscreated = None
-        self.current = None
+        self.current = current
 
     def exists(self):
         return self._exists()
 
-    def current_release(self, releases=None):
-        if self.current:
-            return self.current
+    @classmethod
+    def get(cls, name, package):
+        raise NotImplementedError
 
-        if releases is None:
-            releases = self.releases()
-        if not releases:
-            return None
-        ordered_releases = [str(x) for x in sorted(semver.versions(releases, False),
-                                                   reverse=True)]
-        return ordered_releases[0]
+    def current_release(self):
+        return self.current
 
     def add_release(self, release, package_class):
         if self._check_release(release, package_class) is False:
             raise PackageReleaseNotFound("Release %s doesn't exist for package %s" % (release, self.package),
                                          {"package": self.package, "release": release})
-        if not self.exists():
-            self.save()
-        return self._add_release(release)
+        self.current = release
+        return self.save()
 
     def remove_release(self, release):
         if not self.exists():
@@ -48,7 +40,7 @@ class ChannelBase(object):
         releases = self.releases()
         return ({"releases": releases,
                  "name": self.name,
-                 "current": self.current_release(releases)})
+                 "current": self.current_release()})
 
     def __repr__(self):
         return "%s(%s, %s)" % (self.__class__, self.name, self.package)
@@ -71,7 +63,7 @@ class ChannelBase(object):
         """ Check if the channel is saved already """
         raise NotImplementedError
 
-    def save(self, force=False):
+    def save(self):
         raise NotImplementedError
 
     def delete(self):

@@ -4,7 +4,6 @@ from cnr.exception import (InvalidRelease,
                            PackageReleaseNotFound,
                            Forbidden,
                            ChannelNotFound,
-                           ChannelAlreadyExists,
                            PackageNotFound)
 
 
@@ -148,7 +147,7 @@ class TestModels:
     @pytest.mark.integration
     def test_all_channels(self, db_with_data1):
         channels = [c.name for c in db_with_data1.Channel.all('titi/rocketchat')]
-        assert sorted(channels) == [u'default', u'dev', u'stable']
+        assert sorted(channels) == sorted([u'dev', u'stable'])
 
     @pytest.mark.integration
     def test_all_channels_absent_package(self, db_with_data1):
@@ -194,13 +193,27 @@ class TestModels:
 
     @pytest.mark.integration
     def test_channel_delete_releases(self, db_with_data1):
-        channel = db_with_data1.Channel('stable', 'titi/rocketchat')
-        package = db_with_data1.Package.get('titi/rocketchat', '1.0.1')
+        channel = db_with_data1.Channel.get('stable', 'titi/rocketchat')
+        package = db_with_data1.Package.get('titi/rocketchat', '2.0.1')
         assert sorted(channel.releases()) == sorted([u'1.0.1', u'2.0.1'])
         assert 'stable' in package.channels()
-        channel.remove_release('1.0.1')
-        assert sorted(channel.releases()) == sorted(['2.0.1'])
+        assert channel.current == "2.0.1"
+        channel.remove_release('2.0.1')
+        assert sorted(channel.releases()) == sorted(['1.0.1'])
+        channel = db_with_data1.Channel.get('stable', 'titi/rocketchat')
+        assert channel.current is not None
         assert "stable" not in package.channels()
+
+    @pytest.mark.integration
+    def test_channel_delete_all_releases(self, db_with_data1):
+        channel = db_with_data1.Channel.get('dev', 'titi/rocketchat')
+        package = db_with_data1.Package.get('titi/rocketchat', '1.0.1')
+        assert sorted(channel.releases()) == sorted([u'1.0.1'])
+        assert 'stable' in package.channels()
+        assert channel.current == "1.0.1"
+        channel.remove_release('1.0.1')
+        with pytest.raises(ChannelNotFound):
+            channel = db_with_data1.Channel.get('dev', 'titi/rocketchat')
 
     @pytest.mark.integration
     def test_channel_delete_absent_releases(self, db_with_data1):
@@ -223,28 +236,6 @@ class TestModels:
             channel.add_release('1.4.1', db_with_data1.Package)
 
     @pytest.mark.integration
-    def test_create_channel(self, db_with_data1):
-        channel = db_with_data1.Channel('newone', 'titi/rocketchat')
-        channels = [c.name for c in db_with_data1.Channel.all('titi/rocketchat')]
-        assert "newone" not in channels
-        channel.save()
-        channels = [c.name for c in db_with_data1.Channel.all('titi/rocketchat')]
-        assert "newone" in channels
-
-    @pytest.mark.integration
-    def test_create_channel_already_exists(self, db_with_data1):
-        channel = db_with_data1.Channel('newone', 'titi/rocketchat')
-        channel.save()
-        with pytest.raises(ChannelAlreadyExists):
-            channel.save()
-
-    @pytest.mark.integration
-    def test_create_channel_already_exists_force(self, db_with_data1):
-        channel = db_with_data1.Channel('newone', 'titi/rocketchat')
-        channel.save()
-        channel.save(True)
-
-    @pytest.mark.integration
     def test_create_channel_absent_package(self, db_with_data1):
         channel = db_with_data1.Channel('newone', 'titi/doest')
         with pytest.raises(PackageNotFound):
@@ -252,8 +243,13 @@ class TestModels:
 
     @pytest.mark.integration
     def test_channel_current_release(self, db_with_data1):
-        channel = db_with_data1.Channel('stable', 'titi/rocketchat')
+        channel = db_with_data1.Channel.get('stable', 'titi/rocketchat')
         assert channel.current_release() == '2.0.1'
+
+    @pytest.mark.integration
+    def test_get_channel_absent(self, db_with_data1):
+        with pytest.raises(ChannelNotFound):
+            db_with_data1.Channel.get('stableh', 'titi/rocketchat')
 
     # @todo better all test
     @pytest.mark.integration

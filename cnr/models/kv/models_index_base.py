@@ -1,10 +1,10 @@
 import json
 import datetime
+import cnr.semver
 from cnr.exception import (ResourceNotFound,
                            raise_channel_not_found,
                            raise_package_not_found,
                            PackageAlreadyExists,
-                           ChannelAlreadyExists,
                            PackageNotFound)
 
 
@@ -188,22 +188,25 @@ class ModelsIndexBase(object):
             return []
 
     def channel(self, channel):
-        return self.releases_data['channels'][channel]
+        try:
+            return self.releases_data['channels'][channel]
+        except KeyError:
+            raise_channel_not_found(channel)
 
-    def _set_channel(self, channel, default=None, force=True):
+    def _set_channel(self, channel, release):
         try:
             self.get_lock(self.releases_key)
             data = self.releases_data
-            if channel in data['channels'] and not force:
-                raise ChannelAlreadyExists("Channel %s exists" % channel, {"channel": channel})
-            data['channels'][channel] = {'name': channel, 'current': default, 'package': self.package}
+            data['channels'][channel] = {'name': channel, 'current': release, 'package': self.package}
+            if channel not in data['releases'][release]['channels']:
+                data['releases'][release]['channels'].append(channel)
             self._write_data(self.releases_key, data)
             return True
         finally:
             self.release_lock(self.releases_key)
 
-    def add_channel(self, channel, force=False):
-        return self._set_channel(channel, default=None, force=force)
+    def add_channel(self, channel, current):
+        return self._set_channel(channel, current)
 
     def delete_channel(self, channel):
         """ Delete the channel from all releases """
@@ -222,7 +225,7 @@ class ModelsIndexBase(object):
 
     def set_channel_default(self, channel, release):
         self._check_channel_release(channel, release)
-        return self._set_channel(channel, default=release, force=True)
+        return self._set_channel(channel, release)
 
     def _check_channel_release(self, channel, release):
         if not self.ischannel_exists(channel):
@@ -247,6 +250,11 @@ class ModelsIndexBase(object):
         try:
             self.get_lock(self.releases_key)
             data = self._delete_channel_release(channel, release)
+            releases = self.channel_releases(channel)
+            if not releases:
+                self.delete_channel(channel)
+            else:
+                self.set_channel_default(channel, releases[0])
             self._write_data(self.releases_key, data)
             return True
         finally:
@@ -261,7 +269,10 @@ class ModelsIndexBase(object):
         return data
 
     def channel_releases(self, channel):
-        return [release for release, x in self.releases_data['releases'].iteritems() if channel in x['channels']]
+        releases = [release for release, x in self.releases_data['releases'].iteritems() if channel in x['channels']]
+        ordered_releases = [str(x) for x in sorted(cnr.semver.versions(releases, False),
+                                                   reverse=True)]
+        return ordered_releases
 
     def release_channels(self, release):
         if release not in self.releases_data['releases']:

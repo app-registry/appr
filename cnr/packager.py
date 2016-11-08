@@ -94,4 +94,5 @@ class Package(object):
             self.io_file.seek(0)
             gunzip = gzip.GzipFile(fileobj=self.io_file, mode='r').read()
             self._digest = hashlib.sha256(gunzip).hexdigest()
+            self.io_file.seek(0)
         return self._digest
