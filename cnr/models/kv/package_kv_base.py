@@ -66,8 +66,7 @@ class PackageKvBase(PackageBase):
         return False
 
     def _save(self, force=False):
-        index = self.index_class(self.package)
-        return index.add_release(self.data, self.release, self.media_type, force)
+        return self.index.add_release(self.data, self.release, self.media_type, force)
 
     @classmethod
     def search(cls, query):
@@ -86,5 +85,5 @@ class PackageKvBase(PackageBase):
 
     @classmethod
     def manifests(cls, package, release):
-        releaseindex = cls.index_class(package)
-        return releaseindex.release_manifests(release).values()
+        index = cls.index_class(package)
+        return index.release_manifests(release).keys()

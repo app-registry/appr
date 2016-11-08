@@ -1,4 +1,6 @@
+import json
 import re
+import hashlib
 import datetime
 import semantic_version
 from cnr.semver import last_version, select_version
@@ -19,6 +21,10 @@ def content_media_type(media_type):
 
 def manifest_media_type(media_type):
     return "application/vnd.cnr.package-manifest.%s.%s.json" % (media_type, SCHEMA_VERSION)
+
+
+def digest_manifest(manifest):
+    return hashlib.sha256(json.dumps(manifest, sort_keys=True)).hexdigest()
 
 
 class PackageBase(object):
@@ -88,17 +94,26 @@ class PackageBase(object):
                 "urls": []}
 
     @classmethod
-    def view_manifests(cls, package, release):
-        view = {'name': package}
-        view['release'] = release
-        view['manifests'] = cls.manifests(package, release)
-        return view
+    def view_manifests(cls, package, release, manifest_only=False):
+        res = []
+        for mtype in cls.manifests(package, release):
+            package = cls.get(package, release, mtype)
+            if manifest_only:
+                res.append(package.manifest())
+            else:
+                res.append(package.data)
+        return res
+
+    def manifest(self):
+        manifest = {"mediaType": self.manifest_media_type,
+                    "content": self.content_descriptor()}
+        return manifest
 
     @classmethod
     def view_releases(cls, package):
         result = []
         for release in cls.all_releases(package):
-            result.append(cls.view_manifests(package, release))
+            result.append(cls.view_manifests(package, release, False))
         return result
 
     @property
