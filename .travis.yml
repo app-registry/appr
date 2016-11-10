@@ -7,6 +7,7 @@ env:
 install:
   - pip install -U tox
   - pip install -U coveralls
+  - pip install -U codecov
 
 cache:
   - pip
@@ -16,3 +17,4 @@ script: tox
 
 after_success:
   - if [ "$TOXENV" == "py27" ] ; then coveralls ; fi
+  - if [ "$TOXENV" == "py27" ] ; then codecov ; fi
