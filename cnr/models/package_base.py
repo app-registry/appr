@@ -15,24 +15,24 @@ from cnr.models.blob_base import BlobBase
 SCHEMA_VERSION = "v1"
 
 
-def content_media_type(media_type):
-    return "application/vnd.cnr.package.%s.%s.tar+gzip" % (media_type, SCHEMA_VERSION)
-
-
-def manifest_media_type(media_type):
-    return "application/vnd.cnr.package-manifest.%s.%s.json" % (media_type, SCHEMA_VERSION)
-
-
-def digest_manifest(manifest):
-    return hashlib.sha256(json.dumps(manifest, sort_keys=True)).hexdigest()
-
-
 def get_media_type(mediatype):
     if mediatype:
         match = re.match(r"application/vnd\.cnr\.package-manifest\.(.+?)\.(.+).json", mediatype)
         if match:
             mediatype = match.group(1)
     return mediatype
+
+
+def content_media_type(media_type):
+    return "application/vnd.cnr.package.%s.%s.tar+gzip" % (media_type, SCHEMA_VERSION)
+
+
+def manifest_media_type(media_type):
+    return "application/vnd.cnr.package-manifest.%s.%s.json" % (get_media_type(media_type), SCHEMA_VERSION)
+
+
+def digest_manifest(manifest):
+    return hashlib.sha256(json.dumps(manifest, sort_keys=True)).hexdigest()
 
 
 class PackageBase(object):

@@ -395,6 +395,5 @@ def delete_channel(package, name, channel_class):
 
 
 def delete_package(package, release, media_type, package_class):
-    packagemodel = _get_package(package, release, media_type, package_class)
-    package_class.delete(packagemodel.package, packagemodel.release, media_type)
-    return {"status": "deleted", "package": packagemodel.package, "release": packagemodel.release}
+    package_class.delete(package, release, media_type)
+    return {"status": "deleted", "package": package, "release": release}
