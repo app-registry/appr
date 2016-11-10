@@ -19,8 +19,8 @@ class PackageKvBase(PackageBase):
         index = cls.index_class(package)
         return index.release(release, media_type)
 
-    def channels(self, channel_class=None):
-        return self.index.release_channels(self.release)
+    # def channels(self, channel_class, iscurrent=True):
+    #     return self.index.release_channels(self.release)
 
     @classmethod
     def all_releases(cls, package, media_type=None):

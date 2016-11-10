@@ -13,7 +13,7 @@ class BlobKvBase(BlobBase):
     def _fetch_b64blob(cls, package_name, digest):
         return cls.index_class(package_name).get_blob(digest)
 
-    def save(self):
+    def save(self, content_media_type):
         return self.index.add_blob(self.b64blob, self.digest)
 
     @classmethod

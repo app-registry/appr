@@ -1,3 +1,5 @@
+from operator import itemgetter
+import collections
 import pytest
 from cnr.exception import (InvalidRelease,
                            PackageAlreadyExists,
@@ -5,6 +7,17 @@ from cnr.exception import (InvalidRelease,
                            Forbidden,
                            ChannelNotFound,
                            PackageNotFound)
+
+
+def convert_utf8(data):
+    if isinstance(data, basestring):
+        return str(data)
+    elif isinstance(data, collections.Mapping):
+        return dict(map(convert_utf8, data.iteritems()))
+    elif isinstance(data, collections.Iterable):
+        return type(data)(map(convert_utf8, data))
+    else:
+        return data
 
 
 @pytest.mark.models
@@ -36,7 +49,15 @@ class TestModels:
         assert newdb.Package.dump_all(newdb.Blob) == []
         assert newdb.Channel.dump_all(newdb.Blob) == []
         newdb.restore_backup(dbdata1)
-        assert sorted(newdb.Package.dump_all(newdb.Blob)) == sorted(dbdata1['packages'])
+        dump = newdb.Package.dump_all(newdb.Blob)
+        sorting = itemgetter('package', "mediaType", "release")
+        dump = convert_utf8(dump)
+        expected_packages = convert_utf8(dbdata1['packages'])
+        for x in xrange(len(expected_packages)):
+            dump[x].pop("created_at")
+            expected_packages[x].pop("created_at")
+
+        assert sorted(dump, key=sorting) == sorted(expected_packages, key=sorting)
         assert sorted(newdb.Channel.dump_all(newdb.Blob)) == sorted(dbdata1['channels'])
 
     @pytest.mark.integration
@@ -102,7 +123,7 @@ class TestModels:
         blob = newdb.Blob("titi/rocketchat", package_b64blob)
         p = newdb.Package("titi/rocketchat", '2.3.4', 'kpm', blob)
         p.save()
-        assert newdb.Package.get("titi/rocketchat", "2.3.4") is not None
+        assert newdb.Package.get("titi/rocketchat", "2.3.4", "kpm") is not None
         with pytest.raises(PackageAlreadyExists):
             p.save()
 
@@ -128,17 +149,18 @@ class TestModels:
 
     @pytest.mark.integration
     def test_list_package_releases(self, db_with_data1):
-        p = db_with_data1.Package.get("titi/rocketchat")
+        p = db_with_data1.Package.get("titi/rocketchat", "default", "kpm")
         assert sorted(p.releases()) == sorted(['0.0.1', '1.0.1', '2.0.1'])
 
     @pytest.mark.integration
     def test_list_package_channels(self, db_with_data1):
-        p = db_with_data1.Package.get("titi/rocketchat", '2.0.1')
-        assert p.channels() == ['stable']
-        p2 = db_with_data1.Package.get("titi/rocketchat", '1.0.1')
-        assert sorted(p2.channels()) == sorted(['stable', 'dev'])
-        p3 = db_with_data1.Package.get("titi/rocketchat", '0.0.1')
-        assert sorted(p3.channels()) == sorted([])
+        p = db_with_data1.Package.get("titi/rocketchat", '2.0.1', "kpm")
+        assert p.channels(db_with_data1.Channel) == ['stable']
+        p2 = db_with_data1.Package.get("titi/rocketchat", '1.0.1', "kpm")
+        assert sorted(p2.channels(db_with_data1.Channel)) == sorted(['dev'])
+        assert sorted(p2.channels(db_with_data1.Channel, iscurrent=False)) == sorted(['dev', 'stable'])
+        p3 = db_with_data1.Package.get("titi/rocketchat", '0.0.1', "kpm")
+        assert sorted(p3.channels(db_with_data1.Channel)) == sorted([])
 
     def test_forbiddeb_db_reset(self, db_class):
         with pytest.raises(Forbidden):
@@ -173,44 +195,44 @@ class TestModels:
     @pytest.mark.integration
     def test_channel_add_release(self, db_with_data1):
         channel = db_with_data1.Channel('default', 'titi/rocketchat')
-        package = db_with_data1.Package.get('titi/rocketchat', '1.0.1')
+        package = db_with_data1.Package.get('titi/rocketchat', '1.0.1', "kpm")
         with pytest.raises(ChannelNotFound):
             channel.releases()
-        assert 'default' not in package.channels()
+        assert 'default' not in package.channels(db_with_data1.Channel)
         channel.add_release('1.0.1', db_with_data1.Package)
         assert sorted(channel.releases()) == sorted(['1.0.1'])
-        assert "default" in package.channels()
+        assert "default" in package.channels(db_with_data1.Channel)
 
     @pytest.mark.integration
     def test_channel_add_release_new_channel(self, db_with_data1):
         channel = db_with_data1.Channel('newone', 'titi/rocketchat')
         assert channel.exists() is False
-        package = db_with_data1.Package.get('titi/rocketchat', '1.0.1')
-        assert 'newone' not in package.channels()
+        package = db_with_data1.Package.get('titi/rocketchat', '1.0.1', "kpm")
+        assert 'newone' not in package.channels(db_with_data1.Channel)
         channel.add_release('1.0.1', db_with_data1.Package)
         assert sorted(channel.releases()) == sorted(['1.0.1'])
-        assert "newone" in package.channels()
+        assert "newone" in package.channels(db_with_data1.Channel)
         assert channel.exists() is True
 
     @pytest.mark.integration
     def test_channel_delete_releases(self, db_with_data1):
         channel = db_with_data1.Channel.get('stable', 'titi/rocketchat')
-        package = db_with_data1.Package.get('titi/rocketchat', '2.0.1')
+        package = db_with_data1.Package.get('titi/rocketchat', '2.0.1', "kpm")
         assert sorted(channel.releases()) == sorted([u'1.0.1', u'2.0.1'])
-        assert 'stable' in package.channels()
+        assert 'stable' in package.channels(db_with_data1.Channel)
         assert channel.current == "2.0.1"
         channel.remove_release('2.0.1')
         assert sorted(channel.releases()) == sorted(['1.0.1'])
         channel = db_with_data1.Channel.get('stable', 'titi/rocketchat')
         assert channel.current is not None
-        assert "stable" not in package.channels()
+        assert "stable" not in package.channels(db_with_data1.Channel)
 
     @pytest.mark.integration
     def test_channel_delete_all_releases(self, db_with_data1):
         channel = db_with_data1.Channel.get('dev', 'titi/rocketchat')
-        package = db_with_data1.Package.get('titi/rocketchat', '1.0.1')
+        package = db_with_data1.Package.get('titi/rocketchat', '1.0.1', "kpm")
         assert sorted(channel.releases()) == sorted([u'1.0.1'])
-        assert 'stable' in package.channels()
+        assert 'dev' in package.channels(db_with_data1.Channel)
         assert channel.current == "1.0.1"
         channel.remove_release('1.0.1')
         with pytest.raises(ChannelNotFound):
@@ -225,14 +247,14 @@ class TestModels:
     @pytest.mark.integration
     def test_channel_add_bad_releases(self, db_with_data1):
         channel = db_with_data1.Channel('stable', 'titi/rocketchat')
-        db_with_data1.Package.get('titi/rocketchat', '1.0.1')
+        db_with_data1.Package.get('titi/rocketchat', '1.0.1', "kpm")
         with pytest.raises(InvalidRelease):
             channel.add_release('1.a.1', db_with_data1.Package)
 
     @pytest.mark.integration
     def test_channel_add_absent_releases(self, db_with_data1):
         channel = db_with_data1.Channel('stable', 'titi/rocketchat')
-        db_with_data1.Package.get('titi/rocketchat', '1.0.1')
+        db_with_data1.Package.get('titi/rocketchat', '1.0.1', "kpm")
         with pytest.raises(PackageReleaseNotFound):
             channel.add_release('1.4.1', db_with_data1.Package)
 

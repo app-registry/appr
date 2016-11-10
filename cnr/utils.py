@@ -1,3 +1,4 @@
+import collections
 import errno
 import os
 import importlib
@@ -11,6 +12,17 @@ class Singleton(type):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
+
+
+def convert_utf8(data):
+    if isinstance(data, basestring):
+        return str(data)
+    elif isinstance(data, collections.Mapping):
+        return dict(map(convert_utf8, data.iteritems()))
+    elif isinstance(data, collections.Iterable):
+        return type(data)(map(convert_utf8, data))
+    else:
+        return data
 
 
 # from celery/kombu https://github.com/celery/celery (BSD license)

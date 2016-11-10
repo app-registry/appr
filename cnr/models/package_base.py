@@ -8,7 +8,7 @@ from cnr.exception import (InvalidRelease,
                            PackageAlreadyExists,
                            raise_package_not_found,
                            PackageReleaseNotFound)
-from cnr.models import DEFAULT_MEDIA_TYPE
+
 from cnr.models.blob_base import BlobBase
 
 
@@ -27,11 +27,19 @@ def digest_manifest(manifest):
     return hashlib.sha256(json.dumps(manifest, sort_keys=True)).hexdigest()
 
 
+def get_media_type(mediatype):
+    if mediatype:
+        match = re.match(r"application/vnd\.cnr\.package-manifest\.(.+?)\.(.+).json", mediatype)
+        if match:
+            mediatype = match.group(1)
+    return mediatype
+
+
 class PackageBase(object):
     def __init__(self, package_name, release=None,
-                 media_type=DEFAULT_MEDIA_TYPE, blob=None):
+                 media_type=None, blob=None):
         self.package = package_name
-        self.media_type = media_type
+        self.media_type = get_media_type(media_type)
         self.namespace, self.name = package_name.split("/")
         self.release = release
         self._data = None
@@ -54,14 +62,14 @@ class PackageBase(object):
                 raise ValueError("blob must be a BlobBase instance")
         self._blob = value
 
-    def channels(self, channel_class):
+    def channels(self, channel_class, iscurrent=True):
         """ Returns all available channels for a package """
         channels = channel_class.all(self.package)
         result = []
         for channel in channels:
-            releases = channel.releases()
-            if self.release in releases:
-                result.append(channel)
+            if ((iscurrent and channel.current == self.release)
+               or (not iscurrent and self.release in channel.releases())):
+                result.append(channel.name)
         return result
 
     @property
@@ -84,9 +92,6 @@ class PackageBase(object):
     def manifest_media_type(self):
         return manifest_media_type(self.media_type)
 
-    def set_media_type(self, mediatype):
-        self.media_type = re.match(r"application/vnd\.cnr\.package-manifest\.(.+?)\.(.+).json", mediatype).group(1)
-
     def content_descriptor(self):
         return {"mediaType": self.content_media_type,
                 "size": self.blob_size,
@@ -94,10 +99,10 @@ class PackageBase(object):
                 "urls": []}
 
     @classmethod
-    def view_manifests(cls, package, release, manifest_only=False):
+    def view_manifests(cls, package_name, release, manifest_only=False):
         res = []
-        for mtype in cls.manifests(package, release):
-            package = cls.get(package, release, mtype)
+        for mtype in cls.manifests(package_name, release):
+            package = cls.get(package_name, release, mtype)
             if manifest_only:
                 res.append(package.manifest())
             else:
@@ -105,6 +110,7 @@ class PackageBase(object):
         return res
 
     def manifest(self):
+
         manifest = {"mediaType": self.manifest_media_type,
                     "content": self.content_descriptor()}
         return manifest
@@ -134,7 +140,7 @@ class PackageBase(object):
         self.release = data['release']
         self._digest = data['content']['digest']
         self._blob_size = data['content']['size']
-        self.set_media_type(data['mediaType'])
+        self.media_type = get_media_type(data['mediaType'])
 
     @classmethod
     def check_release(cls, release):
@@ -145,7 +151,7 @@ class PackageBase(object):
         return None
 
     @classmethod
-    def get(cls, package, release='default', media_type=DEFAULT_MEDIA_TYPE):
+    def get(cls, package, release, media_type):
         """
         package: string following "namespace/package_name" format
         release: release query. If None return latest release
@@ -169,7 +175,10 @@ class PackageBase(object):
             except ValueError as e:
                 raise InvalidRelease(e.message, {"release": release_query})
 
-    def pull(self, release_query=None, media_type=DEFAULT_MEDIA_TYPE):
+    def pull(self, release_query=None, media_type=None):
+        media_type = get_media_type(media_type)
+        if media_type is None:
+            media_type = self.media_type
         if release_query is None:
             release_query = self.release
         package = self.package
@@ -186,7 +195,7 @@ class PackageBase(object):
         if self.isdeleted_release(self.package, self.release) and not force:
             raise PackageAlreadyExists("Package release %s existed" % self.package,
                                        {"package": self.package, "release": self.release})
-        self.blob.save()
+        self.blob.save(self.content_media_type)
         self._save(force, **kwargs)
 
     def releases(self):
@@ -204,7 +213,7 @@ class PackageBase(object):
         raise NotImplementedError
 
     @classmethod
-    def _fetch(cls, package, release, media_type=DEFAULT_MEDIA_TYPE):
+    def _fetch(cls, package, release, media_type):
         raise NotImplementedError
 
     @classmethod

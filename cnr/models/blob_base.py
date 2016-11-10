@@ -14,7 +14,7 @@ class BlobBase(object):
         b64blob = cls._fetch_b64blob(package_name, digest)
         return cls(package_name, b64blob)
 
-    def save(self):
+    def save(self, content_media_type):
         raise NotImplementedError
 
     @classmethod
