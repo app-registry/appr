@@ -266,17 +266,9 @@ class TestServer:
         url = self._url_for("api/v1/packages/%s/channels/%s" % (package, channel))
         res = self.Client(client, self.headers()).get(url)
         assert res.status_code == 200
-        assert self.json(res) == db_with_data1.Channel(channel, package).to_dict()
+        assert self.json(res) == db_with_data1.Channel.get(channel, package).to_dict()
 
     def test_show_channel_absent_package(self, newdb, client):
-        package = "titi/rocketchat"
-        channel = 'no'
-        url = self._url_for("api/v1/packages/%s/channels/%s" % (package, channel))
-        res = self.Client(client, self.headers()).get(url)
-        assert res.status_code == 404
-
-    @pytest.mark.xfail
-    def test_show_channel_absent(self, db_with_data1, client):
         package = "titi/rocketchat"
         channel = 'no'
         url = self._url_for("api/v1/packages/%s/channels/%s" % (package, channel))
@@ -314,7 +306,7 @@ class TestServer:
         release = '1.0.1'
         chanurl = self._url_for("api/v1/packages/%s/channels/%s" % (package, channel))
         res = self.Client(client, self.headers()).get(chanurl)
-        # assert res.status_code == 404  # @TODO uncomment
+        assert res.status_code == 404
         url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, release))
         res = self.Client(client, self.headers()).post(url)
         assert res.status_code == 200

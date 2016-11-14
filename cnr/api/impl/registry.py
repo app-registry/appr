@@ -321,7 +321,7 @@ def show_channel(package, name, channel_class):
     See Also:
        * :obj:`cnr.api.registry.show_channel`
     """
-    c = channel_class(name, package)
+    c = channel_class.get(name, package)
     return c.to_dict()
 
 
@@ -383,13 +383,13 @@ def delete_channel_release(package, name, release, channel_class, package_class)
     See Also:
        * :obj:`cnr.api.registry.delete_channel_release`
     """
-    channel = channel_class(name, package)
+    channel = channel_class.get(name, package)
     channel.remove_release(release)
     return channel.to_dict()
 
 
 def delete_channel(package, name, channel_class):
-    channel = channel_class(name, package)
+    channel = channel_class.get(name, package)
     channel.delete()
     return {"channel": channel.name, "package": package, "action": 'delete'}
 

@@ -183,7 +183,7 @@ class TestModels:
 
     @pytest.mark.integration
     def test_channel_releases(self, db_with_data1):
-        channel = db_with_data1.Channel('stable', 'titi/rocketchat')
+        channel = db_with_data1.Channel.get('stable', 'titi/rocketchat')
         assert sorted(channel.releases()) == sorted([u'1.0.1', u'2.0.1'])
 
     @pytest.mark.integration
