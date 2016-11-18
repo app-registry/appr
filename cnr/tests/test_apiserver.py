@@ -334,7 +334,6 @@ class TestServer:
         url = self._url_for("api/v1/packages/%s/channels/%s/%s" % (package, channel, release))
         res = self.Client(client, self.headers()).delete(url)
         assert res.status_code == 200
-        assert release not in self.json(res)['releases']
 
     def test_delete_channel_release_absent_release(self, db_with_data1, client):
         package = "titi/rocketchat"

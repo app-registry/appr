@@ -374,7 +374,7 @@ def delete_channel_release(package, name, release, channel_class, package_class)
         * releases (list): list channel's releases
 
     Example:
-      >>> cnr.api.impl.registry.list_channels("tit/rocketchat", 'dev')
+      >>> cnr.api.impl.registry.delete_channel_release("tit/rocketchat", 'dev')
       {'channel': u'dev', 'current': '2.0.0-beta', 'releases': [u'1.10.2']}
 
     Raises:
@@ -385,7 +385,7 @@ def delete_channel_release(package, name, release, channel_class, package_class)
     """
     channel = channel_class.get(name, package)
     channel.remove_release(release)
-    return channel.to_dict()
+    return {"status": "deleted", "package": package, "name": name, "release": release}
 
 
 def delete_channel(package, name, channel_class):
