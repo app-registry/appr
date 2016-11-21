@@ -8,21 +8,24 @@ from cnrclient.discovery import ishosted, discover_sources
 
 logger = logging.getLogger(__name__)
 DEFAULT_REGISTRY = 'http://localhost:5000'
-DEFAULT_PREFIX = "/"
+DEFAULT_PREFIX = ""
 
 
 class CnrClient(object):
     def __init__(self, endpoint=DEFAULT_REGISTRY, api_prefix=DEFAULT_PREFIX, auth=None):
-        self.api_prefix = api_prefix
         if endpoint is None:
             endpoint = DEFAULT_REGISTRY
+        if api_prefix:
+            endpoint = endpoint + api_prefix
+
         self.auth = auth
         self.endpoint = urlparse(endpoint)
+
         self._headers = {'Content-Type': 'application/json',
                          'User-Agent': "cnrpy-cli: %s" % cnrclient.__version__}
 
     def _url(self, path):
-        return self.endpoint.geturl() + self.endpoint.path + self.api_prefix + path
+        return self.endpoint.geturl() + path
 
     def auth_token(self):
         """ return the Authorization bearer """
