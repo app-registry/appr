@@ -48,7 +48,7 @@ class CnrClient(object):
 
     def pull(self, name, version, media_type):
         if ishosted(name):
-            sources = discover_sources(name)
+            sources = discover_sources(name, version, media_type)
             path = sources[0]
         else:
             organization, name = name.split("/")
