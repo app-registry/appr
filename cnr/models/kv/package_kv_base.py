@@ -54,6 +54,7 @@ class PackageKvBase(PackageBase):
                                                          reverse=True)]
             view = {'releases': available_releases,
                     'default': available_releases[0],
+                    'manifests': cls.manifests(package_name, available_releases[0]),
                     'name': package_name,
                     'visibility': 'public',
                     'created_at': created_at}
