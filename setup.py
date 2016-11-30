@@ -28,6 +28,7 @@ test_requirements = [
     "pytest",
     "pytest-cov",
     'pytest-flask',
+    'pytest-sugar',
     "pytest-ordering",
     "requests-mock"
 ]
