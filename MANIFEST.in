@@ -1,6 +1,7 @@
 include AUTHORS.rst
 include LICENSE
 include README.md
+include .coveralls.yml
 recursive-include tests *
 recursive-include cnr tests *
 recursive-exclude * __pycache__

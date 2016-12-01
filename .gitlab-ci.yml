@@ -1,0 +1,148 @@
+stages:
+  - unit-tests
+  - code-style
+  - integration-tests
+  - build
+  - release
+
+variables:
+  GITHUB_REPO: "cn-app-registry/cnr-server"
+  GITHUB_INSTALLATION_ID: "3710"
+  HUB2LAB_STATUS_API: https://hub2lab-hook.kpmhub.com/api/v1/github_status
+  IMAGE: quay.io/ant31/cnr-server
+
+cache:
+  paths:
+    - cache
+
+.update_status: &update_status >-
+  curl -XPOST $HUB2LAB_STATUS_API -d "{
+  \"gitlab_project_id\": $CI_PROJECT_ID,
+  \"gitlab_build_id\": $CI_BUILD_ID,
+  \"github_repo\": \"$GITHUB_REPO\",
+  \"installation_id\": $GITHUB_INSTALLATION_ID,
+  \"delay\": 0}"
+
+.delay_update_status: &delay_update_status >-
+  curl -XPOST $HUB2LAB_STATUS_API -d "{
+  \"gitlab_project_id\": $CI_PROJECT_ID,
+  \"gitlab_build_id\": $CI_BUILD_ID,
+  \"github_repo\": \"$GITHUB_REPO\",
+  \"installation_id\": $GITHUB_INSTALLATION_ID,
+  \"delay\": 60}"
+
+before_script:
+  - *update_status
+
+after_script:
+  - *delay_update_status
+
+.job: &job
+  before_script:
+  - *update_status
+  - pip install -e .
+  - pip install -r requirements_dev.txt -U
+  script:
+    - make test db=$CNR_TEST_DB
+  tags:
+    - kubernetes
+  image: python:2.7
+
+test-filesystem:
+  <<: *job
+  stage: unit-tests
+  image: python:2.7
+  script:
+    - pip install -U python-coveralls
+    - make test
+    - coveralls
+  variables:
+    CNR_TEST_DB: filesystem
+
+test-etcd:
+  <<: *job
+  stage: integration-tests
+  services:
+    - quay.io/coreos/etcd:v3.0.6
+  image: python:2.7
+  variables:
+    CNR_TEST_DB: etcd
+    ETCD_HOST: localhost
+
+test-redis:
+  <<: *job
+  stage: integration-tests
+  services:
+    - redis:3
+  image: python:2.7
+  variables:
+    CNR_TEST_DB: redis
+    REDIS_HOST: localhost
+
+flake8:
+  <<: *job
+  image: python:2.7
+  stage: code-style
+  script:
+    - make flake8
+
+pylint:
+  <<: *job
+  image: python:2.7
+  stage: code-style
+  script:
+    - pip install pylint
+    - make pylint
+
+.docker: &docker
+  variables:
+    DOCKER_DRIVER: overlay
+    DOCKER_HOST: tcp://localhost:2375
+  image: docker:git
+  before_script:
+    - *update_status
+    - echo $DOCKER_LOGIN | xargs docker login
+  services:
+     - docker:dind
+  tags:
+    - kubernetes
+
+docker-build:
+  <<: *docker
+  stage: build
+  script:
+    - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
+
+.docker-push: &docker-push
+  <<: *docker
+  stage: release
+  script:
+    - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
+    - docker push $IMAGE:$CI_BUILD_REF_NAME
+
+
+docker-release:
+  <<: *docker-push
+  only:
+    - tags
+    - master
+
+
+docker-push:
+  <<: *docker-push
+  except:
+    - tags
+    - master
+  when: manual
+
+pypi-release:
+  <<: *job
+  image: python:2.7
+  stage: release
+  script:
+    - make release
+  tags:
+    - kubernetes
+  when: manual
+  only:
+    - tags

@@ -1,3 +1,4 @@
+import os
 import etcd
 
 
@@ -5,4 +6,5 @@ class EtcdClient(etcd.client.Client):
     pass
 
 
-etcd_client = EtcdClient(port=2379)
+ETCD_HOST = os.getenv("ETCD_HOST", "localhost")
+etcd_client = EtcdClient(host=ETCD_HOST, port=2379)

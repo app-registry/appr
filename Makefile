@@ -98,4 +98,4 @@ coveralls: test
 	coveralls
 
 pylint:
-	pylint --rcfile=~/.pylintrc cnr
+	pylint --rcfile=~/.pylintrc cnr  -E -r y
