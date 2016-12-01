@@ -1,5 +1,6 @@
 # cnr-server
 
+[![build status](https://gitlab.com/cn-app-registry/cnr-server/badges/master/build.svg)](https://gitlab.com/cn-app-registry/cnr-server/commits/master)
 [![Coverage Status](https://coveralls.io/repos/github/cn-app-registry/cnr-server/badge.svg)](https://coveralls.io/github/cn-app-registry/cnr-server)
 [![Swagger API Reference](https://img.shields.io/badge/swagger-docs-blue.svg)](Documentation/cnr-api-swagger.yaml)
 
