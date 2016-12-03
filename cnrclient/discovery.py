@@ -49,8 +49,8 @@ def discover_sources(package, version, media_type, secure=False):
     for scheme in schemes:
         url = scheme + host
         try:
-            r = requests.get(url, params={"cnr-discovery": 1})
-        except requests.ConnectionError as e:
+            r = requests.get(url, params={"cnr-discovery": 1}, timeout=1)
+        except (requests.exceptions.Timeout, requests.ConnectionError) as e:
             if scheme == "https://" and not secure:
                 continue
             else:
@@ -58,7 +58,7 @@ def discover_sources(package, version, media_type, secure=False):
 
         r.raise_for_status()
         variables = {'name': name, 'version': version,
-                     "mediatype": media_type}
+                     "media_type": media_type}
         p = MetaHTMLParser(variables)
         p.feed(r.content)
         if package in p.meta:
