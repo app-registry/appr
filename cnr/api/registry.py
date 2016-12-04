@@ -89,8 +89,15 @@ def push(namespace, package_name):
     release = values['release']
     media_type = values.get('media_type', DEFAULT_MEDIA_TYPE)
     force = (values.get('force', 'false') == 'true')
+    metadata = values.get('metadata', None)
     blob = Blob(reponame, values['blob'])
-    result = cnr.api.impl.registry.push(reponame, release, media_type, blob, force, Package)
+    result = cnr.api.impl.registry.push(reponame,
+                                        release,
+                                        media_type,
+                                        blob,
+                                        force,
+                                        Package,
+                                        metadata=metadata)
     return jsonify(result)
 
 
