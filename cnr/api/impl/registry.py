@@ -110,7 +110,7 @@ def push(package, release, media_type, blob, force, package_class, **kwargs):
        * :obj:`cnr.api.registry.push`
 
     """
-    p = package_class(package, release, media_type, blob)
+    p = package_class(package, release, media_type, blob, kwargs.get('metadata', None))
     p.save(force=force, **kwargs)
     return {"status": "ok"}
 

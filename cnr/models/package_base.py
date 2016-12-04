@@ -37,7 +37,7 @@ def digest_manifest(manifest):
 
 class PackageBase(object):
     def __init__(self, package_name, release=None,
-                 media_type=None, blob=None):
+                 media_type=None, blob=None, metadata=None):
         self.package = package_name
         self.media_type = get_media_type(media_type)
         self.namespace, self.name = package_name.split("/")
@@ -49,6 +49,7 @@ class PackageBase(object):
         self._blob_size = 0
         self._digest = None
         self._blob = None
+        self.metadata = metadata
         self.blob = blob
 
     @property
@@ -110,7 +111,6 @@ class PackageBase(object):
         return res
 
     def manifest(self):
-
         manifest = {"mediaType": self.manifest_media_type,
                     "content": self.content_descriptor()}
         return manifest
@@ -128,6 +128,7 @@ class PackageBase(object):
             self._data = {'created_at': datetime.datetime.utcnow().isoformat()}
         d = {"package": self.package,
              "release": self.release,
+             "metadata": self.metadata,
              "mediaType": self.manifest_media_type,
              "content": self.content_descriptor()}
         self._data.update(d)
@@ -137,6 +138,7 @@ class PackageBase(object):
     def data(self, data):
         self._data = data
         self.created_at = data['created_at']
+        self.metadata = data.get('metadata', None)
         self.release = data['release']
         self._digest = data['content']['digest']
         self._blob_size = data['content']['size']
