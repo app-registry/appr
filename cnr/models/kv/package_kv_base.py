@@ -74,7 +74,7 @@ class PackageKvBase(PackageBase):
         """ TODO """
         return False
 
-    def _save(self, force=False):
+    def _save(self, force=False, **kwargs):
         return self.index.add_release(self.data, self.release, self.media_type, force)
 
     @classmethod
