@@ -6,40 +6,15 @@ stages:
   - release
 
 variables:
-  GITHUB_REPO: "cn-app-registry/cnr-server"
-  GITHUB_INSTALLATION_ID: "3710"
-  HUB2LAB_STATUS_API: https://hub2lab-hook.kpmhub.com/api/v1/github_status
+  FAILFASTCI_NAMESPACE: 'failfast-ci'
   IMAGE: quay.io/ant31/cnr-server
 
 cache:
   paths:
     - cache
 
-.update_status: &update_status >-
-  curl -XPOST $HUB2LAB_STATUS_API -d "{
-  \"gitlab_project_id\": $CI_PROJECT_ID,
-  \"gitlab_build_id\": $CI_BUILD_ID,
-  \"github_repo\": \"$GITHUB_REPO\",
-  \"installation_id\": $GITHUB_INSTALLATION_ID,
-  \"delay\": 0}"
-
-.delay_update_status: &delay_update_status >-
-  curl -XPOST $HUB2LAB_STATUS_API -d "{
-  \"gitlab_project_id\": $CI_PROJECT_ID,
-  \"gitlab_build_id\": $CI_BUILD_ID,
-  \"github_repo\": \"$GITHUB_REPO\",
-  \"installation_id\": $GITHUB_INSTALLATION_ID,
-  \"delay\": 60}"
-
-before_script:
-  - *update_status
-
-after_script:
-  - *delay_update_status
-
 .job: &job
   before_script:
-  - *update_status
   - pip install -e .
   - pip install -r requirements_dev.txt -U
   script:
