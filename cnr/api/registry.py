@@ -1,7 +1,7 @@
 import json
 from base64 import b64decode
 from flask import jsonify, request, Blueprint, current_app
-from cnr.api.app import getvalues
+from cnr.api.app import getvalues, repo_name
 import cnr.api.impl.registry
 from cnr.exception import (CnrException,
                            InvalidUsage,
@@ -38,15 +38,6 @@ def render_error(error):
     response = jsonify({"error": error.to_dict()})
     response.status_code = error.status_code
     return response
-
-
-def repo_name(namespace, name):
-    def _check(name, scope):
-        if name is None:
-            raise InvalidUsage("%s: %s is malformed" % (scope, name), {'name': name})
-    _check(namespace, 'namespace')
-    _check(name, 'package-name')
-    return "%s/%s" % (namespace, name)
 
 
 @registry_app.route("/test_error")
@@ -110,7 +101,7 @@ def delete_package(namespace, package_name, release, media_type):
 def list_packages():
     values = getvalues()
     namespace = values.get('namespace', None)
-    result = cnr.api.impl.registry.list_packages(namespace, Package)
+    result = cnr.api.impl.registry.list_packages(namespace, Package, search=values.get('query', None))
     resp = current_app.make_response(json.dumps(result))
     resp.mimetype = 'application/json'
     return resp

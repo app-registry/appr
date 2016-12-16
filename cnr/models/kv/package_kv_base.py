@@ -42,13 +42,21 @@ class PackageKvBase(PackageBase):
         return result
 
     @classmethod
-    def all(cls, namespace=None):
+    def all(cls, namespace=None, **kwargs):
         index = cls.index_class()
         result = []
+        matching = None
+        if 'search' in kwargs and kwargs['search']:
+            matching = cls.search(kwargs['search'])
+
         for package_data in index.packages(namespace):
             namespace, name = package_data['namespace'], package_data['name']
-            created_at = package_data['created_at']
             package_name = "%s/%s" % (namespace, name)
+
+            if matching is not None and package_name not in matching:
+                continue
+
+            created_at = package_data['created_at']
             releaseindex = cls.index_class(package_name)
             available_releases = [str(x) for x in sorted(semver.versions(releaseindex.releases(), False),
                                                          reverse=True)]

@@ -1,6 +1,7 @@
 import os
 from flask import Flask, request
 from flask_cors import CORS
+from cnr.exception import InvalidUsage
 
 
 def getvalues():
@@ -25,6 +26,15 @@ def create_app():
     app.register_blueprint(registry_app, url_prefix='')
     app.logger.info("Start service")
     return app
+
+
+def repo_name(namespace, name):
+    def _check(name, scope):
+        if name is None:
+            raise InvalidUsage("%s: %s is malformed" % (scope, name), {'name': name})
+    _check(namespace, 'namespace')
+    _check(name, 'package-name')
+    return "%s/%s" % (namespace, name)
 
 
 if __name__ == "__main__":
