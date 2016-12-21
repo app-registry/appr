@@ -49,7 +49,7 @@ def discover_sources(package, version, media_type, secure=False):
     for scheme in schemes:
         url = scheme + host
         try:
-            r = requests.get(url, params={"cnr-discovery": 1}, timeout=1)
+            r = requests.get(url, params={"cnr-discovery": 1}, timeout=2)
         except (requests.exceptions.Timeout, requests.ConnectionError) as e:
             if scheme == "https://" and not secure:
                 continue

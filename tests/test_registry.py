@@ -7,6 +7,11 @@ from cnrclient.client import CnrClient, DEFAULT_REGISTRY, DEFAULT_PREFIX
 import cnrclient
 
 
+@pytest.fixture()
+def channels_data():
+    return {'dev': {'current': '1.0.0-rc', 'name': 'dev'}}
+
+
 def test_headers_without_auth():
     r = CnrClient()
     assert sorted(r.headers.keys()) == ['Content-Type', 'User-Agent']
@@ -43,6 +48,32 @@ def test_pull():
         response = 'package_data'
         m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages/orga/p1/1.0.0/helm/pull", text=response)
         assert r.pull("orga/p1", "1.0.0", "helm") == response
+
+
+def test_pull_channel(channels_data):
+    r = CnrClient()
+    with requests_mock.mock() as m:
+        response = 'package_data'
+        m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages/orga/p1/1.0.0-rc/helm/pull", text=response)
+        m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages/orga/p1/channels/dev",
+              text=json.dumps(channels_data['dev']))
+        assert r.pull("orga/p1", ":dev", "helm") == response
+
+
+def test_pull_digest():
+    r = CnrClient()
+    with requests_mock.mock() as m:
+        response = 'package_data'
+        m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages/orga/p1/blobs/sha256/2432", text=response)
+        assert r.pull("orga/p1", "@sha256:2432", "helm") == response
+
+
+def test_pull_version():
+    r = CnrClient()
+    with requests_mock.mock() as m:
+        response = 'package_data'
+        m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages/orga/p1/0.8.1/helm/pull", text=response)
+        assert r.pull("orga/p1", "@0.8.1", "helm") == response
 
 
 def test_pull_discovery_https(discovery_html):

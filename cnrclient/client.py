@@ -46,13 +46,29 @@ class CnrClient(object):
         resp.raise_for_status()
         return resp.json()
 
+    def _get_pull_url(self, package, version, media_type):
+        organization, name = package.split("/")
+        if str.startswith(version, "@sha256:"):
+            digest = version.split("@sha256:")[1]
+            url = "/api/v1/packages/%s/%s/blobs/sha256/%s" % (organization, name, digest)
+        elif version[0] == ":":
+            chan_name = version[1:]
+            channel = self.show_channels(package, chan_name)
+            version = channel['current']
+            url = "/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version, media_type)
+        elif version[0] == "@":
+            version = version[1:]
+            url = "/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version, media_type)
+        else:
+            url = "/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version, media_type)
+        return url
+
     def pull(self, name, version, media_type):
         if ishosted(name):
             sources = discover_sources(name, version, media_type)
             path = sources[0]
         else:
-            organization, name = name.split("/")
-            path = self._url("/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version, media_type))
+            path = self._url(self._get_pull_url(name, version, media_type))
         resp = requests.get(path, headers=self.headers)
         resp.raise_for_status()
         return resp.content
