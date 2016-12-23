@@ -1,9 +1,10 @@
 import json
 import logging
-from urlparse import urlparse
 import requests
+from requests.utils import urlparse
 import cnrclient
 from cnrclient.discovery import ishosted, discover_sources
+from cnrclient.auth import CnrAuth
 
 
 logger = logging.getLogger(__name__)
@@ -17,10 +18,11 @@ class CnrClient(object):
             endpoint = DEFAULT_REGISTRY
         if api_prefix:
             endpoint = endpoint + api_prefix
-
-        self.auth = auth
         self.endpoint = urlparse(endpoint)
-
+        if not auth:
+            auth = CnrAuth()
+        self.auth = auth
+        self.host = self.endpoint.geturl()
         self._headers = {'Content-Type': 'application/json',
                          'User-Agent': "cnrpy-cli: %s" % cnrclient.__version__}
 
@@ -29,7 +31,7 @@ class CnrClient(object):
 
     def auth_token(self):
         """ return the Authorization bearer """
-        return self.auth
+        return self.auth.token(self.host)
 
     @property
     def headers(self):
@@ -129,3 +131,26 @@ class CnrClient(object):
     def delete_channel_release(self, name, channel, release):
         path = "%s/%s" % (channel, release)
         return self._crud_channel(name, path, 'delete')
+
+    def login(self, username, password):
+        path = "/api/v1/users/login"
+        resp = requests.post(self._url(path),
+                             data=json.dumps({"user": {"username": username, "password": password}}),
+                             headers=self.headers)
+        resp.raise_for_status()
+        result = resp.json()
+        self.auth.add_token(self.host, result['token'])
+        return result
+
+    def signup(self, username, password, password_confirmation, email):
+        path = "/api/v1/users"
+        resp = requests.post(self._url(path),
+                             data=json.dumps({"user": {"username": username,
+                                                       "password": password,
+                                                       "password_confirmation": password_confirmation,
+                                                       "email": email}}),
+                             headers=self.headers)
+        resp.raise_for_status()
+        result = resp.json()
+        self.auth.add_token(self.host, result['token'])
+        return result

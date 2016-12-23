@@ -11,9 +11,16 @@ except ImportError:
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-requirements = [
+base_requirements = [
+    'future',
     'futures',
+    'requests',
 ]
+
+cli_requirements = [
+    'tabulate',
+    'termcolor'
+    ]
 
 test_requirements = [
     "pytest",
@@ -23,16 +30,22 @@ test_requirements = [
     "requests-mock"
 ]
 
+requirements = base_requirements + cli_requirements
+
 setup(
     name='cnrclient',
-    version='0.2.5',
+    version='0.3.0',
     description="cloud-native app registry server",
     long_description=readme,
     author="Antoine Legrand",
     author_email='2t.antoine@gmail.com',
     url='https://github.com/ant31/cn-app-registry/cnrclient-server',
     packages=[
-        'cnrclient'
+        'cnrclient',
+        'cnrclient.commands'
+    ],
+    scripts=[
+        'bin/cnr'
     ],
     package_dir={'cnrclient':
                  'cnrclient'},

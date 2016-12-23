@@ -1,5 +1,5 @@
 import re
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 import requests
 
 
@@ -13,7 +13,7 @@ class MetaHTMLParser(HTMLParser):
         HTMLParser.__init__(self)
 
     def replace_values(self, s):
-        for k, v in self.variables.iteritems():
+        for k, v in self.variables.items():
             s = s.replace("{%s}" % k, v)
         return s
 
@@ -61,7 +61,7 @@ def discover_sources(package, version, media_type, secure=False):
                      "media_type": media_type,
                      "mediatype": media_type}
         p = MetaHTMLParser(variables)
-        p.feed(r.content)
+        p.feed(r.content.decode())
         if package in p.meta:
             return p.meta[package]
     return None

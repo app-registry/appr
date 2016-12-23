@@ -49,11 +49,8 @@ clean-test:
 lint:
 	flake8 cnrclient tests
 
-test-cli:
-	py.test --cov=cnrclient --cov=bin/cnrclient --cov-report=html --cov-report=term-missing  --verbose tests -m "cli" --cov-config=.coverage-cli.ini
-
 test:
-	py.test --cov=cnrclient --cov-report=html --cov-report=term-missing  --verbose tests -m "not cli" --cov-config=.coverage-unit.ini
+	py.test --cov=cnrclient --cov-report=html --cov-report=term-missing  --verbose tests
 
 test-all:
 	py.test --cov=cnrclient --cov-report=html --cov-report=term-missing  --verbose tests
@@ -98,4 +95,4 @@ coveralls: test
 	coveralls
 
 pylint:
-	pylint --rcfile=~/.pylintrc cnrclient
+	-pylint --rcfile=".pylintrc" cnrclient
