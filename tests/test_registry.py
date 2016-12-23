@@ -12,6 +12,11 @@ def channels_data():
     return {'dev': {'current': '1.0.0-rc', 'name': 'dev'}}
 
 
+@pytest.fixture(autouse=True)
+def fakehome(fake_home):
+    pass
+
+
 def test_headers_without_auth():
     r = CnrClient()
     assert sorted(r.headers.keys()) == ['Content-Type', 'User-Agent']
@@ -20,7 +25,8 @@ def test_headers_without_auth():
 
 
 def test_headers_with_auth():
-    r = CnrClient(auth="titi")
+    r = CnrClient()
+    r.auth.add_token('*', 'titi')
     assert sorted(r.headers.keys()) == ["Authorization", 'Content-Type', 'User-Agent']
     assert r.headers["Authorization"] == "titi"
     assert r.headers["Content-Type"] == "application/json"
