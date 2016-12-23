@@ -95,4 +95,4 @@ coveralls: test
 	coveralls
 
 pylint:
-	pylint --rcfile=".pylintrc" cnrclient
+	-pylint --rcfile=".pylintrc" cnrclient

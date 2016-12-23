@@ -1,6 +1,7 @@
 import json
 import logging
 import requests
+from requests.utils import urlparse
 import cnrclient
 from cnrclient.discovery import ishosted, discover_sources
 from cnrclient.auth import CnrAuth
@@ -17,7 +18,7 @@ class CnrClient(object):
             endpoint = DEFAULT_REGISTRY
         if api_prefix:
             endpoint = endpoint + api_prefix
-        self.endpoint = requests.utils.urlparse(endpoint)
+        self.endpoint = urlparse(endpoint)
         if not auth:
             auth = CnrAuth()
         self.auth = auth

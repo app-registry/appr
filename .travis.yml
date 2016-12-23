@@ -3,11 +3,13 @@ sudo: false
 env:
   - MAKECMD=test
   - MAKECMD=flake8
+  - MAKECMD=pylint
 
 install:
   - pip install -U coveralls
   - pip install -U codecov
   - pip install -r requirements_tests.txt
+  - pip install -e .
 
 python:
   - 2.7
@@ -18,7 +20,7 @@ cache:
 
 language: python
 script:
-  - make $MAKECMD
+  - PYTHONPATH="." make $MAKECMD
 
 after_success:
   - if [ "$MAKECMD" == "test" ] ; then coveralls ; fi
