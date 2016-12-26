@@ -16,7 +16,7 @@ class VersionCmd(CommandBase):
 
     @classmethod
     def _add_arguments(cls, parser):
-        cls._add_registryhost_option(parser)
+        cls._add_registryhost_arg(parser)
 
     def _api_version(self):
         api_version = None
