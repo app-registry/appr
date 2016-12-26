@@ -3,7 +3,6 @@ from builtins import input
 import getpass
 import argparse
 
-from cnrclient.client import CnrClient as RegistryClient
 from cnrclient.commands.command_base import CommandBase
 
 
@@ -33,7 +32,7 @@ class LoginCmd(CommandBase):
                             help="email for signup")
 
     def _call(self):
-        client = RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host)
         if self.user is not None:
             user = self.user
         else:

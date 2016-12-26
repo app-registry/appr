@@ -1,6 +1,5 @@
 import os
 from cnrclient.utils import package_filename
-from cnrclient.client import CnrClient as RegistryClient
 from cnrclient.pack import CnrPackage
 from cnrclient.commands.command_base import CommandBase
 
@@ -31,7 +30,7 @@ class PullCmd(CommandBase):
                             help="download the tar.gz")
 
     def _call(self):
-        client = RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host)
         result = client.pull(self.package, version=self.version, media_type=self.media_type)
         package = CnrPackage(result, b64_encoded=False)
         filename = package_filename(self.package, self.version, self.media_type)

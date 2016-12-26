@@ -1,13 +1,32 @@
 from __future__ import print_function
+import argparse
 import json
 import yaml
 
 import cnrclient
+from cnrclient.client import CnrClient
+from cnrclient.utils import parse_package_name
+
+
+class PackageName(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string=None):
+        try:
+            name = value[0]
+            package_parts = parse_package_name(name)
+            if package_parts['host'] is not None:
+                setattr(namespace, "registry_host", package_parts['host'])
+            if package_parts['version'] is not None:
+                setattr(namespace, 'version', package_parts['version'])
+            package = package_parts['package']
+        except ValueError as exc:
+            raise parser.error(exc.message)
+        setattr(namespace, self.dest, package)
 
 
 class CommandBase(object):
     name = 'command-base'
     help_message = 'describe the command'
+    RegistryClient = CnrClient
 
     def __init__(self, args_options):
         self.args_options = args_options
@@ -77,7 +96,7 @@ class CommandBase(object):
 
     @classmethod
     def _add_packagename_option(cls, parser):
-        parser.add_argument('package', nargs=1, action=cnrclient.command.PackageName, help="package-name")
+        parser.add_argument('package', nargs=1, action=PackageName, help="package-name")
 
     @classmethod
     def _add_packageversion_option(cls, parser):

@@ -1,4 +1,3 @@
-from cnrclient.client import CnrClient as RegistryClient
 from cnrclient.commands.command_base import CommandBase
 from cnrclient.display import print_channels
 
@@ -35,7 +34,7 @@ class ChannelCmd(CommandBase):
                             help="Remove a release from the channel")
 
     def _call(self):
-        client = RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host)
         package = self.package
         name = self.channel
         if self.delete is True:

@@ -1,3 +1,4 @@
+import re
 import json
 import logging
 import requests
@@ -13,11 +14,18 @@ DEFAULT_PREFIX = ""
 
 
 class CnrClient(object):
-    def __init__(self, endpoint=DEFAULT_REGISTRY, api_prefix=DEFAULT_PREFIX, auth=None):
+    def __init__(self, endpoint=DEFAULT_REGISTRY, api_prefix=DEFAULT_PREFIX, auth=None, insecure=False):
         if endpoint is None:
             endpoint = DEFAULT_REGISTRY
         if api_prefix:
             endpoint = endpoint + api_prefix
+
+        if not re.match("https?://", endpoint):
+            if insecure or str.startswith(endpoint, "localhost"):
+                scheme = "http://"
+            else:
+                scheme = "https://"
+            endpoint = scheme + endpoint
         self.endpoint = urlparse(endpoint)
         if not auth:
             auth = CnrAuth()

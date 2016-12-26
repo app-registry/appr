@@ -1,4 +1,3 @@
-from cnrclient.client import CnrClient as RegistryClient
 from cnrclient.display import print_packages
 from cnrclient.commands.command_base import CommandBase
 
@@ -26,7 +25,7 @@ class ListPackageCmd(CommandBase):
                             help="search query")
 
     def _call(self):
-        client = RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host)
         self.result = client.list_packages(user=self.user, organization=self.organization,
                                            text_search=self.query)
 

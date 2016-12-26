@@ -1,12 +1,10 @@
 import argparse
 import os
 import base64
-import cnrclient.command
+
 from cnrclient.pack import pack_kub
 from cnrclient.utils import package_filename
-from cnrclient.client import CnrClient as RegistryClient
-
-from cnrclient.commands.command_base import CommandBase
+from cnrclient.commands.command_base import CommandBase, PackageName
 
 
 class PushCmd(CommandBase):
@@ -30,12 +28,12 @@ class PushCmd(CommandBase):
         cls._add_registryhost_option(parser)
         cls._add_mediatype_option(parser)
         cls._add_packageversion_option(parser)
-        parser.add_argument('-n', "--name", default=None, action=cnrclient.command.PackageName, help="package-name")
+        parser.add_argument('-n', "--name", default=None, action=PackageName, help="package-name")
         parser.add_argument("-f", "--force", action='store_true', default=False,
                             help="force push")
 
     def _push(self):
-        client = RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host)
         filename = package_filename(self.package_name, self.version, self.media_type)
         # @TODO: Pack in memory
         kubepath = os.path.join(".", filename + ".tar.gz")

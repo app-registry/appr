@@ -1,7 +1,6 @@
 import requests
 
 import cnrclient
-from cnrclient.client import CnrClient as RegistryClient
 from cnrclient.commands.command_base import CommandBase
 
 
@@ -22,7 +21,7 @@ class VersionCmd(CommandBase):
     def _api_version(self):
         api_version = None
         try:
-            client = RegistryClient(self.registry_host)
+            client = self.RegistryClient(self.registry_host)
             response = client.version()
             api_version = response
         except requests.exceptions.RequestException:

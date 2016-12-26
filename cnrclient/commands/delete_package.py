@@ -1,4 +1,3 @@
-from cnrclient.client import CnrClient as RegistryClient
 from cnrclient.commands.command_base import CommandBase
 
 
@@ -22,7 +21,7 @@ class DeletePackageCmd(CommandBase):
         cls._add_packageversion_option(parser)
 
     def _call(self):
-        client = RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host)
         self.result = client.delete_package(self.package, version=self.version, media_type=self.media_type)
 
     def _render_dict(self):

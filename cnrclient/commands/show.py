@@ -1,4 +1,3 @@
-from cnrclient.client import CnrClient as RegistryClient
 from cnrclient.pack import CnrPackage
 from cnrclient.commands.command_base import CommandBase
 
@@ -28,7 +27,7 @@ class ShowCmd(CommandBase):
         parser.add_argument('-f', '--file', help="Display a file", default=None)
 
     def _call(self):
-        client = RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host)
         result = client.pull(self.package, version=self.version, media_type=self.media_type)
         package = CnrPackage(result, b64_encoded=False)
         if self.tree:
