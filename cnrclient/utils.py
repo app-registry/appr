@@ -3,6 +3,14 @@ import errno
 import re
 
 
+def get_media_type(mediatype):
+    if mediatype:
+        match = re.match(r"application/vnd\.cnr\.[a-z_-]+\.(.+?)\.(.+).(.+)", mediatype)
+        if match:
+            mediatype = match.group(1)
+    return mediatype
+
+
 def package_filename(name, version, media_type):
     return "%s_%s_%s" % (name.replace("/", "_"), version, media_type)
 

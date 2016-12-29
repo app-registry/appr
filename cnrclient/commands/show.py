@@ -1,4 +1,4 @@
-from cnrclient.pack import CnrPackage
+from cnrclient.display import print_package_info
 from cnrclient.commands.command_base import CommandBase
 
 
@@ -11,35 +11,26 @@ class ShowCmd(CommandBase):
         self.package = options.package
         self.registry_host = options.registry_host
         self.version = options.version
-        self.file = options.file
-        self.tree = options.tree
         self.media_type = options.media_type
+        self.verbose = options.wide
         self.result = None
         self.format = options.media_type
 
     @classmethod
     def _add_arguments(cls, parser):
         cls._add_registryhost_option(parser)
-        cls._add_mediatype_option(parser)
+        cls._add_mediatype_option(parser, default=None)
         cls._add_packagename_option(parser)
         cls._add_packageversion_option(parser)
-        parser.add_argument('--tree', help="List files inside the package", action='store_true', default=False)
-        parser.add_argument('-f', '--file', help="Display a file", default=None)
+        parser.add_argument("-w", "--wide",
+                            help="Extend display informations", action="store_true", default=False)
 
     def _call(self):
         client = self.RegistryClient(self.registry_host)
-        result = client.pull(self.package, version=self.version, media_type=self.media_type)
-        package = CnrPackage(result, b64_encoded=False)
-        if self.tree:
-            self.result = "\n".join(package.tree())
-        elif self.file:
-            self.result = package.file(self.file)
-        else:
-            self.result = package.manifest
+        self.result = client.show_package(self.package, version=self.version, media_type=self.media_type)
 
     def _render_dict(self):
-        return {"show": self.package,
-                "output": self.result}
+        return self.result
 
     def _render_console(self):
-        return self.result
+        return "Info: %s\n\n" % self.package + print_package_info(self.result, self.verbose)

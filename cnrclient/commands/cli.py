@@ -1,6 +1,7 @@
 import argparse
 
 from cnrclient.commands.push import PushCmd
+from cnrclient.commands.inspect import InspectCmd
 from cnrclient.commands.pull import PullCmd
 from cnrclient.commands.version import VersionCmd
 from cnrclient.commands.show import ShowCmd
@@ -13,6 +14,7 @@ from cnrclient.commands.delete_package import DeletePackageCmd
 
 def all_commands():
     return {
+        InspectCmd.name: InspectCmd,
         PushCmd.name: PushCmd,
         VersionCmd.name: VersionCmd,
         PullCmd.name: PullCmd,

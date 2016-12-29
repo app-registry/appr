@@ -56,6 +56,14 @@ class CnrClient(object):
         resp.raise_for_status()
         return resp.json()
 
+    def show_package(self, package, version=None, media_type=None):
+        path = "/api/v1/packages/%s" % (package)
+        if version and version != 'default':
+            path = path + "/%s" % version
+        resp = requests.get(self._url(path), headers=self.headers)
+        resp.raise_for_status()
+        return resp.json()
+
     def _get_pull_url(self, package, version, media_type):
         organization, name = package.split("/")
         if str.startswith(version, "@sha256:"):
@@ -123,7 +131,10 @@ class CnrClient(object):
             channel = ''
         path = "/api/v1/packages/%s/channels/%s" % (name, channel)
         resp = getattr(requests, action)(self._url(path), params={}, headers=self.headers)
+        if channel == '' and resp.status_code == 404:
+            return []
         resp.raise_for_status()
+
         return resp.json()
 
     def show_channels(self, name, channel=None):
