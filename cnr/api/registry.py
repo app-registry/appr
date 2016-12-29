@@ -64,7 +64,7 @@ def pull(namespace, package_name, release, media_type):
     reponame = repo_name(namespace, package_name)
     data = cnr.api.impl.registry.pull(reponame, release, media_type, Package, blob_class=Blob)
     if request.args.get('format', None) == 'json':
-        resp = jsonify({"package": data['package'], "blob": data['blob']})
+        resp = jsonify(data)
     else:
         resp = current_app.make_response(b64decode(data['blob']))
         resp.headers['Content-Disposition'] = data['filename']
