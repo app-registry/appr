@@ -12,11 +12,13 @@ class ListPackageCmd(CommandBase):
         self.user = options.user
         self.organization = options.organization
         self.query = options.search
+        self.media_type = options.media_type
         self.result = None
 
     @classmethod
     def _add_arguments(cls, parser):
         cls._add_registryhost_arg(parser)
+        cls._add_mediatype_option(parser, default=None)
         parser.add_argument("-u", "--user", default=None,
                             help="list packages owned by USER")
         parser.add_argument("-o", "--organization", default=None,
@@ -26,8 +28,17 @@ class ListPackageCmd(CommandBase):
 
     def _call(self):
         client = self.RegistryClient(self.registry_host)
-        self.result = client.list_packages(user=self.user, organization=self.organization,
-                                           text_search=self.query)
+        params = {}
+        if self.user:
+            params['username'] = self.user
+        if self.organization:
+            params["namespace"] = self.organization
+        if self.query:
+            params['query'] = self.query
+        if self.media_type:
+            params['media_type'] = self.media_type
+
+        self.result = client.list_packages(params)
 
     def _render_dict(self):
         return self.result

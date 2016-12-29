@@ -8,6 +8,7 @@ from cnrclient.commands.command_base import CommandBase
 from cnrclient.formats.helm.manifest_chart import ManifestChart
 from cnrclient.formats import detect_format
 
+
 class PushCmd(CommandBase):
     name = 'push'
     help_message = "push a package to the registry"

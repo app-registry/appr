@@ -114,7 +114,7 @@ def test_list_packages():
     with requests_mock.mock() as m:
         response = '{"packages": "true"}'
         m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages", text=response)
-        assert json.dumps(r.list_packages()) == response
+        assert json.dumps(r.list_packages({})) == response
 
 
 def test_list_packages_username():
@@ -122,23 +122,23 @@ def test_list_packages_username():
     with requests_mock.mock() as m:
         response = '{"packages": "true"}'
         m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages?username=ant31", complete_qs=True, text=response)
-        assert json.dumps(r.list_packages(user="ant31")) == response
+        assert json.dumps(r.list_packages({'username': "ant31"})) == response
 
 
 def test_list_packages_orga():
     r = CnrClient()
     with requests_mock.mock() as m:
         response = '{"packages": "true"}'
-        m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages?organization=ant31", complete_qs=True, text=response)
-        assert json.dumps(r.list_packages(organization="ant31")) == response
+        m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages?namespace=ant31", complete_qs=True, text=response)
+        assert json.dumps(r.list_packages({'namespace': "ant31"})) == response
 
 
 def test_list_packages_orga_and_user():
     r = CnrClient()
     with requests_mock.mock() as m:
         response = '{"packages": "true"}'
-        m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages?username=titi&organization=ant31", complete_qs=True, text=response)
-        assert json.dumps(r.list_packages(user="titi", organization="ant31")) == response
+        m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages?username=titi&namespace=ant31", complete_qs=True, text=response)
+        assert json.dumps(r.list_packages({"username": "titi", "namespace": "ant31"})) == response
 
 
 def test_delete_package():

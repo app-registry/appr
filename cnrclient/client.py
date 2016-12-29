@@ -93,15 +93,8 @@ class CnrClient(object):
         resp.raise_for_status()
         return resp.json()
 
-    def list_packages(self, user=None, organization=None, text_search=None):
+    def list_packages(self, params):
         path = "/api/v1/packages"
-        params = {}
-        if user:
-            params['username'] = user
-        if organization:
-            params["organization"] = organization
-        if text_search:
-            params['query'] = text_search
         resp = requests.get(self._url(path), params=params, headers=self.headers)
         resp.raise_for_status()
         return resp.json()

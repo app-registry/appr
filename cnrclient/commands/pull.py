@@ -1,5 +1,5 @@
 import os
-from cnrclient.utils import package_filename, parse_version
+from cnrclient.utils import parse_version
 from cnrclient.pack import CnrPackage
 from cnrclient.commands.command_base import CommandBase
 
