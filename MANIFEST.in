@@ -1,7 +1,8 @@
 include AUTHORS.rst
 include LICENSE
 include README.md
-recursive-include tests *
+recursive-include tests
+recursive-include cnrclient/commands/plugins *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 

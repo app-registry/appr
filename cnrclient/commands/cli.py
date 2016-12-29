@@ -10,6 +10,7 @@ from cnrclient.commands.logout import LogoutCmd
 from cnrclient.commands.channel import ChannelCmd
 from cnrclient.commands.list_package import ListPackageCmd
 from cnrclient.commands.delete_package import DeletePackageCmd
+from cnrclient.commands.plugins import PluginsCmd
 
 
 def all_commands():
@@ -23,6 +24,7 @@ def all_commands():
         LogoutCmd.name: LogoutCmd,
         ChannelCmd.name: ChannelCmd,
         DeletePackageCmd.name: DeletePackageCmd,
+        PluginsCmd.name: PluginsCmd,
         ListPackageCmd.name: ListPackageCmd,
     }
 

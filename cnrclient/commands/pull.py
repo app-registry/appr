@@ -25,7 +25,7 @@ class PullCmd(CommandBase):
         cls._add_mediatype_option(parser)
         cls._add_packagename_option(parser)
         cls._add_packageversion_option(parser)
-        parser.add_argument("--dest", default="/tmp",
+        parser.add_argument("--dest", default="./",
                             help="directory used to extract resources")
         parser.add_argument("--tarball", action="store_true", default=False,
                             help="download the tar.gz")
