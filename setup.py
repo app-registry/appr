@@ -45,6 +45,7 @@ setup(
         'cnrclient.commands',
         'cnrclient.formats',
         'cnrclient.formats.helm',
+        'cnrclient.formats.kpm',
     ],
     scripts=[
         'bin/cnr'

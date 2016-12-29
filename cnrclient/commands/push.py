@@ -87,4 +87,4 @@ class PushCmd(CommandBase):
                 "media_type": self.media_type}
 
     def _render_console(self):
-        return "package: %s (%s) pushed" % (self.package_name, self.version)
+        return "package: %s (%s | %s) pushed" % (self.package_name, self.version, self.media_type)
