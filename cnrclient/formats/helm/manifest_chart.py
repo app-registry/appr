@@ -1,3 +1,5 @@
+from __future__ import print_function
+import sys
 import os.path
 import yaml
 
@@ -22,11 +24,11 @@ class ManifestChart(dict):
     def _load_yaml(self, yamlstr):
         try:
             self.update(yaml.load(yamlstr))
-        except yaml.YAMLError, exc:
-            print "Error in configuration file:"
+        except yaml.YAMLError as exc:
+            print("Error in configuration file:", sys.stderr)
             if hasattr(exc, 'problem_mark'):
                 mark = exc.problem_mark
-                print "Error position: (%s:%s)" % (mark.line+1, mark.column+1)
+                print("Error position: (%s:%s)" % (mark.line+1, mark.column+1), sys.stderr)
             raise exc
 
     def _load_from_path(self):
