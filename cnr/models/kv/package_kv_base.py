@@ -48,7 +48,7 @@ class PackageKvBase(PackageBase):
         matching = None
         if 'search' in kwargs and kwargs['search']:
             matching = cls.search(kwargs['search'])
-
+        media_type = kwargs.get('media_type', None)
         for package_data in index.packages(namespace):
             namespace, name = package_data['namespace'], package_data['name']
             package_name = "%s/%s" % (namespace, name)
@@ -58,8 +58,11 @@ class PackageKvBase(PackageBase):
 
             created_at = package_data['created_at']
             releaseindex = cls.index_class(package_name)
-            available_releases = [str(x) for x in sorted(semver.versions(releaseindex.releases(), False),
+            available_releases = [str(x) for x in sorted(semver.versions(releaseindex.releases(media_type=media_type),
+                                                                         False),
                                                          reverse=True)]
+            if not available_releases:
+                continue
             view = {'releases': available_releases,
                     'default': available_releases[0],
                     'manifests': cls.manifests(package_name, available_releases[0]),

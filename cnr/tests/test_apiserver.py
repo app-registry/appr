@@ -221,7 +221,7 @@ class TestServer:
         url = self._url_for("api/v1/packages/%s" % (package))
         res = self.Client(client, self.headers()).get(url)
         assert res.status_code == 200
-        assert len(self.json(res)) == 3
+        assert len(self.json(res)) == 4
 
     def test_show_package_manifests(self, db_with_data1, client):
         package = "titi/rocketchat"

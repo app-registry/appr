@@ -108,7 +108,9 @@ def delete_package(namespace, package_name, release, media_type):
 def list_packages():
     values = getvalues()
     namespace = values.get('namespace', None)
-    result = cnr.api.impl.registry.list_packages(namespace, Package, search=values.get('query', None))
+    result = cnr.api.impl.registry.list_packages(namespace, Package,
+                                                 search=values.get('query', None),
+                                                 media_type=values.get('media_type', None))
     resp = current_app.make_response(json.dumps(result))
     resp.mimetype = 'application/json'
     return resp
