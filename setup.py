@@ -42,7 +42,9 @@ setup(
     url='https://github.com/ant31/cn-app-registry/cnrclient-server',
     packages=[
         'cnrclient',
-        'cnrclient.commands'
+        'cnrclient.commands',
+        'cnrclient.formats',
+        'cnrclient.formats.helm',
     ],
     scripts=[
         'bin/cnr'

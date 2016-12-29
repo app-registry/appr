@@ -6,6 +6,7 @@ import glob
 import io
 import os
 import fnmatch
+from itertools import chain
 
 # 1. download the package
 # 2. untar it to dest directory with the packagename_version/
@@ -49,8 +50,16 @@ def authorized_files():
 
 def all_files():
     files = []
+    ignore_files = []
+    for filename in ['.helmignore', '.cnrignore', '.kpmignore']:
+        if os.path.exists(filename):
+            with open(filename, 'r') as f:
+                ignore_files.append(f.read().split("\n"))
+    ignore_files = list(chain(ignore_files))
     for root, _, filenames in os.walk('.'):
         for filename in filenames:
+            if filename in ignore_files:
+                continue
             files.append(os.path.join(root, filename))
     return files
 
@@ -135,12 +144,11 @@ class CnrPackage(object):
 
     @property
     def manifest(self):
-        if "manifest.yaml" in self.files:
-            return self.files['manifest.yaml']
-        elif "manifest.jsonnet" in self.files:
-            return self.files['manifest.jsonnet']
-        else:
-            raise RuntimeError("Unknown manifest format")
+        manifests_files = ["manifest.yaml", "manifest.jsonnet", "Chart.yaml", "Chart.yml"]
+        for filename in manifests_files:
+            if filename in self.files:
+                return self.files[filename]
+        raise RuntimeError("Unknown manifest format")
 
     @property
     def digest(self):

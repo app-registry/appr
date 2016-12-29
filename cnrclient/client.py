@@ -73,15 +73,25 @@ class CnrClient(object):
             url = "/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version, media_type)
         return url
 
-    def pull(self, name, version, media_type):
+    def _pull_path(self, name, version, media_type):
         if ishosted(name):
             sources = discover_sources(name, version, media_type)
             path = sources[0]
         else:
             path = self._url(self._get_pull_url(name, version, media_type))
+        return path
+
+    def pull(self, name, version, media_type):
+        path = self._pull_path(name, version, media_type)
         resp = requests.get(path, headers=self.headers)
         resp.raise_for_status()
         return resp.content
+
+    def pull_json(self, name, version, media_type):
+        path = self._pull_path(name, version, media_type)
+        resp = requests.get(path, params={'format': 'json'}, headers=self.headers)
+        resp.raise_for_status()
+        return resp.json()
 
     def list_packages(self, user=None, organization=None, text_search=None):
         path = "/api/v1/packages"

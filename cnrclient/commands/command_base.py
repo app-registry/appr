@@ -90,8 +90,8 @@ class CommandBase(object):
                             help="output format")
 
     @classmethod
-    def _add_mediatype_option(cls, parser):
-        parser.add_argument("-t", "--media-type", default='kpm',
+    def _add_mediatype_option(cls, parser, default=None):
+        parser.add_argument("-t", "--media-type", default=default,
                             help='package format: [kpm, kpm-compose, helm]')
 
     @classmethod

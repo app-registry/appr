@@ -7,6 +7,20 @@ def package_filename(name, version, media_type):
     return "%s_%s_%s" % (name.replace("/", "_"), version, media_type)
 
 
+def parse_version(version):
+    if str.startswith(version, "@sha256:"):
+        return {'key': 'digest',
+                'value': version.split("@sha256:")[1]}
+    elif version[0] == "@":
+        return {'key': 'version',
+                'value': version[1:]}
+    elif version[0] == ":":
+        return {'key': 'channel',
+                'value': version[1:]}
+    else:
+        return {'key': 'unknown', 'value': version}
+
+
 def parse_package_name(name):
     package_regexp = r"^(.*?)?\/?([a-z0-9_-]+\/[a-z0-9_-]+?)([:@].*)?$"
     match = re.match(package_regexp, name)

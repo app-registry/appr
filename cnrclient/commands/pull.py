@@ -1,5 +1,5 @@
 import os
-from cnrclient.utils import package_filename
+from cnrclient.utils import package_filename, parse_version
 from cnrclient.pack import CnrPackage
 from cnrclient.commands.command_base import CommandBase
 
@@ -13,6 +13,7 @@ class PullCmd(CommandBase):
         self.package = options.package
         self.registry_host = options.registry_host
         self.version = options.version
+        self.parsed_version = parse_version(self.version)['value']
         self.dest = options.dest
         self.media_type = options.media_type
         self.tarball = options.tarball
@@ -31,15 +32,16 @@ class PullCmd(CommandBase):
 
     def _call(self):
         client = self.RegistryClient(self.registry_host)
-        result = client.pull(self.package, version=self.version, media_type=self.media_type)
-        package = CnrPackage(result, b64_encoded=False)
-        filename = package_filename(self.package, self.version, self.media_type)
+        pullpack = client.pull_json(self.package, version=self.version, media_type=self.media_type)
+        package = CnrPackage(pullpack['blob'], b64_encoded=True)
+        filename = pullpack['filename']
+        # package_filename(self.package, self.parsed_version, self.media_type)
         self.path = os.path.join(self.dest, filename)
         if self.tarball:
-            self.path = self.path + ".tar.gz"
             with open(self.path, 'wb') as tarfile:
-                tarfile.write(result)
+                tarfile.write(package.blob)
         else:
+            self.path = self.path.split(".tar.gz")[0]
             package.extract(self.path)
 
     def _render_dict(self):
@@ -49,4 +51,4 @@ class PullCmd(CommandBase):
                 "path": self.path}
 
     def _render_console(self):
-        return "Pull package: %s... \nStored in %s" % (self.package, self.path)
+        return "Pull package: %s... \n%s" % (self.package, self.path)
