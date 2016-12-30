@@ -45,16 +45,23 @@ def test_error():
     raise InvalidUsage("error message", {"path": request.path})
 
 
+def _pull(data):
+    if request.args.get('format', None) == 'json':
+        resp = jsonify(data)
+    else:
+        resp = current_app.make_response(b64decode(data['blob']))
+        resp.headers['Content-Disposition'] = data['filename']
+        resp.mimetype = 'application/x-gzip'
+    return resp
+
+
 @registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/blobs/sha256/<string:digest>",
                     methods=['GET'],
                     strict_slashes=False)
 def blobs(namespace, package_name, digest):
     reponame = repo_name(namespace, package_name)
-    blob = cnr.api.impl.registry.pull_blob(reponame, digest, blob_class=Blob)
-    resp = current_app.make_response(blob.blob)
-    resp.headers['Content-Disposition'] = "%s_%s.tar.gz" % (reponame.replace("/", "_"), digest[0:8])
-    resp.mimetype = 'application/x-gzip'
-    return resp
+    data = cnr.api.impl.registry.pull_blob(reponame, digest, blob_class=Blob)
+    return _pull(data)
 
 
 @registry_app.route(
@@ -63,13 +70,7 @@ def blobs(namespace, package_name, digest):
 def pull(namespace, package_name, release, media_type):
     reponame = repo_name(namespace, package_name)
     data = cnr.api.impl.registry.pull(reponame, release, media_type, Package, blob_class=Blob)
-    if request.args.get('format', None) == 'json':
-        resp = jsonify(data)
-    else:
-        resp = current_app.make_response(b64decode(data['blob']))
-        resp.headers['Content-Disposition'] = data['filename']
-        resp.mimetype = 'application/x-gzip'
-    return resp
+    return _pull(data)
 
 
 @registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>",
