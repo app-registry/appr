@@ -1,5 +1,4 @@
 import os
-from cnrclient.utils import parse_version
 from cnrclient.pack import CnrPackage
 from cnrclient.commands.command_base import CommandBase
 
@@ -13,7 +12,6 @@ class PullCmd(CommandBase):
         self.package = options.package
         self.registry_host = options.registry_host
         self.version = options.version
-        self.parsed_version = parse_version(self.version)['value']
         self.dest = options.dest
         self.media_type = options.media_type
         self.tarball = options.tarball
@@ -35,7 +33,6 @@ class PullCmd(CommandBase):
         pullpack = client.pull_json(self.package, version=self.version, media_type=self.media_type)
         package = CnrPackage(pullpack['blob'], b64_encoded=True)
         filename = pullpack['filename']
-        # package_filename(self.package, self.parsed_version, self.media_type)
         self.path = os.path.join(self.dest, filename)
         if self.tarball:
             with open(self.path, 'wb') as tarfile:
