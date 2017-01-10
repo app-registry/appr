@@ -21,7 +21,7 @@ case "$1" in
         install "${@:2}"
         ;;
     pull)
-        cnr_helm "${@:2}"
+        pull "${@:2}"
         ;;
     push)
         cnr_helm "$@"

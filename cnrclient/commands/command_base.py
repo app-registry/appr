@@ -5,22 +5,36 @@ import yaml
 
 import cnrclient
 from cnrclient.client import CnrClient
-from cnrclient.utils import parse_package_name
+from cnrclient.utils import parse_package_name, parse_version, split_package_name
+
+
+def _set_package(parser, namespace, dest, package_parts):
+    try:
+        parsed_version = None
+        if package_parts['version'] is not None:
+            parsed_version = parse_version(package_parts['version'])
+        setattr(namespace, "registry_host", package_parts['host'])
+        setattr(namespace, 'version', package_parts['version'])
+        setattr(namespace, 'version_parts', parsed_version)
+        package = "%s/%s" % (package_parts['namespace'], package_parts['package'])
+    except ValueError as exc:
+        raise parser.error(exc.message)
+    setattr(namespace, dest, package)
+    setattr(namespace, "package_parts", package_parts)
 
 
 class PackageName(argparse.Action):
     def __call__(self, parser, namespace, value, option_string=None):
-        try:
-            name = value[0]
-            package_parts = parse_package_name(name)
-            if package_parts['host'] is not None:
-                setattr(namespace, "registry_host", package_parts['host'])
-            if package_parts['version'] is not None:
-                setattr(namespace, 'version', package_parts['version'])
-            package = package_parts['package']
-        except ValueError as exc:
-            raise parser.error(exc.message)
-        setattr(namespace, self.dest, package)
+        name = value[0]
+        package_parts = parse_package_name(name)
+        _set_package(parser, namespace, self.dest, package_parts)
+
+
+class PackageSplit(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string=None):
+        name = value
+        package_parts = split_package_name(name)
+        _set_package(parser, namespace, self.dest, package_parts)
 
 
 class CommandBase(object):
@@ -96,7 +110,13 @@ class CommandBase(object):
 
     @classmethod
     def _add_packagename_option(cls, parser):
-        parser.add_argument('package', nargs=1, action=PackageName, help="package-name")
+        parser.add_argument('package', nargs=1, default=None,
+                            action=PackageName, help="package-name")
+
+    @classmethod
+    def _add_packagesplit_option(cls, parser):
+        parser.add_argument('package', nargs="?", default=None,
+                            action=PackageSplit, help="registry-host.com/namespace/name")
 
     @classmethod
     def _add_packageversion_option(cls, parser):

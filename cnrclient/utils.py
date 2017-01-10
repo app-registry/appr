@@ -3,6 +3,9 @@ import errno
 import re
 
 
+PACKAGE_REGEXP = r"^(.*?)?\/?([a-z0-9_-]+\/[a-z0-9_-]+?)([:@].*)?$"
+
+
 def get_media_type(mediatype):
     if mediatype:
         match = re.match(r"application/vnd\.cnr\.[a-z_-]+\.(.+?)\.(.+).(.+)", mediatype)
@@ -29,8 +32,27 @@ def parse_version(version):
         return {'key': 'unknown', 'value': version}
 
 
-def parse_package_name(name):
-    package_regexp = r"^(.*?)?\/?([a-z0-9_-]+\/[a-z0-9_-]+?)([:@].*)?$"
+def split_package_name(name):
+    sp = name.split("/")
+    package_parts = {"host": None,
+                     "namespace": None,
+                     "package": None,
+                     "version": None}
+
+    if len(sp) >= 1:
+        package_parts["host"] = sp[0]
+    if len(sp) >= 2:
+        package_parts["namespace"] = sp[1]
+    if len(sp) >= 3:
+        match = re.match(r"^([a-z0-9_-]+?)([:@].*)?$", sp[2])
+        package, version = match.groups()
+        package_parts['package'] = package
+        package_parts['version'] = version
+    return package_parts
+
+
+def parse_package_name(name, regexp=PACKAGE_REGEXP):
+    package_regexp = regexp
     match = re.match(package_regexp, name)
     if match is None:
         raise ValueError("Package '%s' does not match format '[registry/]namespace/name[@version|:channel]'" % (name))
@@ -39,7 +61,9 @@ def parse_package_name(name):
         version = 'default'
     if not host:
         host = None
+    namespace, package = package.split("/")
     return {'host': host,
+            'namespace': namespace,
             'package': package,
             'version': version}
 

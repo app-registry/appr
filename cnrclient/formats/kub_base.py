@@ -49,10 +49,10 @@ class KubBase(object):
                                                             version=self.version))
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return self.__unicode__().encode('utf-8')
 
     def __repr__(self):
-        return unicode(self).encode('utf-8')
+        return self.__str__()
 
     @property
     def author(self):

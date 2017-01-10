@@ -11,10 +11,11 @@ class ChannelCmd(CommandBase):
         self.package = options.package
         self.registry_host = options.registry_host
         self.delete = options.delete
-        self.channel = options.name
+        self.channel = options.channel
         self.remove = options.remove_release
         self.add = options.set_release
         self.version = options.version
+        self.version_parts = options.version_parts
         self.status = None
         self.channels = {}
 
@@ -24,7 +25,7 @@ class ChannelCmd(CommandBase):
         cls._add_packagename_option(parser)
         cls._add_packageversion_option(parser)
 
-        parser.add_argument("-n", "--name", default=None,
+        parser.add_argument("-c", "--channel", default=None,
                             help="channel name")
         parser.add_argument("--set-release", default=False, action='store_true',
                             help="Add release to the channel")
