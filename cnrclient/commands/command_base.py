@@ -64,7 +64,7 @@ class CommandBase(object):
     @classmethod
     def call(cls, options):
         try:
-            cls(options)()
+            cls(options).exec_cmd()
         except requests.exceptions.RequestException as exc:
             payload = {"message": exc.message}
             if exc.response is not None:
@@ -72,7 +72,7 @@ class CommandBase(object):
             raise argparse.ArgumentTypeError("\n" + yaml.safe_dump(payload, default_flow_style=False,
                                              width=float("inf")))
 
-    def __call__(self):
+    def exec_cmd(self):
         self._call()
         self.render()
 

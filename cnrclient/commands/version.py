@@ -22,8 +22,7 @@ class VersionCmd(CommandBase):
         api_version = None
         try:
             client = self.RegistryClient(self.registry_host)
-            response = client.version()
-            api_version = response
+            api_version = client.version()
         except requests.exceptions.RequestException:
             api_version = ".. Connection error"
         return api_version

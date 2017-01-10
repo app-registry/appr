@@ -123,8 +123,9 @@ class CnrPackage(object):
         f.close()
 
     def tree(self, directory=None):
-        files = self.files.keys()
+        files = list(self.files.keys())
         files.sort()
+
         if directory is not None:
             filtered = [x for x in files if x.startswith(directory)]
         else:

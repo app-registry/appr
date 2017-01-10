@@ -205,3 +205,13 @@ def test_push_force():
                complete_qs=True,
                text=response)
         assert json.dumps(r.push(name="ant31/kube-ui", body=body, force=True)) == json.dumps(json.loads(response))
+
+
+def test_get_version():
+    r = CnrClient()
+    response = '{"cnr-server": "0.23.0"}'
+    with requests_mock.mock() as m:
+        m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/version",
+              complete_qs=True,
+              text=response)
+        assert json.dumps(r.version()) == json.dumps(json.loads(response))

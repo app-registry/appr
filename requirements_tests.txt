@@ -7,3 +7,4 @@ python-coveralls
 flake8
 pylint
 pep8
+tox
