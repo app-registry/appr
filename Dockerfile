@@ -11,4 +11,4 @@ ADD . $workdir
 WORKDIR $workdir
 RUN pip install gunicorn -U && pip install -e .
 
-CMD ["./run-server"]
+CMD ["./run-server.sh"]
