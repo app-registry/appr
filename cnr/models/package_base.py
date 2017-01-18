@@ -117,10 +117,8 @@ class PackageBase(object):
 
     @classmethod
     def view_releases(cls, package):
-        result = []
-        for release in cls.all_releases(package):
-            result.append(cls.view_manifests(package, release, False))
-        return result
+        return [item for release in cls.all_releases(package)
+                for item in cls.view_manifests(package, release, False)]
 
     @property
     def data(self):
