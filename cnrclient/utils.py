@@ -3,7 +3,8 @@ import errno
 import re
 
 
-PACKAGE_REGEXP = r"^(.*?)?\/?([a-z0-9_-]+\/[a-z0-9_-]+?)([:@].*)?$"
+PACKAGE_REGEXP = r"^(.*?\/)?([a-z0-9_-]+\/[a-z0-9_-]+)([:@][a-z0-9._-]+)?$"
+# r"^(.*?)?\/?([a-z0-9_-]+\/[a-z0-9_-]+?)([:@].*)?$"
 
 
 def get_media_type(mediatype):
@@ -61,6 +62,8 @@ def parse_package_name(name, regexp=PACKAGE_REGEXP):
         version = 'default'
     if not host:
         host = None
+    else:
+        host = host[:-1]
     namespace, package = package.split("/")
     return {'host': host,
             'namespace': namespace,

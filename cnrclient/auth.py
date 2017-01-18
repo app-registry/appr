@@ -3,10 +3,8 @@ import os.path
 
 import yaml
 
+from cnrclient.config import DEFAULT_CONF_DIR
 from cnrclient.utils import mkdir_p
-
-
-DEFAULT_CONF_DIR = os.getenv('CNR_CONF_DIR', ".cnr")
 
 
 class CnrAuth(object):

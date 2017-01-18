@@ -1,7 +1,9 @@
 from __future__ import print_function
 import argparse
 import json
+
 import yaml
+import requests
 
 import cnrclient
 from cnrclient.client import CnrClient
@@ -9,25 +11,25 @@ from cnrclient.utils import parse_package_name, parse_version, split_package_nam
 
 
 def _set_package(parser, namespace, dest, package_parts):
-    try:
-        parsed_version = None
-        if package_parts['version'] is not None:
-            parsed_version = parse_version(package_parts['version'])
-        setattr(namespace, "registry_host", package_parts['host'])
-        setattr(namespace, 'version', package_parts['version'])
-        setattr(namespace, 'version_parts', parsed_version)
-        package = "%s/%s" % (package_parts['namespace'], package_parts['package'])
-    except ValueError as exc:
-        raise parser.error(exc.message)
+    parsed_version = None
+    if package_parts['version'] is not None:
+        parsed_version = parse_version(package_parts['version'])
+    setattr(namespace, "registry_host", package_parts['host'])
+    setattr(namespace, 'version', package_parts['version'])
+    setattr(namespace, 'version_parts', parsed_version)
+    package = "%s/%s" % (package_parts['namespace'], package_parts['package'])
     setattr(namespace, dest, package)
     setattr(namespace, "package_parts", package_parts)
 
 
 class PackageName(argparse.Action):
     def __call__(self, parser, namespace, value, option_string=None):
-        name = value[0]
-        package_parts = parse_package_name(name)
-        _set_package(parser, namespace, self.dest, package_parts)
+        try:
+            name = value[0]
+            package_parts = parse_package_name(name)
+            _set_package(parser, namespace, self.dest, package_parts)
+        except ValueError as exc:
+            raise parser.error(exc.message)
 
 
 class PackageSplit(argparse.Action):
@@ -41,6 +43,7 @@ class CommandBase(object):
     name = 'command-base'
     help_message = 'describe the command'
     RegistryClient = CnrClient
+    default_media_type = None
 
     def __init__(self, args_options):
         self.args_options = args_options
@@ -58,7 +61,10 @@ class CommandBase(object):
 
     @classmethod
     def call(cls, options):
-        cls(options)()
+        try:
+            cls(options)()
+        except requests.exceptions.RequestException as exc:
+            raise argparse.ArgumentTypeError(exc.message)
 
     def __call__(self):
         self._call()
@@ -104,8 +110,10 @@ class CommandBase(object):
                             help="output format")
 
     @classmethod
-    def _add_mediatype_option(cls, parser, default=None):
-        parser.add_argument("-t", "--media-type", default=default,
+    def _add_mediatype_option(cls, parser, default=None, required=True):
+        if default is None:
+            default = cls.default_media_type
+        parser.add_argument("-t", "--media-type", default=default, required=required,
                             help='package format: [kpm, kpm-compose, helm]')
 
     @classmethod
