@@ -1,14 +1,15 @@
 FROM alpine:3.3
 
-ARG workdir=/opt
-RUN apk --update add python py-pip openssl ca-certificates git
-RUN apk --update add --virtual build-dependencies python-dev build-base wget openssl-dev libffi-dev
-RUN pip install pip -U
-
-RUN rm -rf $workdir
+ARG workdir=/opt/cnr-server
 RUN mkdir -p $workdir
 ADD . $workdir
 WORKDIR $workdir
-RUN pip install gunicorn -U && pip install -e .
+
+RUN apk --no-cache --update add python py-pip openssl ca-certificates git
+RUN apk --no-cache --update add --virtual build-dependencies \
+      python-dev build-base wget openssl-dev libffi-dev \
+    && pip install pip -U \
+    && pip install gunicorn -U && pip install -e . \
+    && apk del build-dependencies
 
 CMD ["./run-server.sh"]
