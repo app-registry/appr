@@ -11,15 +11,12 @@ class ShowCmd(CommandBase):
         self.package = options.package
         self.registry_host = options.registry_host
         self.version = options.version
-        self.media_type = options.media_type
         self.verbose = options.wide
         self.result = None
-        self.format = options.media_type
 
     @classmethod
     def _add_arguments(cls, parser):
         cls._add_registryhost_option(parser)
-        cls._add_mediatype_option(parser, default=None)
         cls._add_packagename_option(parser)
         cls._add_packageversion_option(parser)
         parser.add_argument("-w", "--wide",
@@ -27,7 +24,7 @@ class ShowCmd(CommandBase):
 
     def _call(self):
         client = self.RegistryClient(self.registry_host)
-        self.result = client.show_package(self.package, version=self.version, media_type=self.media_type)
+        self.result = client.show_package(self.package, version=self.version)
 
     def _render_dict(self):
         return self.result

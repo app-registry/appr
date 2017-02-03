@@ -11,6 +11,7 @@ from cnrclient.commands.channel import ChannelCmd
 from cnrclient.commands.list_package import ListPackageCmd
 from cnrclient.commands.delete_package import DeletePackageCmd
 from cnrclient.commands.plugins import PluginsCmd
+from cnrclient.commands.config import ConfigCmd
 
 
 def all_commands():
@@ -25,6 +26,7 @@ def all_commands():
         ChannelCmd.name: ChannelCmd,
         DeletePackageCmd.name: DeletePackageCmd,
         PluginsCmd.name: PluginsCmd,
+        ConfigCmd.name: ConfigCmd,
         ListPackageCmd.name: ListPackageCmd,
     }
 

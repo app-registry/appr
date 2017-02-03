@@ -6,30 +6,23 @@ from requests.utils import urlparse
 import cnrclient
 from cnrclient.discovery import ishosted, discover_sources
 from cnrclient.auth import CnrAuth
+from cnrclient.config import CnrConfig
 
 
 logger = logging.getLogger(__name__)
 DEFAULT_REGISTRY = 'http://localhost:5000'
-DEFAULT_PREFIX = ""
 
 
 class CnrClient(object):
-    def __init__(self, endpoint=DEFAULT_REGISTRY, api_prefix=DEFAULT_PREFIX, auth=None, insecure=False):
-        if endpoint is None:
-            endpoint = DEFAULT_REGISTRY
-        if api_prefix:
-            endpoint = endpoint + api_prefix
-
-        if not re.match("https?://", endpoint):
-            if insecure or str.startswith(endpoint, "localhost"):
-                scheme = "http://"
-            else:
-                scheme = "https://"
-            endpoint = scheme + endpoint
-        self.endpoint = urlparse(endpoint)
+    def __init__(self, endpoint=DEFAULT_REGISTRY,
+                 auth=None, config=None, insecure=False):
         if not auth:
             auth = CnrAuth()
+        if not config:
+            config = CnrConfig()
         self.auth = auth
+        self.config = config
+        self.endpoint = self._configure_endpoint(endpoint, insecure)
         self.host = self.endpoint.geturl()
         self._headers = {'Content-Type': 'application/json',
                          'User-Agent': "cnrpy-cli: %s" % cnrclient.__version__}
@@ -40,6 +33,20 @@ class CnrClient(object):
     def auth_token(self):
         """ return the Authorization bearer """
         return self.auth.token(self.host)
+
+    def _configure_endpoint(self, endpoint, insecure):
+        if endpoint is None:
+            endpoint = DEFAULT_REGISTRY
+        alias = self.config.get_registry_alias(endpoint)
+        if alias:
+            endpoint = alias
+        if not re.match("https?://", endpoint):
+            if insecure or str.startswith(endpoint, "localhost"):
+                scheme = "http://"
+            else:
+                scheme = "https://"
+            endpoint = scheme + endpoint
+        return urlparse(endpoint)
 
     @property
     def headers(self):
@@ -56,7 +63,7 @@ class CnrClient(object):
         resp.raise_for_status()
         return resp.json()
 
-    def show_package(self, package, version=None, media_type=None):
+    def show_package(self, package, version):
         path = "/api/v1/packages/%s" % (package)
         if version and version != 'default':
             path = path + "/%s" % version
@@ -65,6 +72,9 @@ class CnrClient(object):
         return resp.json()
 
     def _get_pull_url(self, package, version, media_type):
+        if media_type is None:
+            raise ValueError("media-type is not set")
+
         organization, name = package.split("/")
         if str.startswith(version, "@sha256:"):
             digest = version.split("@sha256:")[1]

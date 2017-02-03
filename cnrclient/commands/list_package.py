@@ -18,7 +18,7 @@ class ListPackageCmd(CommandBase):
     @classmethod
     def _add_arguments(cls, parser):
         cls._add_registryhost_arg(parser)
-        cls._add_mediatype_option(parser, default=None)
+        cls._add_mediatype_option(parser, default=None, required=False)
         parser.add_argument("-u", "--user", default=None,
                             help="list packages owned by USER")
         parser.add_argument("-o", "--organization", default=None,
