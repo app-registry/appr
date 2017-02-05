@@ -12,6 +12,7 @@ class PullCmd(CommandBase):
         self.package = options.package
         self.registry_host = options.registry_host
         self.version = options.version
+        self.version_parts = options.version_parts
         self.dest = options.dest
         self.media_type = options.media_type
         self.tarball = options.tarball
@@ -30,7 +31,7 @@ class PullCmd(CommandBase):
 
     def _call(self):
         client = self.RegistryClient(self.registry_host)
-        pullpack = client.pull_json(self.package, version=self.version, media_type=self.media_type)
+        pullpack = client.pull_json(self.package, version_parts=self.version_parts, media_type=self.media_type)
         package = CnrPackage(pullpack['blob'], b64_encoded=True)
         filename = pullpack['filename']
         self.path = os.path.join(self.dest, filename)

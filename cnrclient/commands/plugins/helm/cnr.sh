@@ -1,13 +1,14 @@
 #!/bin/bash
 
 function pull {
-    echo "pull $@"
-    release=`cnr pull --media-type helm --tarball ${@}"|tail -n1`
+    #echo "pull $@"
+    release=`cnr pull --media-type helm --tarball ${@} |tail -n1`
     echo $release
 }
 
 function install {
-    $(pull $@)
+    pull $@ --dest=/tmp
+    sleep 1
     helm install $release
 }
 
@@ -27,7 +28,7 @@ case "$1" in
         cnr_helm "$@"
         ;;
     list)
-         cnr_helm "$@"
+        cnr_helm "$@"
         ;;
     show)
         cnr_helm "$@"

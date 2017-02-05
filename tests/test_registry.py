@@ -53,7 +53,7 @@ def test_pull():
     with requests_mock.mock() as m:
         response = b'package_data'
         m.get(DEFAULT_REGISTRY + "/api/v1/packages/orga/p1/1.0.0/helm/pull", content=response)
-        assert r.pull("orga/p1", "1.0.0", "helm") == response
+        assert r.pull("orga/p1", {"value": "1.0.0", "key": "version"}, "helm") == response
 
 
 def test_pull_channel(channels_data):
@@ -63,7 +63,7 @@ def test_pull_channel(channels_data):
         m.get(DEFAULT_REGISTRY + "/api/v1/packages/orga/p1/1.0.0-rc/helm/pull", content=response)
         m.get(DEFAULT_REGISTRY + "/api/v1/packages/orga/p1/channels/dev",
               text=json.dumps(channels_data['dev']))
-        assert r.pull("orga/p1", ":dev", "helm") == response
+        assert r.pull("orga/p1", {"value": "dev", "key": "channel"}, "helm") == response
 
 
 def test_pull_digest():
@@ -71,7 +71,7 @@ def test_pull_digest():
     with requests_mock.mock() as m:
         response = b'package_data'
         m.get(DEFAULT_REGISTRY + "/api/v1/packages/orga/p1/blobs/sha256/2432", content=response)
-        assert r.pull("orga/p1", "@sha256:2432", "helm") == response
+        assert r.pull("orga/p1", {"key": "digest", "value": "2432"}, "helm") == response
 
 
 def test_pull_version():
@@ -79,7 +79,7 @@ def test_pull_version():
     with requests_mock.mock() as m:
         response = b'package_data'
         m.get(DEFAULT_REGISTRY + "/api/v1/packages/orga/p1/0.8.1/helm/pull", content=response)
-        assert r.pull("orga/p1", "@0.8.1", "helm") == response
+        assert r.pull("orga/p1", {"key": "version", "value": "0.8.1"}, "helm") == response
 
 
 def test_pull_discovery_https(discovery_html):
@@ -88,7 +88,7 @@ def test_pull_discovery_https(discovery_html):
         response = b'package_data'
         m.get("https://cnr.sh/?cnr-discovery=1", text=discovery_html, complete_qs=True)
         m.get("https://api.kubespray.io/api/v1/packages/orga/p1/pull", content=response)
-        assert r.pull("cnr.sh/orga/p1", "1.0.0", "helm") == response
+        assert r.pull("cnr.sh/orga/p1", {"key": "version", "value": "1.0.0"}, "helm") == response
 
 
 def test_pull_discovery_http(discovery_html):
@@ -98,7 +98,7 @@ def test_pull_discovery_http(discovery_html):
         m.get("https://cnr.sh/?cnr-discovery=1", text="<html/>", complete_qs=True)
         m.get("http://cnr.sh/?cnr-discovery=1", text=discovery_html, complete_qs=True)
         m.get("https://api.kubespray.io/api/v1/packages/orga/p1/pull", content=response)
-        assert r.pull("cnr.sh/orga/p1", "1.0.0", "helm") == response
+        assert r.pull("cnr.sh/orga/p1", {"key": "version", "value": "1.0.0"}, "helm") == response
 
 
 def test_pull_with_version():
@@ -106,7 +106,7 @@ def test_pull_with_version():
     with requests_mock.mock() as m:
         response = b'package_data'
         m.get(DEFAULT_REGISTRY + "/api/v1/packages/orga/p1/1.0.1/helm/pull", complete_qs=True, content=response)
-        assert r.pull("orga/p1", "1.0.1", "helm") == response
+        assert r.pull("orga/p1", {"key": "version", "value": "1.0.1"}, "helm") == response
 
 
 def test_list_packages():

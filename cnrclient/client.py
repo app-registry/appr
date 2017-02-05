@@ -74,42 +74,42 @@ class CnrClient(object):
         resp.raise_for_status()
         return resp.json()
 
-    def _get_pull_url(self, package, version, media_type):
+    def _get_pull_url(self, package, version_parts, media_type):
         if media_type is None:
             raise ValueError("media-type is not set")
 
         organization, name = package.split("/")
-        if str.startswith(version, "@sha256:"):
-            digest = version.split("@sha256:")[1]
+        if version_parts['key'] == "digest":
+            digest = version_parts['value']
             url = "/api/v1/packages/%s/%s/blobs/sha256/%s" % (organization, name, digest)
-        elif version[0] == ":":
-            chan_name = version[1:]
+        elif version_parts['key'] == "channel":
+            chan_name = version_parts['value']
             channel = self.show_channels(package, chan_name)
             version = channel['current']
             url = "/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version, media_type)
-        elif version[0] == "@":
-            version = version[1:]
+        elif version_parts['key'] == "version":
+            version = version_parts['value']
             url = "/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version, media_type)
         else:
-            url = "/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version, media_type)
+            url = "/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version_parts['value'], media_type)
         return url
 
-    def _pull_path(self, name, version, media_type):
+    def _pull_path(self, name, version_parts, media_type):
         if ishosted(name):
-            sources = discover_sources(name, version, media_type)
+            sources = discover_sources(name, version_parts['value'], media_type)
             path = sources[0]
         else:
-            path = self._url(self._get_pull_url(name, version, media_type))
+            path = self._url(self._get_pull_url(name, version_parts, media_type))
         return path
 
-    def pull(self, name, version, media_type):
-        path = self._pull_path(name, version, media_type)
+    def pull(self, name, version_parts, media_type):
+        path = self._pull_path(name, version_parts, media_type)
         resp = requests.get(path, headers=self.headers)
         resp.raise_for_status()
         return resp.content
 
-    def pull_json(self, name, version, media_type):
-        path = self._pull_path(name, version, media_type)
+    def pull_json(self, name, version_parts, media_type):
+        path = self._pull_path(name, version_parts, media_type)
         resp = requests.get(path, params={'format': 'json'}, headers=self.headers)
         resp.raise_for_status()
         return resp.json()
