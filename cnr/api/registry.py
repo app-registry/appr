@@ -40,6 +40,22 @@ def render_error(error):
     return response
 
 
+@registry_app.before_request
+def pre_request_logging():
+    jsonbody = request.get_json(force=True, silent=True)
+    values = request.values.to_dict()
+    if jsonbody:
+        values.update(jsonbody)
+
+    current_app.logger.info("request", extra={
+        "remote_addr": request.remote_addr,
+        "http_method": request.method,
+        "original_url": request.url,
+        "path": request.path,
+        "data":  values,
+        "headers": dict(request.headers.to_list())})
+
+
 @registry_app.route("/test_error")
 def test_error():
     raise InvalidUsage("error message", {"path": request.path})
@@ -140,7 +156,9 @@ def show_package(namespace, package_name, release, media_type):
                     methods=['GET'], strict_slashes=False)
 def show_package_releasses(namespace, package_name):
     reponame = repo_name(namespace, package_name)
+    media_type = getvalues().get('media_type', None)
     result = cnr.api.impl.registry.show_package_releases(reponame,
+                                                         media_type=media_type,
                                                          package_class=Package)
     return jsonify(result)
 

@@ -42,13 +42,12 @@ class PackageKvBase(PackageBase):
         return result
 
     @classmethod
-    def all(cls, namespace=None, **kwargs):
+    def all(cls, namespace=None, media_type=None, search=None, **kwargs):
         index = cls.index_class()
         result = []
         matching = None
-        if 'search' in kwargs and kwargs['search']:
+        if search:
             matching = cls.search(kwargs['search'])
-        media_type = kwargs.get('media_type', None)
         for package_data in index.packages(namespace):
             namespace, name = package_data['namespace'], package_data['name']
             package_name = "%s/%s" % (namespace, name)
@@ -63,9 +62,15 @@ class PackageKvBase(PackageBase):
                                                          reverse=True)]
             if not available_releases:
                 continue
+
+            if media_type is None:
+                manifest_list = cls.manifests(package_name, available_releases[0])
+            else:
+                manifest_list = [media_type]
+
             view = {'releases': available_releases,
                     'default': available_releases[0],
-                    'manifests': cls.manifests(package_name, available_releases[0]),
+                    'manifests': manifest_list,
                     'name': package_name,
                     'visibility': 'public',
                     'created_at': created_at}
