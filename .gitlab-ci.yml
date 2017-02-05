@@ -75,7 +75,6 @@ pylint:
     DOCKER_HOST: tcp://localhost:2375
   image: docker:git
   before_script:
-    - *update_status
     - echo $DOCKER_LOGIN | xargs docker login
   services:
      - docker:dind
@@ -95,13 +94,11 @@ docker-build:
     - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
     - docker push $IMAGE:$CI_BUILD_REF_NAME
 
-
 docker-release:
   <<: *docker-push
   only:
     - tags
     - master
-
 
 docker-push:
   <<: *docker-push
