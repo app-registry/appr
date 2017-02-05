@@ -63,11 +63,14 @@ class CnrClient(object):
         resp.raise_for_status()
         return resp.json()
 
-    def show_package(self, package, version):
+    def show_package(self, package, version, media_type=None):
         path = "/api/v1/packages/%s" % (package)
         if version and version != 'default':
             path = path + "/%s" % version
-        resp = requests.get(self._url(path), headers=self.headers)
+        params = {}
+        if media_type:
+            params["media_type"] = media_type
+        resp = requests.get(self._url(path), params=params, headers=self.headers)
         resp.raise_for_status()
         return resp.json()
 
