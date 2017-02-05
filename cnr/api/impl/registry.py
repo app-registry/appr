@@ -264,8 +264,9 @@ def show_package(package,
 
 
 def show_package_releases(package,
+                          media_type,
                           package_class):
-    return package_class.view_releases(package)
+    return package_class.view_releases(package, media_type)
 
 
 def show_package_manifests(package,

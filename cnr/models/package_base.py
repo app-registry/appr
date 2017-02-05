@@ -100,9 +100,11 @@ class PackageBase(object):
                 "urls": []}
 
     @classmethod
-    def view_manifests(cls, package_name, release, manifest_only=False):
+    def view_manifests(cls, package_name, release, manifest_only=False, media_type=None):
         res = []
         for mtype in cls.manifests(package_name, release):
+            if media_type is not None and media_type != mtype:
+                continue
             package = cls.get(package_name, release, mtype)
             if manifest_only:
                 res.append(package.manifest())
@@ -116,9 +118,9 @@ class PackageBase(object):
         return manifest
 
     @classmethod
-    def view_releases(cls, package):
-        return [item for release in cls.all_releases(package)
-                for item in cls.view_manifests(package, release, False)]
+    def view_releases(cls, package, media_type=None):
+        return [item for release in cls.all_releases(package, media_type=media_type)
+                for item in cls.view_manifests(package, release, False, media_type=media_type)]
 
     @property
     def data(self):
