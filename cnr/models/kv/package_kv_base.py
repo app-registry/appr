@@ -47,7 +47,7 @@ class PackageKvBase(PackageBase):
         result = []
         matching = None
         if search:
-            matching = cls.search(kwargs['search'])
+            matching = cls.search(search)
         for package_data in index.packages(namespace):
             namespace, name = package_data['namespace'], package_data['name']
             package_name = "%s/%s" % (namespace, name)
