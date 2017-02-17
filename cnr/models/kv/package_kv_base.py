@@ -86,7 +86,7 @@ class PackageKvBase(PackageBase):
         return self.index.add_release(self.data, self.release, self.media_type, force)
 
     @classmethod
-    def search(cls, query):
+    def search(cls, query, **kwargs):
         index = cls.index_class()
         searchindex = '\n'.join(index.package_names())
         return re.findall(r"(.*%s.*)" % query, searchindex)
