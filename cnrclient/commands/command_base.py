@@ -11,11 +11,9 @@ from cnrclient.utils import parse_package_name, parse_version, split_package_nam
 
 
 def _set_package(parser, namespace, dest, package_parts):
-    parsed_version = None
-    if package_parts['version'] is not None:
-        parsed_version = parse_version(package_parts['version'])
+    parsed_version = parse_version(package_parts['version'])
     setattr(namespace, "registry_host", package_parts['host'])
-    setattr(namespace, 'version', package_parts['version'])
+    setattr(namespace, 'version', parsed_version['value'])
     setattr(namespace, 'version_parts', parsed_version)
     package = "%s/%s" % (package_parts['namespace'], package_parts['package'])
     setattr(namespace, dest, package)

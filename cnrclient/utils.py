@@ -20,7 +20,9 @@ def package_filename(name, version, media_type):
 
 
 def parse_version(version):
-    if str.startswith(version, "@sha256:"):
+    if version is None or version == "default":
+        return {'key': "version", "value": "default"}
+    elif str.startswith(version, "@sha256:"):
         return {'key': 'digest',
                 'value': version.split("@sha256:")[1]}
     elif version[0] == "@":
