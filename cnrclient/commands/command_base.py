@@ -111,6 +111,9 @@ class CommandBase(object):
     def _add_mediatype_option(cls, parser, default=None, required=True):
         if default is None:
             default = cls.default_media_type
+        if default is not None:
+            required = False
+
         parser.add_argument("-t", "--media-type", default=default, required=required,
                             help='package format: [kpm, kpm-compose, helm]')
 
