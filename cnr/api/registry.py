@@ -61,8 +61,8 @@ def test_error():
     raise InvalidUsage("error message", {"path": request.path})
 
 
-def _pull(data):
-    if request.args.get('format', None) == 'json':
+def _pull(data, json_format=True):
+    if json_format:
         resp = jsonify(data)
     else:
         resp = current_app.make_response(b64decode(data['blob']))
@@ -77,7 +77,17 @@ def _pull(data):
 def blobs(namespace, package_name, digest):
     reponame = repo_name(namespace, package_name)
     data = cnr.api.impl.registry.pull_blob(reponame, digest, blob_class=Blob)
-    return _pull(data)
+    json_format = request.args.get('format', None) == 'json'
+    return _pull(data, json_format=json_format)
+
+
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/blobs/sha256/<string:digest>/json",
+                    methods=['GET'],
+                    strict_slashes=False)
+def blobs_json(namespace, package_name, digest):
+    reponame = repo_name(namespace, package_name)
+    data = cnr.api.impl.registry.pull_blob(reponame, digest, blob_class=Blob)
+    return _pull(data, json_format=True)
 
 
 @registry_app.route(
@@ -86,7 +96,17 @@ def blobs(namespace, package_name, digest):
 def pull(namespace, package_name, release, media_type):
     reponame = repo_name(namespace, package_name)
     data = cnr.api.impl.registry.pull(reponame, release, media_type, Package, blob_class=Blob)
-    return _pull(data)
+    json_format = request.args.get('format', None) == 'json'
+    return _pull(data, json_format=json_format)
+
+
+@registry_app.route(
+    "/api/v1/packages/<string:namespace>/<string:package_name>/<string:release>/<string:media_type>/pull/json",
+    methods=['GET'], strict_slashes=False)
+def pull_json(namespace, package_name, release, media_type):
+    reponame = repo_name(namespace, package_name)
+    data = cnr.api.impl.registry.pull(reponame, release, media_type, Package, blob_class=Blob)
+    return _pull(data, json_format=True)
 
 
 @registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>",

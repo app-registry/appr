@@ -14,7 +14,103 @@ host: localhost:5000
 basePath: /
 schemes:
   - https
+
 paths:
+  /api/v1/packages/{namespace}/{package}/blobs/sha256/{digest}/json:
+    get:
+      tags:
+        - blobs
+      summary: Pull a package blob by digest
+      description: ""
+      operationId: pullBlobJson
+      consumes:
+       - application/json
+      produces:
+       - application/json
+      parameters:
+        - in: path
+          name: namespace
+          description: namespace
+          required: true
+          type: string
+
+        - in: path
+          name: package
+          description: package name
+          required: true
+          type: string
+
+        - in: path
+          name: digest
+          description: content digest
+          required: true
+          type: string
+
+        - in: query
+          name: format
+          description: return format type(json or gzip)
+          required: false
+          type: string
+          default: gzip
+      responses:
+        "200":
+          description: successful operation
+          schema:
+            $ref: "#/definitions/PullJson"
+        "404":
+          description: Package not found
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: Not authorized to read the package
+          schema:
+            $ref: "#/definitions/Error"
+
+  /api/v1/packages/{namespace}/{package}/blobs/sha256/{digest}:
+    get:
+      tags:
+        - blobs
+      summary: Pull a package blob by digest
+      description: ""
+      operationId: pullBlob
+      consumes:
+       - application/json
+      produces:
+       - 'application/x-gzip'
+      parameters:
+        - in: path
+          name: namespace
+          description: namespace
+          required: true
+          type: string
+
+        - in: path
+          name: package
+          description: package name
+          required: true
+          type: string
+
+        - in: path
+          name: digest
+          description: content digest
+          required: true
+          type: string
+
+      responses:
+        "200":
+          description: successful operation
+          schema:
+            type: file
+            title: package-targz
+        "404":
+          description: Package not found
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: Not authorized to read the package
+          schema:
+            $ref: "#/definitions/Error"
+
   /version:
     get:
       tags:
@@ -140,6 +236,7 @@ paths:
           type: string
       responses:
         "200":
+          description: successful operation
           schema:
             $ref: "#/definitions/PackageManifest"
         "404":
@@ -182,6 +279,7 @@ paths:
           type: string
       responses:
         "200":
+          description: successful operation
           schema:
             $ref: "#/definitions/PackageManifest"
         "404":
@@ -292,10 +390,67 @@ paths:
           schema:
             $ref: "#/definitions/Error"
 
+  /api/v1/packages/{namespace}/{package}/{release}/{media_type}/pull/json:
+    get:
+      tags:
+        - package
+        - blobs
+      summary: Download the package
+      description: ""
+      operationId: pullPackageJson
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: namespace
+          description: namespace
+          required: true
+          type: string
+
+        - in: path
+          name: package
+          description: package name
+          required: true
+          type: string
+
+        - in: path
+          name: release
+          description: release name
+          required: true
+          type: string
+
+        - in: path
+          name: media_type
+          description: content type
+          required: true
+          type: string
+
+        - in: query
+          name: format
+          description: 'reponse format: json or blob'
+          required: false
+          type: string
+      responses:
+        "200":
+          description: successful operation
+          schema:
+            $ref: "#/definitions/PullJson"
+        "404":
+          description: Package not found
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: Not authorized to read the package
+          schema:
+            $ref: "#/definitions/Error"
+
   /api/v1/packages/{namespace}/{package}/{release}/{media_type}/pull:
     get:
       tags:
         - package
+        - blobs
       summary: Download the package
       description: ""
       operationId: pullPackage
@@ -328,6 +483,11 @@ paths:
           required: true
           type: string
 
+        - in: query
+          name: format
+          description: 'reponse format: json or blob'
+          required: false
+          type: string
       responses:
         "200":
           description: successful operation
@@ -483,6 +643,11 @@ paths:
         - application/json
       parameters:
         - in: path
+          name: namespace
+          description: namespace
+          required: true
+          type: string
+        - in: path
           name: channel
           description: channel name
           required: true
@@ -509,7 +674,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
 
-  /api/v1/packages/{package}/channels/{channel}/{release}:
+  /api/v1/packages/{namespace}/{package}/channels/{channel}/{release}:
     post:
       tags:
         - channel
@@ -666,7 +831,8 @@ definitions:
         title: digest
         description: content digest
       size:
-        type: long
+        type: integer
+        format: int64
         title: content-size
         description: blob size
       mediaType:
@@ -691,7 +857,8 @@ definitions:
         title: media-type
         description: manifest-type
       created_at:
-        type: datetime
+        type: string
+        format: date-time
         description: creation data
         title: created-at
       metadata:
@@ -768,6 +935,7 @@ definitions:
           description: List channels for that release
       created_at:
         type: string
+        format: date-time
         title: created_at
         description: Package creation date
       content:
@@ -780,6 +948,28 @@ definitions:
         type: string
         title: package-release
         description: Package release
+
+  PullJson:
+    type: object
+    title: PackageContent
+    description: Package content
+    properties:
+      blob:
+        type: string
+        title: blob
+        description: "Package blob: a tar.gz in b64-encoded"
+      package:
+        type: string
+        title: package-name
+        description: Package name
+      release:
+        type: string
+        title: package-version
+        description: Package version
+      filename:
+        type: string
+        title: filename
+        description: suggested filename
 
   PostPackage:
     type: object
