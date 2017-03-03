@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   description: |
     CNR API documentation
-  version: "0.20.0"
+  version: "0.2.6"
   title: CNR API
   termsOfService: http://
   contact:
@@ -13,7 +13,7 @@ info:
 host: localhost:5000
 basePath: /
 schemes:
-  - http
+  - https
 paths:
   /version:
     get:
@@ -95,6 +95,16 @@ paths:
           description: "Filter by namespace"
           required: false
           type: string
+        - in: query
+          name: query
+          description: "Lookup value for package search"
+          required: false
+          type: string
+        - in: query
+          name: media_type
+          description: "Filter by media-type"
+          required: false
+          type: string
       responses:
         "200":
           description: successful operation
@@ -123,10 +133,15 @@ paths:
           description: package name
           required: true
           type: string
+        - in: query
+          name: media_type
+          description: "Filter by media-type"
+          required: false
+          type: string
       responses:
         "200":
           schema:
-            $ref: "#/definitions/PackageReleases"
+            $ref: "#/definitions/PackageManifest"
         "404":
           description: Package not found
           schema:
@@ -635,22 +650,11 @@ definitions:
         description: error extra data
 
   PackageManifest:
-    type: object
-    properties:
-      name:
-        type: string
-        description: package name
-        title: package-name
-      release:
-        type: string
-        description: release name
-        title: release-name
-      manifests:
-        type: array
-        title: manifests
-        description: manifests
-        items:
-          $ref: "#/definitions/Manifest"
+    type: array
+    title: manifests
+    description: manifests
+    items:
+      $ref: "#/definitions/Manifest"
 
   OciDescriptor:
     type: object
@@ -678,7 +682,6 @@ definitions:
           title: url
           description: url
 
-
   Manifest:
     type: object
     title: manifest
@@ -691,6 +694,10 @@ definitions:
         type: datetime
         description: creation data
         title: created-at
+      metadata:
+        type: object
+        description: KeyValue object to add complementary and format specific information
+        title: metadata
       package:
         type: string
         description: package name
@@ -701,12 +708,6 @@ definitions:
         title: release-name
       content:
         $ref: "#/definitions/OciDescriptor"
-
-  PackageReleases:
-    type: array
-    title: package-releases
-    items:
-      $ref: "#/definitions/PackageManifest"
 
   Packages:
     type: array
@@ -724,7 +725,15 @@ definitions:
           type: string
           title: package-name
           description: Package name
-        available_versions:
+        visibility:
+          type: string
+          title: visibility
+          description: package visibility (public or private)
+        default:
+          type: string
+          title: default-release
+          description: Default/latest release version
+        releases:
           type: array
           title: available-releases
           description: All available releases
@@ -732,7 +741,7 @@ definitions:
             type: string
             title: release-name
             description: Release name
-        available_manifests:
+        manifests:
           type: array
           title: available-manifests
           description: All formats
@@ -746,22 +755,10 @@ definitions:
     title: Package
     description: Package object
     properties:
-      dependencies:
-        type: array
-        title: package-dependencies
-        description: Dependencies
-        items:
-          type: string
-          title: package-dependency
-          description: Package dependency name
       mediaType:
         type: string
         title: media-type
         description: manifest-type
-      variables:
-        type: object
-        title: variables
-        description: all variables
       channels:
         title: channels
         type: array
