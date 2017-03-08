@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from cnrclient.commands.push import PushCmd
 from cnrclient.commands.inspect import InspectCmd
@@ -45,4 +46,7 @@ def cli():
         args = parser.parse_args()
         args.func(args)
     except (argparse.ArgumentTypeError, argparse.ArgumentError) as exc:
-        parser.error(exc.message)
+        if os.getenv("CNR_DEBUG", "true"):
+            raise
+        else:
+            parser.error(exc.message)

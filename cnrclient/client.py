@@ -25,7 +25,7 @@ class CnrClient(object):
         self.endpoint = self._configure_endpoint(endpoint, insecure)
         self.host = self.endpoint.geturl()
         self._headers = {'Content-Type': 'application/json',
-                         'User-Agent': "cnrpy-cli: %s" % cnrclient.__version__}
+                         'User-Agent': "cnrpy-cli/%s" % cnrclient.__version__}
 
     def _url(self, path):
         return self.endpoint.geturl() + path
