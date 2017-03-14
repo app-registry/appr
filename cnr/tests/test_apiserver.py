@@ -67,7 +67,7 @@ class TestServer:
 
     def test_search_package_match(self, db_with_data1, client):
         url = self._url_for("api/v1/packages/search")
-        res = self.Client(client, self.headers()).get(url, params={'q': 'titi'})
+        res = self.Client(client, self.headers()).get(url, params={'q': 'rock'})
         assert res.status_code == 200
         assert self.json(res) == ['titi/rocketchat']
 

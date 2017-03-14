@@ -35,7 +35,7 @@ registry_app = Blueprint('registry', __name__,)
 @registry_app.errorhandler(InvalidParams)
 @registry_app.errorhandler(ChannelNotFound)
 def render_error(error):
-    response = jsonify({"error": error.to_dict()})
+    response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
 
@@ -174,7 +174,7 @@ def show_package(namespace, package_name, release, media_type):
 
 @registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>",
                     methods=['GET'], strict_slashes=False)
-def show_package_releasses(namespace, package_name):
+def show_package_releases(namespace, package_name):
     reponame = repo_name(namespace, package_name)
     media_type = getvalues().get('media_type', None)
     result = cnr.api.impl.registry.show_package_releases(reponame,
@@ -185,7 +185,7 @@ def show_package_releasses(namespace, package_name):
 
 @registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/<string:release>",
                     methods=['GET'], strict_slashes=False)
-def show_package_releasse_manifests(namespace, package_name, release):
+def show_package_release_manifests(namespace, package_name, release):
     reponame = repo_name(namespace, package_name)
     result = cnr.api.impl.registry.show_package_manifests(reponame,
                                                           release,
