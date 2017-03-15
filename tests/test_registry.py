@@ -21,7 +21,7 @@ def test_headers_without_auth():
     r = CnrClient()
     assert sorted(r.headers.keys()) == ['Content-Type', 'User-Agent']
     assert r.headers["Content-Type"] == "application/json"
-    assert r.headers["User-Agent"] == "cnrpy-cli: %s" % cnrclient.__version__
+    assert r.headers["User-Agent"] == "cnrpy-cli/%s" % cnrclient.__version__
 
 
 def test_headers_with_auth():
@@ -30,7 +30,7 @@ def test_headers_with_auth():
     assert sorted(r.headers.keys()) == ["Authorization", 'Content-Type', 'User-Agent']
     assert r.headers["Authorization"] == "titi"
     assert r.headers["Content-Type"] == "application/json"
-    assert r.headers["User-Agent"] == "cnrpy-cli: %s" % cnrclient.__version__
+    assert r.headers["User-Agent"] == "cnrpy-cli/%s" % cnrclient.__version__
 
 
 def test_default_endpoint():

@@ -13,13 +13,13 @@ with open('README.md') as readme_file:
 
 base_requirements = [
     'future',
-    'futures',
     'requests',
 ]
 
 cli_requirements = [
     'tabulate',
-    'termcolor'
+    'termcolor',
+    'pyyaml',
     ]
 
 test_requirements = [
