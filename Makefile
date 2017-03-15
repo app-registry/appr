@@ -46,8 +46,7 @@ clean-test:
 	rm -f .coverage
 	rm -fr htmlcov/
 
-lint:
-	flake8 cnrclient tests
+lint: flake8 pylint
 
 test:
 	py.test --cov=cnrclient --cov-report=html --cov-report=term-missing  --verbose tests
