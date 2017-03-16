@@ -1,27 +1,45 @@
-sudo: false
-
-env:
-  - MAKECMD=test
-  - MAKECMD=flake8
-  - MAKECMD=pylint
+matrix:
+  include:
+    - os: linux
+      sudo: false
+      language: python
+      env:
+        - MAKECMD=lint
+        - BIN_NAME=cnr-$TRAVIS_TAG-$TRAVIS_OS_NAME-amd64
+    - os: linux
+      sudo: false
+      language: python
+      env:
+        - MAKECMD=test
+        - BIN_NAME=cnr-$TRAVIS_TAG-$TRAVIS_OS_NAME-amd64
+    - os: osx
+      language: generic
+      env:
+        - MAKECMD=test
+        - BIN_NAME=cnr-$TRAVIS_TAG-$TRAVIS_OS_NAME-amd64
 
 install:
-  - pip install -U coveralls
-  - pip install -U codecov
+  - if [ "$MAKECMD" == "test" ] ; then pip install -U pyinstaller ; fi
+  - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then pip install -U coveralls ; fi
+  - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then pip install -U codecov ; fi
   - pip install -r requirements_tests.txt
   - pip install -e .
 
-python:
-  - 2.7
-  - 3.5
-
-cache:
-  - pip
-
-language: python
 script:
   - PYTHONPATH="." make $MAKECMD
 
 after_success:
-  - if [ "$MAKECMD" == "test" ] ; then coveralls ; fi
-  - if [ "$MAKECMD" == "test" ] ; then codecov ; fi
+  - echo $BIN_NAME
+  - if [ "$MAKECMD" == "test" ] ; then pyinstaller --onefile bin/cnr && mv dist/cnr $BIN_NAME; fi
+  - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then coveralls ; fi
+  - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then codecov ; fi
+
+
+deploy:
+  provider: releases
+  api_key: "$GITHUB_TOKEN"
+  file: $BIN_NAME
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: $MAKECMD = "test"
