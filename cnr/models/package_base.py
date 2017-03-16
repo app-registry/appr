@@ -12,7 +12,7 @@ from cnr.exception import (InvalidRelease,
 from cnr.models.blob_base import BlobBase
 
 
-SCHEMA_VERSION = "v1"
+SCHEMA_VERSION = "v0"
 
 
 def get_media_type(mediatype):
