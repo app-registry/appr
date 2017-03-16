@@ -41,7 +41,7 @@ setup(
     long_description=readme,
     author="Antoine Legrand",
     author_email='2t.antoine@gmail.com',
-    url='https://github.com/ant31/cn-app-registry/cnr-server',
+    url='https://github.com/cn-app-registry/cnr-server',
     packages=[
         'cnr',
         'cnr.tests',
