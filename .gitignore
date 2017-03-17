@@ -5,7 +5,9 @@ __pycache__/
 
 # C extensions
 *.so
-
+.dir-locals.el
+todo.md
+TODO.md
 # Distribution / packaging
 .Python
 env/
