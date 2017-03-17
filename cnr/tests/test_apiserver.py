@@ -7,6 +7,9 @@ import pytest
 import cnr
 
 
+DEFAULT_PREFIX = "/cnr"
+
+
 @pytest.mark.api
 @pytest.mark.integration
 class TestServer:
@@ -53,7 +56,7 @@ class TestServer:
         return res.data
 
     def _url_for(self, path):
-        return "/" + self.api_prefix + path
+        return DEFAULT_PREFIX + "/" + self.api_prefix + path
 
     @property
     def api_prefix(self):

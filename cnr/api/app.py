@@ -22,8 +22,8 @@ def create_app():
         app.config.from_object('cnr.api.config.ProductionConfig')
     from cnr.api.info import info_app
     from cnr.api.registry import registry_app
-    app.register_blueprint(info_app, url_prefix='')
-    app.register_blueprint(registry_app, url_prefix='')
+    app.register_blueprint(info_app, url_prefix='/cnr')
+    app.register_blueprint(registry_app, url_prefix='/cnr')
     app.logger.info("Start service")
     return app
 
