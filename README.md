@@ -40,6 +40,6 @@ helm registry config alias app.quay.io app.quay.io/cnr
 
 ```
 helm init
-helm cnr list app.quay.io
-helm cnr install app.quay.io/helm/jenkins
+helm registry list app.quay.io
+helm registry install app.quay.io/helm/jenkins
 ```
