@@ -31,13 +31,13 @@ script:
 after_success:
   - echo $BIN_NAME
   - if [ "$MAKECMD" == "test" ] ; then pyinstaller --onefile bin/cnr ; fi
-  - if [ "$MAKECMD" == "test" ] ; then mkdir -p cnr-helm/cnr; fi
+  - if [ "$MAKECMD" == "test" ] ; then mkdir -p cnr-helm/registry; fi
   - if [ "$MAKECMD" == "test" ] ; then mv dist/cnr $BIN_NAME; fi
   - if [ "$MAKECMD" == "test" ] ; then chmod +x $BIN_NAME; fi
-  - if [ "$MAKECMD" == "test" ] ; then cp $BIN_NAME cnr-helm/cnr/cnr; fi
-  - if [ "$MAKECMD" == "test" ] ; then cp cnrclient/commands/plugins/helm/cnr.sh cnr-helm/cnr/cnr.sh; fi
-  - if [ "$MAKECMD" == "test" ] ; then cp cnrclient/commands/plugins/helm/plugin.yaml cnr-helm/cnr/plugin.yaml; fi
-  - if [ "$MAKECMD" == "test" ] ; then cd cnr-helm && tar czvf $BIN_NAME-helm-plugin.tar.gz cnr && cd ..; fi
+  - if [ "$MAKECMD" == "test" ] ; then cp $BIN_NAME cnr-helm/registry/cnr; fi
+  - if [ "$MAKECMD" == "test" ] ; then cp cnrclient/commands/plugins/helm/cnr.sh cnr-helm/registry/cnr.sh; fi
+  - if [ "$MAKECMD" == "test" ] ; then cp cnrclient/commands/plugins/helm/plugin.yaml cnr-helm/registry/plugin.yaml; fi
+  - if [ "$MAKECMD" == "test" ] ; then cd cnr-helm && tar czvf registry-$BIN_NAME-helm-plugin.tar.gz registry && cd ..; fi
   - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then coveralls ; fi
   - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then codecov ; fi
 
@@ -47,7 +47,7 @@ deploy:
   api_key: "$GITHUB_TOKEN"
   file:
     - $BIN_NAME
-    - cnr-helm/$BIN_NAME-helm-plugin.tar.gz
+    - cnr-helm/registry-$BIN_NAME-helm-plugin.tar.gz
   skip_cleanup: true
   on:
     tags: true

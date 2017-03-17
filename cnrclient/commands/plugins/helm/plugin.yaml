@@ -1,5 +1,5 @@
-name: "cnr"
-version: "0.1.0"
+name: "registry"
+version: "0.3.7"
 usage: "Integreate CNR client to HELM"
 description: |-
   This plugin provides CNR client to Helm.
