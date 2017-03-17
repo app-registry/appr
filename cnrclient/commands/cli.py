@@ -46,7 +46,7 @@ def cli():
         args = parser.parse_args()
         args.func(args)
     except (argparse.ArgumentTypeError, argparse.ArgumentError) as exc:
-        if os.getenv("CNR_DEBUG", "true"):
+        if os.getenv("CNR_DEBUG", "false") == "true":
             raise
         else:
             parser.error(exc.message)
