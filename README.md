@@ -46,17 +46,30 @@ helm registry install app.quay.io/helm/jenkins
 
 ## Create and Push Your Own Chart
 
-First, create an account on app.quay.io (staging server) and login to the CLI using the username and password
+First, create an account on https://app.quay.io (staging server) and login to the CLI using the username and password
+
+Set an environment for the username created at Quay to use through the rest of these instructions.
 
 ```
-helm login -u $USERNAME app.quay.io
+export USERNAME=philips
 ```
+
+Login to Quay with the Helm registry plugin:
+
+```
+helm registry login -u $USERNAME app.quay.io
+```
+
+Create a new Helm chart, the default will create a sample nginx application:
 
 ```
 helm create nginx
 ```
 
+Push this new chart to Quay and then deploy it from Quay.
+
 ```
+cd nginx
 helm registry push --namespace $USERNAME app.quay.io
 helm registry install app.quay.io/$USERNAME/nginx
 ```
