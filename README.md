@@ -4,6 +4,8 @@
 
 First, Install the latest [Helm release](https://github.com/kubernetes/helm#install).
 
+If you are an OSX user, quickstart with brew: `brew install kubernetes-helm`
+
 Next download and install the registry plugin for Helm.
 
 ### OSX
@@ -24,16 +26,17 @@ tar xzvf registry-cnr-v0.3.7-dev-linux-x64-helm-plugin.tar.gz  -C ~/.helm/plugin
 
 ## Deploy Jenkins Using Helm from the Quay Registry
 
-Confirm that the Helm registry plugin is working.
-
-```
-helm registry version app.quay.io
-```
-
-### Creat an alias  (temporary step)
+Create alias (temporary step) and confirm that the Helm registry plugin is working.
 
 ```
 helm registry config alias app.quay.io app.quay.io/cnr
+helm registry version app.quay.io
+```
+
+Output should be:
+```
+Api-version: {u'cnr-api': u'0.X.Y'}
+Client-version: 0.X.Y
 ```
 
 ### Install Jenkins
