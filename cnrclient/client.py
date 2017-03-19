@@ -11,6 +11,7 @@ from cnrclient.config import CnrConfig
 
 logger = logging.getLogger(__name__)
 DEFAULT_REGISTRY = 'http://localhost:5000'
+DEFAULT_PREFIX = "/cnr"
 
 
 class CnrClient(object):
@@ -46,7 +47,7 @@ class CnrClient(object):
             else:
                 scheme = "https://"
             endpoint = scheme + endpoint
-        return urlparse(endpoint)
+        return urlparse(endpoint + DEFAULT_PREFIX)
 
     @property
     def headers(self):
