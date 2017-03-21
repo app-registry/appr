@@ -45,6 +45,7 @@ after_success:
 deploy:
   provider: releases
   api_key: "$GITHUB_TOKEN"
+  overwrite: true
   file:
     - $BIN_NAME
     - cnr-helm/registry-$BIN_NAME-helm-plugin.tar.gz
