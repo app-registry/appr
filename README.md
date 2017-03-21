@@ -26,10 +26,8 @@ tar xzvf registry-cnr-v0.3.7-dev-linux-x64-helm-plugin.tar.gz  -C ~/.helm/plugin
 
 ## Deploy Jenkins Using Helm from the Quay Registry
 
-Create alias (temporary step) and confirm that the Helm registry plugin is working.
 
 ```
-helm registry config alias app.quay.io app.quay.io/cnr
 helm registry version app.quay.io
 ```
 
