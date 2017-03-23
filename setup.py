@@ -43,6 +43,7 @@ setup(
     packages=[
         'cnrclient',
         'cnrclient.commands',
+        'cnrclient.plugins',
         'cnrclient.formats',
         'cnrclient.formats.helm',
         'cnrclient.formats.kpm',

@@ -42,6 +42,7 @@ class CommandBase(object):
     help_message = 'describe the command'
     RegistryClient = CnrClient
     default_media_type = None
+    parse_unknown = False
 
     def __init__(self, args_options):
         self.args_options = args_options
@@ -73,7 +74,7 @@ class CommandBase(object):
         parser = subparsers.add_parser(cls.name, help=cls.help_message)
         cls._add_output_option(parser)
         cls._add_arguments(parser)
-        parser.set_defaults(func=cls.call)
+        parser.set_defaults(func=cls.call, which_cmd=cls.name, parse_unknown=cls.parse_unknown)
 
     def _render_json(self):
         print(json.dumps(self._render_dict(), indent=2, separators=(',', ': ')))
@@ -115,7 +116,7 @@ class CommandBase(object):
             required = False
 
         parser.add_argument("-t", "--media-type", default=default, required=required,
-                            help='package format: [kpm, kpm-compose, helm]')
+                            help='package format: [kpm, kpm-compose, helm, docker-compose]')
 
     @classmethod
     def _add_packagename_option(cls, parser):
