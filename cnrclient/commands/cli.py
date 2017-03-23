@@ -13,6 +13,7 @@ from cnrclient.commands.list_package import ListPackageCmd
 from cnrclient.commands.delete_package import DeletePackageCmd
 from cnrclient.commands.plugins import PluginsCmd
 from cnrclient.commands.config import ConfigCmd
+from cnrclient.commands.helm import HelmCmd
 
 
 def all_commands():
@@ -29,6 +30,7 @@ def all_commands():
         PluginsCmd.name: PluginsCmd,
         ConfigCmd.name: ConfigCmd,
         ListPackageCmd.name: ListPackageCmd,
+        HelmCmd.name: HelmCmd,
     }
 
 
@@ -43,8 +45,14 @@ def get_parser(commands):
 def cli():
     try:
         parser = get_parser(all_commands())
-        args = parser.parse_args()
-        args.func(args)
+        unknown = None
+        args, unknown = parser.parse_known_args()
+        if args.parse_unknown:
+            args.func(args, unknown)
+        else:
+            args = parser.parse_args()
+            args.func(args)
+
     except (argparse.ArgumentTypeError, argparse.ArgumentError) as exc:
         if os.getenv("CNR_DEBUG", "false") == "true":
             raise
