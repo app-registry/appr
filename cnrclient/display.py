@@ -3,13 +3,13 @@ from tabulate import tabulate
 from cnrclient.utils import get_media_type
 
 
-def print_packages(packages):
+def print_packages(packages, registry_host=""):
     header = ['app', 'release', 'downloads', 'manifests']
     table = []
     for package in packages:
         release = package["default"]
         manifests = ", ".join(package['manifests'])
-        table.append([package['name'], release, str(package.get('downloads', '-')), manifests])
+        table.append([registry_host + "/" + package['name'], release, str(package.get('downloads', '-')), manifests])
     return tabulate(table, header)
 
 
