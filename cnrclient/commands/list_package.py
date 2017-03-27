@@ -44,4 +44,4 @@ class ListPackageCmd(CommandBase):
         return self.result
 
     def _render_console(self):
-        return print_packages(self.result)
+        return print_packages(self.result, registry_host=self.registry_host)
