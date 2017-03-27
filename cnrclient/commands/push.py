@@ -26,6 +26,7 @@ class PushCmd(CommandBase):
         self.channel = options.channel
         self.version = options.version
         self.package_name = options.name
+        self.version_build = options.version_build
         self.filter_files = True
         self.metadata = None
         self.prefix = None
@@ -45,6 +46,8 @@ class PushCmd(CommandBase):
                             help=argparse.SUPPRESS)
         parser.add_argument("-c", "--channel", default=None,
                             help="Set a channel")
+        parser.add_argument("--version-build", default=None,
+                            help=argparse.SUPPRESS)
 
     def _push(self):
         client = self.RegistryClient(self.registry_host)
@@ -79,7 +82,8 @@ class PushCmd(CommandBase):
         if self.namespace is None:
             raise argparse.ArgumentTypeError("Missing option: --namespace")
         self.package_name = "%s/%s" % (self.namespace, self.pname)
-        self.version = self.manifest.version
+        if self.version is not None:
+            self.version = self.manifest.version
         self.metadata = self.manifest.metadata()
 
     def _all_formats(self):

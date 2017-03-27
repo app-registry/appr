@@ -7,7 +7,7 @@ class Chart(KubBase):
     platform = "helm"
     manifest_file = ['Chart.yml', 'Chart.yaml']
 
-    def _create_manifes(self):
+    def _create_manifest(self):
         return ManifestChart(self.package)
 
     @property
