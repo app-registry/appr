@@ -3,7 +3,7 @@ import errno
 import re
 
 
-PACKAGE_REGEXP = r"^(.*?\/)?([a-z0-9_-]+\/[a-z0-9_-]+)([:@][a-z0-9._-]+|@sha256:[a-z0-9]+)?$"
+PACKAGE_REGEXP = r"^(.*?\/)([a-z0-9_-]+\/[a-z0-9_-]+)([:@][a-z0-9._-]+|@sha256:[a-z0-9]+)?$"
 # r"^(.*?)?\/?([a-z0-9_-]+\/[a-z0-9_-]+?)([:@].*)?$"
 
 
@@ -58,7 +58,7 @@ def parse_package_name(name, regexp=PACKAGE_REGEXP):
     package_regexp = regexp
     match = re.match(package_regexp, name)
     if match is None:
-        raise ValueError("Package '%s' does not match format '[registry/]namespace/name[@version|:channel]'" % (name))
+        raise ValueError("Package '%s' does not match format 'registry/namespace/name[@version|:channel]'" % (name))
     host, package, version = match.groups()
     if not version:
         version = 'default'

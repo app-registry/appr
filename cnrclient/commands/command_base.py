@@ -4,8 +4,6 @@ import json
 
 import yaml
 import requests
-
-import cnrclient
 from cnrclient.client import CnrClient
 from cnrclient.utils import parse_package_name, parse_version, split_package_name
 
@@ -28,6 +26,11 @@ class PackageName(argparse.Action):
             _set_package(parser, namespace, self.dest, package_parts)
         except ValueError as exc:
             raise parser.error(exc.message)
+
+
+class RegistryHost(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string=None):
+        setattr(namespace, self.dest, value[0])
 
 
 class PackageSplit(argparse.Action):
@@ -97,8 +100,9 @@ class CommandBase(object):
 
     @classmethod
     def _add_registryhost_option(cls, parser):
-        parser.add_argument("-H", "--registry-host", default=cnrclient.client.DEFAULT_REGISTRY,
-                            help='registry API url')
+        parser.add_argument("-H", "--registry-host",
+                            default=None,
+                            help=argparse.SUPPRESS)
 
     @classmethod
     def _add_output_option(cls, parser):
@@ -135,6 +139,6 @@ class CommandBase(object):
 
     @classmethod
     def _add_registryhost_arg(cls, parser):
-        parser.add_argument("registry_host", nargs='?',
-                            default=cnrclient.client.DEFAULT_REGISTRY,
+        parser.add_argument("registry_host", nargs=1,
+                            action=RegistryHost,
                             help='registry API url')
