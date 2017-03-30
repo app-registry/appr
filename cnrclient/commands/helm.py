@@ -1,5 +1,6 @@
-import os
 import argparse
+import os
+import tempfile
 
 from cnrclient.commands.command_base import CommandBase
 from cnrclient.commands.pull import PullCmd
@@ -43,7 +44,7 @@ class HelmCmd(CommandBase):
         subcmd.add_argument("-t", "--media-type", default="helm",
                             help=argparse.SUPPRESS)
 
-        subcmd.add_argument("--dest", default="/tmp",
+        subcmd.add_argument("--dest", default=tempfile.gettempdir(),
                             help="directory used to extract resources")
         subcmd.add_argument("--tarball", action="store_true", default=True,
                             help=argparse.SUPPRESS)
