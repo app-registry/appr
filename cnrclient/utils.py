@@ -3,8 +3,7 @@ import errno
 import re
 
 
-PACKAGE_REGEXP = r"^(.*?\/)([a-z0-9_-]+\/[a-z0-9_-]+)([:@][a-z0-9._-]+|@sha256:[a-z0-9]+)?$"
-# r"^(.*?)?\/?([a-z0-9_-]+\/[a-z0-9_-]+?)([:@].*)?$"
+PACKAGE_REGEXP = r"^(.*?\/)([a-z0-9_-]+\/[a-z0-9_-]+)([:@][a-z0-9._+-]+|@sha256:[a-z0-9]+)?$"
 
 
 def get_media_type(mediatype):

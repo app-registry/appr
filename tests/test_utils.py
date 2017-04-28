@@ -31,7 +31,6 @@ def test_parse_version(version, expected):
 
 
 @pytest.mark.parametrize("package,expected", [
-    ("foo/bar", {"host": None, "namespace": "foo", "package": "bar", "version": "default"}),
     ("localhost:5000/foo/bar", {"host": "localhost:5000", "namespace": "foo", "package": "bar", "version": "default"}),
     ("http://cnr.io/foo/bar", {"host": "http://cnr.io", "namespace": "foo", "package": "bar", "version": "default"}),
     ("https://cnr.io/foo/bar", {"host": "https://cnr.io", "namespace": "foo", "package": "bar", "version": "default"}),
@@ -41,13 +40,15 @@ def test_parse_version(version, expected):
     ("cnr.io/foo/bar@v3.4.4", {"host": "cnr.io", "namespace": "foo", "package": "bar", "version": "@v3.4.4"}),
     ("cnr.io/foo/bar:stable", {"host": "cnr.io", "namespace": "foo", "package": "bar", "version": ":stable"}),
     ("cnr.io/foo/bar:2.4-stable", {"host": "cnr.io", "namespace": "foo", "package": "bar", "version": ":2.4-stable"}),
+    ("cnr.io/foo/bar:2.4-stable+432.5.24-4324_5234", {"host": "cnr.io", "namespace": "foo", "package": "bar", "version": ":2.4-stable+432.5.24-4324_5234"}),
     ("cnr.io/foo/bar@sha256:34245afe", {"host": "cnr.io", "namespace": "foo", "package": "bar", "version": "@sha256:34245afe"}),
     ])
-def test_parse_version(package, expected):
+def test_parse_package_name(package, expected):
     assert cnrclient.utils.parse_package_name(package) == expected
 
 
 @pytest.mark.parametrize("package,expected", [
+    ("foo/bar", {"host": None, "namespace": "foo", "package": "bar", "version": "default"}),
     ("bar/@24", {"host": "https://cnr.io", "namespace": "foo", "package": "bar", "version": "default"}),
     ("cnr.io:stable", {"host": "cnr.io", "namespace": "foo", "package": "bar", "version": "default"}),
     ("cnr.io", {"host": "cnr.io/api/v1", "namespace": "foo", "package": "bar", "version": "default"}),
@@ -57,6 +58,6 @@ def test_parse_version(package, expected):
     ("cnr.io/foo/bar:2.4:stable", {"host": "cnr.io", "namespace": "foo", "package": "bar", "version": ":2.4:stable"}),
     ("cnr.io/foo/bar@sha256:34245.afe", {"host": "cnr.io", "namespace": "foo", "package": "bar", "version": "@sha256:34245afe"}),
     ])
-def test_parse_version(package, expected):
+def test_parse_bad_package_name(package, expected):
     with pytest.raises(ValueError):
         assert cnrclient.utils.parse_package_name(package) == expected
