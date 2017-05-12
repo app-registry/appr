@@ -24,6 +24,17 @@ mkdir -p ~/.helm/plugins/
 tar xzvf registry-cnr-v0.3.7-dev-linux-x64-helm-plugin.tar.gz  -C ~/.helm/plugins/
 ```
 
+### Windows
+
+```
+wget https://github.com/cn-app-registry/cnr-cli/releases/download/v0.3.7-dev/registry-cnr-v0.3.7-dev-win-x64-helm-plugin.tar.gz
+mkdir -p ~/.helm/plugins/
+tar xzvf registry-cnr-v0.3.7-dev-linux-x64-helm-plugin.tar.gz  -C ~/.helm/plugins/
+```
+
+Note: You must have bash in your path and change the `registry/plugin.yaml` execution to call `bash -c $HELM_PLUGIN_DIR/cnr.sh`
+
+
 ## Deploy Jenkins Using Helm from the Quay Registry
 
 
