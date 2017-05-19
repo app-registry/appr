@@ -37,6 +37,11 @@ class HelmCmd(CommandBase):
         cmd._exec_cmd("upgrade", options, unknown)
 
     @classmethod
+    def _dep_pull(cls, options, unknown=None):
+        helm_cli = Helm()
+        helm_cli.build_dep()
+
+    @classmethod
     def _init_args(cls, subcmd):
         cls._add_registryhost_option(subcmd)
         cls._add_packagename_option(subcmd)
@@ -54,10 +59,12 @@ class HelmCmd(CommandBase):
         sub = parser.add_subparsers()
         install_cmd = sub.add_parser('install')
         upgrade_cmd = sub.add_parser('upgrade')
+        dep_pull_cmd = sub.add_parser('dep-pull')
         cls._init_args(install_cmd)
         cls._init_args(upgrade_cmd)
         install_cmd.set_defaults(func=cls._install)
         upgrade_cmd.set_defaults(func=cls._upgrade)
+        dep_pull_cmd.set_defaults(func=cls._dep_pull)
 
     def _render_dict(self):
         return self.status
