@@ -66,7 +66,11 @@ class CommandBase(object):
         try:
             cls(options)()
         except requests.exceptions.RequestException as exc:
-            raise argparse.ArgumentTypeError(exc.message)
+            payload = {"message": exc.message}
+            if exc.response is not None:
+                payload["response"] = exc.response.content
+            raise argparse.ArgumentTypeError("\n" + yaml.safe_dump(payload, default_flow_style=False,
+                                             width=float("inf")))
 
     def __call__(self):
         self._call()
