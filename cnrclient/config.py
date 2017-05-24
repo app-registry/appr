@@ -5,7 +5,6 @@ import yaml
 
 from cnrclient.utils import mkdir_p
 
-
 DEFAULT_CONF_DIR = os.getenv('CNR_CONF_DIR', ".cnr")
 
 
@@ -36,7 +35,8 @@ class CnrConfig(object):
 
     def _write_config(self, config):
         with open(self.configfile, 'w') as configfile:
-            configfile.write(yaml.safe_dump(config, indent=2, default_style='"', default_flow_style=False))
+            configfile.write(
+                yaml.safe_dump(config, indent=2, default_style='"', default_flow_style=False))
 
     def add_registry_alias(self, alias, target):
         if 'repositories' not in self.config:

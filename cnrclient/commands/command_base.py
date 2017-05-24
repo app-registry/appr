@@ -69,8 +69,8 @@ class CommandBase(object):
             payload = {"message": exc.message}
             if exc.response is not None:
                 payload["response"] = exc.response.content
-            raise argparse.ArgumentTypeError("\n" + yaml.safe_dump(payload, default_flow_style=False,
-                                             width=float("inf")))
+            raise argparse.ArgumentTypeError("\n" + yaml.safe_dump(
+                payload, default_flow_style=False, width=float("inf")))
 
     def exec_cmd(self):
         self._call()
@@ -104,16 +104,11 @@ class CommandBase(object):
 
     @classmethod
     def _add_registryhost_option(cls, parser):
-        parser.add_argument("-H", "--registry-host",
-                            default=None,
-                            help=argparse.SUPPRESS)
+        parser.add_argument("-H", "--registry-host", default=None, help=argparse.SUPPRESS)
 
     @classmethod
     def _add_output_option(cls, parser):
-        parser.add_argument("--output", default="text", choices=['text',
-                                                                 'none',
-                                                                 'json',
-                                                                 'yaml'],
+        parser.add_argument("--output", default="text", choices=['text', 'none', 'json', 'yaml'],
                             help="output format")
 
     @classmethod
@@ -128,21 +123,18 @@ class CommandBase(object):
 
     @classmethod
     def _add_packagename_option(cls, parser):
-        parser.add_argument('package', nargs=1, default=None,
-                            action=PackageName, help="package-name")
+        parser.add_argument('package', nargs=1, default=None, action=PackageName,
+                            help="package-name")
 
     @classmethod
     def _add_packagesplit_option(cls, parser):
-        parser.add_argument('package', nargs="?", default=None,
-                            action=PackageSplit, help="registry-host.com/namespace/name")
+        parser.add_argument('package', nargs="?", default=None, action=PackageSplit,
+                            help="registry-host.com/namespace/name")
 
     @classmethod
     def _add_packageversion_option(cls, parser):
-        parser.add_argument("-v", "--version",
-                            help="package VERSION", default='default')
+        parser.add_argument("-v", "--version", help="package VERSION", default='default')
 
     @classmethod
     def _add_registryhost_arg(cls, parser):
-        parser.add_argument("registry_host", nargs=1,
-                            action=RegistryHost,
-                            help='registry API url')
+        parser.add_argument("registry_host", nargs=1, action=RegistryHost, help='registry API url')
