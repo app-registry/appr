@@ -41,8 +41,6 @@ class PushCmd(CommandBase):
         parser.add_argument("-f", "--force", action='store_true', default=False,
                             help="force push")
         parser.add_argument("--ns", "--namespace", default=None,
-                            help="package namespace")
-        parser.add_argument("--name", default=None,
                             help=argparse.SUPPRESS)
         parser.add_argument("-c", "--channel", default=None,
                             help="Set a channel")
