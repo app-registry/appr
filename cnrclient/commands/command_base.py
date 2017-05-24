@@ -118,8 +118,9 @@ class CommandBase(object):
         if default is not None:
             required = False
 
-        parser.add_argument("-t", "--media-type", default=default, required=required,
-                            help='package format: [kpm, kpm-compose, helm, docker-compose]')
+        parser.add_argument(
+            "-t", "--media-type", default=default, required=required,
+            help='package format: [kpm, kpm-compose, helm, docker-compose, kubernetes]')
 
     @classmethod
     def _add_packagename_option(cls, parser):
