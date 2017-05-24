@@ -18,9 +18,9 @@ class HelmCmd(CommandBase):
         super(HelmCmd, self).__init__(options)
         self.status = {}
 
-    def _exec_cmd(self, cmd, options, helm_opts):
+    def exec_helm_cmd(self, cmd, options, helm_opts):
         pull_cmd = PullCmd(options)
-        pull_cmd._call()
+        pull_cmd.call(options)
         helm_cli = Helm()
         output = helm_cli.action(cmd, pull_cmd.path, helm_opts)
         self.status = {'result': output}
@@ -29,12 +29,12 @@ class HelmCmd(CommandBase):
     @classmethod
     def _install(cls, options, unknown=None):
         cmd = cls(options)
-        cmd._exec_cmd('install', options, unknown)
+        cmd.exec_helm_cmd('install', options, unknown)
 
     @classmethod
     def _upgrade(cls, options, unknown=None):
         cmd = cls(options)
-        cmd._exec_cmd('upgrade', options, unknown)
+        cmd.exec_helm_cmd('upgrade', options, unknown)
 
     @classmethod
     def _dep_pull(cls, options, unknown=None):

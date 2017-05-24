@@ -6,7 +6,6 @@ import glob
 import io
 import os
 import fnmatch
-from itertools import chain
 
 # 1. download the package
 # 2. untar it to dest directory with the packagename_version/
@@ -18,22 +17,12 @@ from itertools import chain
 # 7. foreach manifest check if resources exists are create it
 #
 
-AUTHORIZED_FILES = ["*.libjsonnet",
-                    "*.jsonnet",
-                    "*.yaml",
-                    "README.md",
-                    "LICENSE",
-                    "AUTHORS",
-                    "NOTICE",
-                    "manifests",
-                    "deps/*.kub"]
+AUTHORIZED_FILES = [
+    "*.libjsonnet", "*.jsonnet", "*.yaml", "README.md", "LICENSE", "AUTHORS", "NOTICE",
+    "manifests", "deps/*.kub"
+]
 
-
-AUTHORIZED_TEMPLATES = ["*.yaml",
-                        "*.jsonnet",
-                        "*.libjsonnet",
-                        "*.yml",
-                        "*.j2"]
+AUTHORIZED_TEMPLATES = ["*.yaml", "*.jsonnet", "*.libjsonnet", "*.yml", "*.j2"]
 
 
 def authorized_files():
@@ -54,13 +43,18 @@ def all_files():
     for filename in ['.helmignore', '.cnrignore', '.kpmignore']:
         if os.path.exists(filename):
             with open(filename, 'r') as f:
-                ignore_files.append(f.read().split("\n"))
-    ignore_files = list(chain(ignore_files))
+                ignore_files = ignore_files + f.read().split("\n")
+
     for root, _, filenames in os.walk('.'):
         for filename in filenames:
-            if filename in ignore_files:
-                continue
-            files.append(os.path.join(root, filename))
+            path = os.path.join(root, filename)
+            skip = False
+            for ignore_pattern in ignore_files:
+                if fnmatch.fnmatch(path, ignore_pattern):
+                    skip = True
+                    break
+            if not skip:
+                files.append(path)
     return files
 
 
