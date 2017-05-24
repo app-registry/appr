@@ -22,7 +22,8 @@ class DeletePackageCmd(CommandBase):
 
     def _call(self):
         client = self.RegistryClient(self.registry_host)
-        self.result = client.delete_package(self.package, version=self.version, media_type=self.media_type)
+        self.result = client.delete_package(self.package, version=self.version,
+                                            media_type=self.media_type)
 
     def _render_dict(self):
         return self.result

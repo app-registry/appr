@@ -31,8 +31,7 @@ class VersionCmd(CommandBase):
         return cnrclient.__version__
 
     def _version(self):
-        return {'api-version': self._api_version(),
-                "client-version": self._cli_version()}
+        return {'api-version': self._api_version(), "client-version": self._cli_version()}
 
     def _call(self):
         version = self._version()
@@ -40,8 +39,8 @@ class VersionCmd(CommandBase):
         self.client_version = version['client-version']
 
     def _render_dict(self):
-        return {"api-version": self.api_version,
-                "client-version": self.client_version}
+        return {"api-version": self.api_version, "client-version": self.client_version}
 
     def _render_console(self):
-        return "\n".join(["Api-version: %s" % self.api_version, "Client-version: %s" % self.client_version])
+        return "\n".join(
+            ["Api-version: %s" % self.api_version, "Client-version: %s" % self.client_version])

@@ -3,7 +3,6 @@ import shutil
 from cnrclient.commands.command_base import CommandBase
 from cnrclient.utils import mkdir_p
 
-
 LOCAL_DIR = os.path.dirname(__file__)
 
 
@@ -18,16 +17,14 @@ class PluginsCmd(CommandBase):
 
     @classmethod
     def _add_arguments(cls, parser):
-        parser.add_argument("plugin", nargs='+',
-                            help='plugin cmd')
+        parser.add_argument("plugin", nargs='+', help='plugin cmd')
 
     def _helm(self):
         default_path = os.getenv("HELM_HOME", "~/.helm")
         home = os.path.expanduser(default_path) + "/plugins/cnr"
         mkdir_p(home)
         source = os.path.join(LOCAL_DIR, "plugins/helm")
-        files = [os.path.join(source, "plugin.yaml"),
-                 os.path.join(source, "cnr.sh")]
+        files = [os.path.join(source, "plugin.yaml"), os.path.join(source, "cnr.sh")]
 
         for f in files:
             shutil.copy(f, home)

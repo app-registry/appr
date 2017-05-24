@@ -60,7 +60,8 @@ class CnrAuth(object):
 
     def _write_tokens(self, tokens):
         with open(self.tokenfile, 'w') as tokenfile:
-            tokenfile.write(yaml.safe_dump(tokens, indent=2, default_style='"', default_flow_style=False))
+            tokenfile.write(
+                yaml.safe_dump(tokens, indent=2, default_style='"', default_flow_style=False))
 
     def delete_token(self, host):
         auths = self.tokens

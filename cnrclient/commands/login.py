@@ -24,12 +24,9 @@ class LoginCmd(CommandBase):
         cls._add_registryhost_arg(parser)
         parser.add_argument("-s", "--signup", action='store_true', default=False,
                             help="Create a new account and login")
-        parser.add_argument("-u", "--user", nargs="?", default=None,
-                            help="username")
-        parser.add_argument("-p", "--password", nargs="?", default=None,
-                            help="password")
-        parser.add_argument("-e", "--email", nargs="?", default=None,
-                            help="email for signup")
+        parser.add_argument("-u", "--user", nargs="?", default=None, help="username")
+        parser.add_argument("-p", "--password", nargs="?", default=None, help="password")
+        parser.add_argument("-e", "--email", nargs="?", default=None, help="email for signup")
 
     def _call(self):
         client = self.RegistryClient(self.registry_host)

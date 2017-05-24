@@ -19,12 +19,10 @@ class ListPackageCmd(CommandBase):
     def _add_arguments(cls, parser):
         cls._add_registryhost_arg(parser)
         cls._add_mediatype_option(parser, default=None, required=False)
-        parser.add_argument("-u", "--user", default=None,
-                            help="list packages owned by USER")
+        parser.add_argument("-u", "--user", default=None, help="list packages owned by USER")
         parser.add_argument("-o", "--organization", default=None,
                             help="list ORGANIZATION packages")
-        parser.add_argument("-s", "--search", default=None,
-                            help="search query")
+        parser.add_argument("-s", "--search", default=None, help="search query")
 
     def _call(self):
         client = self.RegistryClient(self.registry_host)

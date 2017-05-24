@@ -25,8 +25,7 @@ class ChannelCmd(CommandBase):
         cls._add_packagename_option(parser)
         cls._add_packageversion_option(parser)
 
-        parser.add_argument("-c", "--channel", default=None,
-                            help="channel name")
+        parser.add_argument("-c", "--channel", default=None, help="channel name")
         parser.add_argument("--set-release", default=False, action='store_true',
                             help="Add release to the channel")
         parser.add_argument("--delete", default=False, action='store_true',

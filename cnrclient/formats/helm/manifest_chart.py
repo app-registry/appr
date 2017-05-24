@@ -3,9 +3,7 @@ import sys
 import os.path
 import yaml
 
-
 __all__ = ['ManifestChart']
-
 
 MANIFEST_FILES = ["Chart.yaml", "Chart.yml"]
 
@@ -28,7 +26,7 @@ class ManifestChart(dict):
             print("Error in configuration file:", sys.stderr)
             if hasattr(exc, 'problem_mark'):
                 mark = exc.problem_mark
-                print("Error position: (%s:%s)" % (mark.line+1, mark.column+1), sys.stderr)
+                print("Error position: (%s:%s)" % (mark.line + 1, mark.column + 1), sys.stderr)
             raise exc
 
     def _load_from_path(self):
@@ -72,5 +70,4 @@ class ManifestChart(dict):
         return self.get("name", [])
 
     def metadata(self):
-        return {"maintainers": self.maintainers,
-                "source": self.sources}
+        return {"maintainers": self.maintainers, "source": self.sources}

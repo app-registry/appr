@@ -8,15 +8,13 @@ from cnrclient.discovery import ishosted, discover_sources
 from cnrclient.auth import CnrAuth
 from cnrclient.config import CnrConfig
 
-
 logger = logging.getLogger(__name__)
 DEFAULT_REGISTRY = 'http://localhost:5000'
 DEFAULT_PREFIX = "/cnr"
 
 
 class CnrClient(object):
-    def __init__(self, endpoint=DEFAULT_REGISTRY,
-                 auth=None, config=None, insecure=False):
+    def __init__(self, endpoint=DEFAULT_REGISTRY, auth=None, config=None, insecure=False):
         if not auth:
             auth = CnrAuth()
         if not config:
@@ -25,8 +23,10 @@ class CnrClient(object):
         self.config = config
         self.endpoint = self._configure_endpoint(endpoint, insecure)
         self.host = self.endpoint.geturl()
-        self._headers = {'Content-Type': 'application/json',
-                         'User-Agent': "cnrpy-cli/%s" % cnrclient.__version__}
+        self._headers = {
+            'Content-Type': 'application/json',
+            'User-Agent': "cnrpy-cli/%s" % cnrclient.__version__
+        }
 
     def _url(self, path):
         return self.endpoint.geturl() + path
@@ -92,7 +92,8 @@ class CnrClient(object):
             version = version_parts['value']
             url = "/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version, media_type)
         else:
-            url = "/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name, version_parts['value'], media_type)
+            url = "/api/v1/packages/%s/%s/%s/%s/pull" % (organization, name,
+                                                         version_parts['value'], media_type)
         return url
 
     def _pull_path(self, name, version_parts, media_type):
@@ -127,9 +128,9 @@ class CnrClient(object):
         body['organization'] = organization
         body['package'] = name
         path = "/api/v1/packages/%s/%s" % (organization, pname)
-        resp = requests.post(self._url(path),
-                             params={"force": str(force).lower()},
-                             data=json.dumps(body), headers=self.headers)
+        resp = requests.post(
+            self._url(path), params={"force": str(force).lower()}, data=json.dumps(body),
+            headers=self.headers)
         resp.raise_for_status()
         return resp.json()
 
@@ -170,9 +171,13 @@ class CnrClient(object):
 
     def login(self, username, password):
         path = "/api/v1/users/login"
-        resp = requests.post(self._url(path),
-                             data=json.dumps({"user": {"username": username, "password": password}}),
-                             headers=self.headers)
+        resp = requests.post(
+            self._url(path), data=json.dumps({
+                "user": {
+                    "username": username,
+                    "password": password
+                }
+            }), headers=self.headers)
         resp.raise_for_status()
         result = resp.json()
         self.auth.add_token(self.host, result['token'])
@@ -180,12 +185,15 @@ class CnrClient(object):
 
     def signup(self, username, password, password_confirmation, email):
         path = "/api/v1/users"
-        resp = requests.post(self._url(path),
-                             data=json.dumps({"user": {"username": username,
-                                                       "password": password,
-                                                       "password_confirmation": password_confirmation,
-                                                       "email": email}}),
-                             headers=self.headers)
+        resp = requests.post(
+            self._url(path), data=json.dumps({
+                "user": {
+                    "username": username,
+                    "password": password,
+                    "password_confirmation": password_confirmation,
+                    "email": email
+                }
+            }), headers=self.headers)
         resp.raise_for_status()
         result = resp.json()
         self.auth.add_token(self.host, result['token'])

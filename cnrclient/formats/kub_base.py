@@ -16,9 +16,7 @@ class KubBase(object):
     manifest_file = []
     cnr_client = CnrClient
 
-    def __init__(self, name,
-                 version='default',
-                 endpoint=None):
+    def __init__(self, name, version='default', endpoint=None):
         self._deploy_name = name
 
         self.endpoint = endpoint
@@ -45,8 +43,7 @@ class KubBase(object):
 
     def __unicode__(self):
         return ("(<{class_name}({name}=={version})>".format(class_name=self.__class__.__name__,
-                                                            name=self.name,
-                                                            version=self.version))
+                                                            name=self.name, version=self.version))
 
     def __str__(self):
         return self.__unicode__().encode('utf-8')

@@ -2,7 +2,6 @@ import os
 from cnrclient.formats.helm.chart import Chart
 from cnrclient.formats.kpm.kpm import Kpm
 
-
 kub_formats = [Chart, Kpm]
 kub_by_name = {k.media_type: k for k in kub_formats}
 kub_by_platforms = {k.platform: k for k in kub_formats}

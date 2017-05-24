@@ -3,7 +3,6 @@ import os
 from cnrclient.commands.command_base import CommandBase
 from cnrclient.config import CnrConfig
 
-
 LOCAL_DIR = os.path.dirname(__file__)
 
 
