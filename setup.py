@@ -34,7 +34,7 @@ requirements = base_requirements + cli_requirements
 
 setup(
     name='cnr',
-    version='0.3.8',
+    version='0.4.0',
     description="cloud-native app registry server",
     long_description=readme,
     author="Antoine Legrand",
