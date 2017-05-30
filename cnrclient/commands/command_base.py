@@ -62,19 +62,20 @@ class CommandBase(object):
             print(self._render_console())
 
     @classmethod
-    def call(cls, options):
+    def call(cls, options, render=True):
+        cls(options).exec_cmd(render=render)
+
+    def exec_cmd(self, render=True):
         try:
-            cls(options).exec_cmd()
+            self._call()
         except requests.exceptions.RequestException as exc:
             payload = {"message": exc.message}
             if exc.response is not None:
                 payload["response"] = exc.response.content
             raise argparse.ArgumentTypeError("\n" + yaml.safe_dump(
                 payload, default_flow_style=False, width=float("inf")))
-
-    def exec_cmd(self):
-        self._call()
-        self.render()
+        if render:
+            self.render()
 
     @classmethod
     def add_parser(cls, subparsers):

@@ -20,7 +20,7 @@ class HelmCmd(CommandBase):
 
     def exec_helm_cmd(self, cmd, options, helm_opts):
         pull_cmd = PullCmd(options)
-        pull_cmd.call(options)
+        pull_cmd.exec_cmd(render=False)
         helm_cli = Helm()
         output = helm_cli.action(cmd, pull_cmd.path, helm_opts)
         self.status = {'result': output}

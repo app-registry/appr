@@ -91,11 +91,11 @@ class Helm(object):
         else:
             return "No appr-registries dependencies"
 
-    def action(self, cmd, release, helm_opts=None):
+    def action(self, cmd, package_path, helm_opts=None):
         cmd = [cmd]
         if helm_opts:
             cmd = cmd + helm_opts
-        cmd = cmd + [release]
+        cmd = cmd.append(package_path)
         return self._call(cmd)
 
     def _call(self, cmd):
