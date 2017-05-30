@@ -95,7 +95,7 @@ class Helm(object):
         cmd = [cmd]
         if helm_opts:
             cmd = cmd + helm_opts
-        cmd = cmd.append(package_path)
+        cmd.append(package_path)
         return self._call(cmd)
 
     def _call(self, cmd):
