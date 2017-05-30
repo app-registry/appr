@@ -5,18 +5,18 @@ matrix:
       language: python
       env:
         - MAKECMD=lint
-        - BIN_NAME=cnr-$TRAVIS_TAG-$TRAVIS_OS_NAME-x64
+        - BIN_NAME=cnr-$TRAVIS_OS_NAME-x64
     - os: linux
       sudo: false
       language: python
       env:
         - MAKECMD=test
-        - BIN_NAME=cnr-$TRAVIS_TAG-$TRAVIS_OS_NAME-x64
+        - BIN_NAME=cnr-$TRAVIS_OS_NAME-x64
     - os: osx
       language: generic
       env:
         - MAKECMD=test
-        - BIN_NAME=cnr-$TRAVIS_TAG-$TRAVIS_OS_NAME-x64
+        - BIN_NAME=cnr-$TRAVIS_OS_NAME-x64
 
 install:
   - if [ "$MAKECMD" == "test" ] ; then pip install -U pyinstaller ; fi
