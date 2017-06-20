@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-
+# yapf:disable
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
@@ -16,11 +14,21 @@ base_requirements = [
     'requests',
 ]
 
+server_requirements = [
+    'redis',
+    'python-etcd',
+    'semantic_version',
+    'flask',
+    'Flask>=0.10.1',
+    'flask-cors'
+]
+
 cli_requirements = [
     'tabulate',
     'termcolor',
+    'jsonnet',
     'pyyaml',
-    ]
+]
 
 test_requirements = [
     "pytest",
@@ -30,34 +38,40 @@ test_requirements = [
     "requests-mock"
 ]
 
-requirements = base_requirements + cli_requirements
+requirements = base_requirements + cli_requirements + server_requirements
+
 
 setup(
-    name='cnr',
+    name='appr',
     version='0.4.1',
     description="cloud-native app registry server",
     long_description=readme,
     author="Antoine Legrand",
     author_email='2t.antoine@gmail.com',
-    url='https://github.com/ant31/cn-app-registry/cnrclient-server',
+    url='https://github.com/app-registry/appr-server',
     packages=[
-        'cnrclient',
-        'cnrclient.commands',
-        'cnrclient.plugins',
-        'cnrclient.formats',
-        'cnrclient.formats.helm',
-        'cnrclient.formats.kpm',
+        'appr',
+        'appr.commands',
+        'appr.plugins',
+        'appr.formats',
+        'appr.formats.helm',
+        'appr.formats.kpm',
+        'appr.tests',
+        'appr.api',
+        'appr.api.impl',
+        'appr.models',
+        'appr.models.kv',
+        'appr.models.kv.etcd',
+        'appr.models.kv.redis',
+        'appr.models.kv.filesystem',
     ],
-    scripts=[
-        'bin/cnr'
-    ],
-    package_dir={'cnrclient':
-                 'cnrclient'},
+    scripts=['bin/appr'],
+    package_dir={'appr': 'appr'},
     include_package_data=True,
     install_requires=requirements,
     license="Apache License version 2",
     zip_safe=False,
-    keywords=['cnrclient', 'cnrclientpy', 'kubernetes'],
+    keywords=['apprclient', 'apprclientpy', 'kubernetes'],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -65,6 +79,6 @@ setup(
         "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.7',
     ],
+    setup_requries=['pytest-runner'],
     test_suite='tests',
-    tests_require=test_requirements,
-)
+    tests_require=test_requirements,)

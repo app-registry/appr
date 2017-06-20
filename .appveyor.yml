@@ -12,7 +12,7 @@ environment:
     # - PYTHON: "C:\\Python34"
     # - PYTHON: "C:\\Python35"
     - PYTHON: "C:\\Python27-x64"
-      BIN_NAME: cnr-%APPVEYOR_REPO_TAG_NAME%-win-x64
+      BIN_NAME: appr-%APPVEYOR_REPO_TAG_NAME%-win-x64
     # - PYTHON: "C:\\Python33-x64"
     # - PYTHON: "C:\\Python34-x64"
     # - PYTHON: "C:\\Python35-x64"
@@ -35,17 +35,17 @@ build: off
 
 test_script:
   # Run the project tests
-  - "py.test --cov=cnrclient --cov-report=html --cov-report=term-missing  --verbose tests"
+  - "py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests"
 
 after_test:
   # If tests are successful, create binary packages for the project.
-  - "pyinstaller --onefile bin/cnr"
+  - "pyinstaller --onefile bin/appr"
   - ps: "ls dist"
-  - "copy dist\\cnr.exe %BIN_NAME%.exe"
+  - "copy dist\\appr.exe %BIN_NAME%.exe"
   - "mkdir registry"
-  - "copy dist\\cnr.exe registry\\cnr.exe"
-  - "copy cnrclient\\commands\\plugins\\helm\\cnr.sh registry\\cnr.sh"
-  - "copy cnrclient\\commands\\plugins\\helm\\plugin.yaml registry\\plugin.yaml"
+  - "copy dist\\appr.exe registry\\appr.exe"
+  - "copy appr\\commands\\plugins\\helm\\appr.sh registry\\appr.sh"
+  - "copy appr\\commands\\plugins\\helm\\plugin.yaml registry\\plugin.yaml"
   - "7z a registry-%BIN_NAME%-helm-plugin.zip registry\\*.*"
   - ps: "ls dist"
   - ps: "ls registry"

@@ -49,23 +49,23 @@ clean-test:
 lint: flake8 pylint
 
 test:
-	py.test --cov=cnrclient --cov-report=html --cov-report=term-missing  --verbose tests
+	py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests
 
 test-all:
-	py.test --cov=cnrclient --cov-report=html --cov-report=term-missing  --verbose tests
+	py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests
 
 tox:
 	tox
 
 coverage:
-	coverage run --source cnrclient setup.py test
+	coverage run --source appr setup.py test
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html
 
 docs: install
 	rm -f test1
-	sphinx-apidoc  -f -P -o docs/test1 cnrclient
+	sphinx-apidoc  -f -P -o docs/test1 appr
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
@@ -93,4 +93,4 @@ coveralls: test
 	coveralls
 
 pylint:
-	-pylint --rcfile=".pylintrc" cnrclient
+	-pylint --rcfile=".pylintrc" appr

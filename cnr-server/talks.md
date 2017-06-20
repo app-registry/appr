@@ -1,4 +1,0 @@
-- What you would like share roadmap ?
-- who's working on upstream
-- who's using Helm
-- How to submit features

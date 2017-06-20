@@ -1,7 +1,7 @@
 import pytest
 from pytest import raises
 
-from cnrclient.commands.cli import get_parser, all_commands, cli
+from appr.commands.cli import get_parser, all_commands, cli
 
 
 # Real-test are in test_integration
@@ -22,7 +22,7 @@ def test_cli_help(monkeypatch, capsys, cli_parser):
 
 
 def test_cli_bad_cmd(monkeypatch, capsys, cli_parser):
-    monkeypatch.setattr("sys.argv", ["cnr", "blabla"])
+    monkeypatch.setattr("sys.argv", ["appr", "blabla"])
     with raises(SystemExit) as exc:
         cli()
     assert exc.value.code == 2

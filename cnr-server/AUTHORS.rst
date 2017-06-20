@@ -1,4 +1,0 @@
-=======
-Credits
-=======
-Antoine Legrand

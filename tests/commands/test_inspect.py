@@ -1,6 +1,7 @@
 import pytest
 import requests_mock
-from cnrclient.commands.inspect import InspectCmd
+from appr.commands.inspect import InspectCmd
+from appr.client import DEFAULT_PREFIX
 
 
 def get_inspectcmd(cli_parser, args=[]):
@@ -19,7 +20,7 @@ def test_inspect_tree(cli_parser, package_blob, capsys):
     inspectcmd = get_inspectcmd(cli_parser, ["kpm.sh/foo/bar@1.0.0", "-t", "helm", "--tree"])
     with requests_mock.mock() as m:
         response = package_blob
-        m.get("https://kpm.sh/cnr/api/v1/packages/foo/bar/1.0.0/helm/pull", content=response)
+        m.get("https://kpm.sh" + DEFAULT_PREFIX + "/api/v1/packages/foo/bar/1.0.0/helm/pull", content=response)
         inspectcmd.exec_cmd()
         out, err = capsys.readouterr()
         default_out = ["README.md", "manifest.yaml", "templates/rocketchat-rc.yml", "templates/rocketchat-svc.yml\n"]
@@ -39,7 +40,7 @@ def test_inspect_default(cli_parser, package_blob, capsys):
     inspectcmd_default_file = get_inspectcmd(cli_parser, ["kpm.sh/foo/bar@1.0.0", "-t", "helm"])
     with requests_mock.mock() as m:
         response = package_blob
-        m.get("https://kpm.sh/cnr/api/v1/packages/foo/bar/1.0.0/helm/pull", content=response)
+        m.get("https://kpm.sh" + DEFAULT_PREFIX + "/api/v1/packages/foo/bar/1.0.0/helm/pull", content=response)
         inspectcmd.exec_cmd()
         out, err = capsys.readouterr()
         inspectcmd_default_file.exec_cmd()
@@ -51,7 +52,7 @@ def test_inspect_file(cli_parser, package_blob, capsys):
     inspectcmd = get_inspectcmd(cli_parser, ["kpm.sh/foo/bar@1.0.0", "-t", "helm", "--file", "README.md"])
     with requests_mock.mock() as m:
         response = package_blob
-        m.get("https://kpm.sh/cnr/api/v1/packages/foo/bar/1.0.0/helm/pull", content=response)
+        m.get("https://kpm.sh" + DEFAULT_PREFIX + "/api/v1/packages/foo/bar/1.0.0/helm/pull", content=response)
         inspectcmd.exec_cmd()
         out, err = capsys.readouterr()
         readme = "\nrocketchat\n===========\n\n# Install\n\nkpm install rocketchat\n\n"

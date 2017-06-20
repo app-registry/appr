@@ -1,0 +1,120 @@
+stages:
+  - unit-tests
+  - code-style
+  - integration-tests
+  - build
+  - release
+
+variables:
+  FAILFASTCI_NAMESPACE: 'failfast-ci'
+  IMAGE: quay.io/ant31/appr-server
+
+cache:
+  paths:
+    - cache
+
+.job: &job
+  before_script:
+  - pip install -e .
+  - pip install -r requirements_dev.txt -U
+  script:
+    - make test db=$APPR_TEST_DB
+  tags:
+    - kubernetes
+  image: python:2.7
+
+test-filesystem:
+  <<: *job
+  stage: unit-tests
+  image: python:2.7
+  script:
+    - pip install -U python-coveralls
+    - make test
+    - coveralls
+  variables:
+    APPR_TEST_DB: filesystem
+
+test-etcd:
+  <<: *job
+  stage: integration-tests
+  services:
+    - quay.io/coreos/etcd:v3.0.6
+  image: python:2.7
+  variables:
+    APPR_TEST_DB: etcd
+    ETCD_HOST: localhost
+
+test-redis:
+  <<: *job
+  stage: integration-tests
+  services:
+    - redis:3
+  image: python:2.7
+  variables:
+    APPR_TEST_DB: redis
+    REDIS_HOST: localhost
+
+flake8:
+  <<: *job
+  image: python:2.7
+  stage: code-style
+  script:
+    - make flake8
+
+pylint:
+  <<: *job
+  image: python:2.7
+  stage: code-style
+  script:
+    - pip install pylint
+    - make pylint
+
+.docker: &docker
+  variables:
+    DOCKER_DRIVER: overlay
+    DOCKER_HOST: tcp://localhost:2375
+  image: docker:git
+  before_script:
+    - echo $DOCKER_LOGIN | xargs docker login
+  services:
+     - docker:dind
+  tags:
+    - kubernetes
+
+docker-build:
+  <<: *docker
+  stage: build
+  script:
+    - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
+
+.docker-push: &docker-push
+  <<: *docker
+  stage: release
+  script:
+    - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
+    - docker push $IMAGE:$CI_BUILD_REF_NAME
+
+docker-release:
+  <<: *docker-push
+  only:
+    - tags
+    - master
+
+docker-push:
+  <<: *docker-push
+  except:
+    - tags
+    - master
+  when: manual
+
+pypi-release:
+  <<: *job
+  image: python:2.7
+  stage: release
+  script:
+    - make release
+  tags:
+    - kubernetes
+  when: manual
+  only:
+    - tags

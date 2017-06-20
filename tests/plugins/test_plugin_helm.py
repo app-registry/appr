@@ -1,6 +1,6 @@
 import pytest
 
-from cnrclient.plugins.helm import parse_version, Helm
+from appr.plugins.helm import parse_version, Helm
 
 
 @pytest.mark.parametrize("version,expected", [

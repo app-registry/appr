@@ -1,6 +1,6 @@
 import pytest
 import requests_mock
-from cnrclient.commands.helm import HelmCmd
+from appr.commands.helm import HelmCmd
 
 
 def get_helmcmd(cli_parser, args=[]):
