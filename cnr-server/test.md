@@ -1,0 +1,17 @@
+- [ ] Create an empty channel
+- [ ] Delete an empty channel
+- [ ] Create a channel for non existing package
+- [ ] Create a channel for non existing release
+- [ ] Create a channel
+- [ ] create another channel
+- [ ] Add a release to the channel
+- [ ] Add another release to the channel
+- [ ] List channels
+- [ ] List channels releases
+- [ ] Show all packages
+- [ ] Add release to other channel
+- [ ] List
+- [ ] Delete release to other channel
+- [ ] Switch default release
+- [ ] delete
+- [ ] delete

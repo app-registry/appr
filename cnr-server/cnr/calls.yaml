@@ -1,0 +1,58 @@
+/api/v1/packages:
+  /ant31/wordpress: array of all releases
+    /formats/helm
+    /formats/helm/v1.0.1
+    /releases/v1.0.1
+    /sha256/{digest} + header:
+    /releases: array of all releases
+    /releases/helm: all releases in the helm format
+    /releases/helm/v1.0.1: show details of a helm release
+
+
+release:
+  - [x] As a user I would to view general information for a package
+    `/ant31/wordpress`
+     { package }
+     last-default-releases for each format
+  - [x] As a user I would like to list all available format for a particular release
+
+     {package-descriptor}
+
+  - [x] As a user I would like to list all releases with the format
+    `/ant31/wordpress/releases`
+     [ pacakge-descriptor ]
+
+  - [x] As a user I would like to get the blob for of release in a particular format
+    `/ant31/wordpress/blob/sha256/432432f2243267ea5529`
+
+  - [x] As a user I would like to view a particular format release
+    `/ant31/wordpress/manifests/helm/v1.0.1`
+    {helm-json + package-descriptor}
+
+    `/ant31/wordpress/manifests/kpm/v1.0.1`
+    {kpm-json +  package-descriptor}
+
+  - [x] As a user I would like to list all releases for particular format
+
+     [ helm-json package-descriptor ]
+
+
+
+`/ant31/wordpress`                         : show application description
+`/ant31/wordpress/blobs/sha256/4314feac` : fetch the blob
+`/ant31/wordpress/releases`              : list all releases in all formats [{format: help, release: v1.1.0}, {format: kpm, release: v1.2.0}]
+`/ant31/wordpress/releases/v1.0.1`       : list all available format for that release [{format: kpm: default: v1.1.0}, ...]
+`/ant31/wordpress/releases/v1.0.1/helm`  : show the helm-manifest v1.0.1 (include the digest)
+`/ant31/wordpress/releases/v1.0.1/kpm `  : show the kpm-manifest v1.0.1 (include the digest)
+`/ant31/wordpress/channels`              : list all channels
+`/ant31/wordpress/channels/stable`       : list all stable releases [{format: helm, release: v1.1.0}, {format: kpm, release: v1.2.0}]
+`/ant31/wordpress/channels/stable/helm`  : show the stable helm-manifest
+`/ant31/wordpress/releases/_/kpm `       : show default kpm release
+`/ant31/wordpress/releases/_/helm `      : show default helm release
+
+
+
+`/ant31/wordpress/manifests/`            : list all formats and the default release for each [{format: kpm: default: v1.1.0}, ...]
+`/ant31/wordpress/manifests/helm`        : list all available releases for helm format: [{format: help, release: v1.1.0}, {format: helm, release: v1.2.0}]
+`/ant31/wordpress/manifests/helm/v1.0.1`
+`/ant31/wordpress/manifests/kpm/v1.0.1`  : show the kpm-manifest v1.0.1

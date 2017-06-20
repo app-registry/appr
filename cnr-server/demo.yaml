@@ -1,0 +1,42 @@
+- /foo/bar:  # show all releases + all manifests
+show-with_manifests:
+- package: ant31/rocketchat/v2.0.2
+  release: 2.0.2
+  mediaType: "cnr.package.manifest-list.json"
+  manifests:
+    - mediaType: "cnr.package.kpm.json"
+      content:
+        digest: "13421414124"
+        size: 14324
+        mediaType: ....
+        urls: []
+      variables: ...
+      dependencies: ...
+      manifest_file: ....
+      files: ...
+
+    - mediaType: "cnr.package.helm.tar+gzip"
+
+- /packages       # show all packages
+packages:
+- package: ant31/rocketchat
+  mediaType: "cnr.package.list.json"
+  available_releases: []
+  channels: []
+
+
+
+
+show-one:
+  - package: ant31/rocketchat
+    release: 2.0.2
+    mediaType: "cnr.package.kpm.json"
+    content:
+      mediaType: "cnr.package.kpm.tar+gzip"
+      digest: "13421414124"
+      size: 14324
+      urls: []
+    variables: ...
+    dependencies: ...
+    manifest_file: ....
+    files: ...

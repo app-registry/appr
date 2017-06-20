@@ -1,0 +1,32 @@
+{
+    "schemaVersion": 'v1',
+    "mediaType": "application/vnd.cnr.app.kpm-k8s.manifest.v1+json",
+    "package":
+    {
+        "mediaType": "application/vnd.cnr.kpm-k8s.blob.v1+tar.gz",
+        "size": 7682,
+        "digest": "sha256:5b0bcabd1ed22e9fb1310cf6c2dec7cdef19f0ad69efa1f392e94a4333501270"
+    },
+    "release": "0.21.1-4"
+    "created_at": "2016-09-06T10:44:46.626896",
+    "available_versions": [
+        "0.21.1-4",
+        "0.21.1-3",
+        "0.21.1-2"
+    ],
+    "channels": { },
+    "dependencies": [
+        "coreos/etcd"
+    ],
+    "name": coreos/kpm-registry",
+    "variables": {
+        etcd_cluster_size: 3,
+        etcd_volumes: "emptydir",
+        image: "quay.io/kubespray/kpm:v0.21.1",
+        image_etcd: "quay.io/coreos/etcd:v3.0.6",
+        initial_cluster: "etcd=http://etcd.default.svc.cluster.local:2380",
+        kpm_uri: "http://kpm-registry.default.svc.cluster.local",
+        namespace: "default",
+        svc_type: "NodePort"
+    },
+}
