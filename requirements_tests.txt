@@ -1,0 +1,10 @@
+pytest
+coverage
+pytest-cov
+pytest-ordering
+requests-mock
+python-coveralls
+flake8
+pylint
+pep8
+tox

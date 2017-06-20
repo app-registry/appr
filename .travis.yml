@@ -1,0 +1,51 @@
+matrix:
+  include:
+    - os: linux
+      sudo: false
+      language: python
+      env:
+        - MAKECMD=lint
+        - BIN_NAME=cnr-$TRAVIS_OS_NAME-x64
+    - os: linux
+      sudo: false
+      language: python
+      env:
+        - MAKECMD=test
+        - BIN_NAME=cnr-$TRAVIS_OS_NAME-x64
+    - os: osx
+      language: generic
+      env:
+        - MAKECMD=test
+        - BIN_NAME=cnr-$TRAVIS_OS_NAME-x64
+
+install:
+  - if [ "$MAKECMD" == "test" ] ; then pip install -U pyinstaller ; fi
+  - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then pip install -U coveralls ; fi
+  - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then pip install -U codecov ; fi
+  - pip install -r requirements_tests.txt
+  - pip install -e .
+
+script:
+  - PYTHONPATH="." make $MAKECMD
+
+after_success:
+  - echo $BIN_NAME
+  - if [ "$MAKECMD" == "test" ] ; then pyinstaller --onefile bin/cnr ; fi
+  - if [ "$MAKECMD" == "test" ] ; then mkdir -p cnr-helm/registry; fi
+  - if [ "$MAKECMD" == "test" ] ; then mv dist/cnr $BIN_NAME; fi
+  - if [ "$MAKECMD" == "test" ] ; then chmod +x $BIN_NAME; fi
+  - if [ "$MAKECMD" == "test" ] ; then cp $BIN_NAME cnr-helm/registry/cnr; fi
+  - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then coveralls ; fi
+  - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then codecov ; fi
+
+
+deploy:
+  provider: releases
+  api_key: "$GITHUB_TOKEN"
+  overwrite: true
+  file:
+    - $BIN_NAME
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: $MAKECMD = "test"
