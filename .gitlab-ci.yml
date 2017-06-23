@@ -75,7 +75,7 @@ pylint:
 .docker: &docker
   variables:
     DOCKER_DRIVER: overlay
-    DOCKER_HOST: tcp://localhost:2375
+  #  DOCKER_HOST: tcp://localhost:2375
   image: docker:git
   before_script:
     - echo $DOCKER_LOGIN | xargs docker login

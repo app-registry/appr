@@ -25,7 +25,7 @@ class ManifestChart(dict):
         except yaml.YAMLError as exc:
             print("Error in configuration file:", sys.stderr)
             if hasattr(exc, 'problem_mark'):
-                mark = exc.problem_mark
+                mark = exc.problem_mark  # pylint: disable=no-member
                 print("Error position: (%s:%s)" % (mark.line + 1, mark.column + 1), sys.stderr)
             raise exc
 
