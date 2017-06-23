@@ -16,5 +16,5 @@ class ProductionConfig(Config):
 class DevelopmentConfig(Config):
     """ Development configuration """
     DEBUG = True
-#    APPR_URI = 'https://api.appr.sh'
+    #    APPR_URI = 'https://api.appr.sh'
     APPR_URI = os.getenv('APPR_URI', "http://localhost:5000")

@@ -19,8 +19,7 @@ class ApprDB(object):
         size = len(data['packages'])
         for package_data in data['packages']:
             i += 1
-            package = cls.Package(package_data['package'],
-                                  package_data['release'])
+            package = cls.Package(package_data['package'], package_data['release'])
 
             package.data = package_data
             package.blob = cls.Blob(package.package, package_data['blob'])
@@ -65,8 +64,7 @@ class ApprDB(object):
 
     @classmethod
     def backup(cls):
-        data = {'packages': cls.Package.dump_all(cls.Blob),
-                'channels': cls.Channel.dump_all()}
+        data = {'packages': cls.Package.dump_all(cls.Blob), 'channels': cls.Channel.dump_all()}
         return data
 
     @classmethod

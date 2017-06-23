@@ -57,9 +57,12 @@ class PackageKvBase(PackageBase):
 
             created_at = package_data['created_at']
             releaseindex = cls.index_class(package_name)
-            available_releases = [str(x) for x in sorted(semver.versions(releaseindex.releases(media_type=media_type),
-                                                                         False),
-                                                         reverse=True)]
+            available_releases = [
+                str(x)
+                for x in sorted(
+                    semver.versions(releaseindex.releases(media_type=media_type), False),
+                    reverse=True)
+            ]  # yapf: disable
             if not available_releases:
                 continue
 
@@ -68,12 +71,14 @@ class PackageKvBase(PackageBase):
             else:
                 manifest_list = [media_type]
 
-            view = {'releases': available_releases,
-                    'default': available_releases[0],
-                    'manifests': manifest_list,
-                    'name': package_name,
-                    'visibility': 'public',
-                    'created_at': created_at}
+            view = {
+                'releases': available_releases,
+                'default': available_releases[0],
+                'manifests': manifest_list,
+                'name': package_name,
+                'visibility': 'public',
+                'created_at': created_at
+            }
             result.append(view)
         return result
 

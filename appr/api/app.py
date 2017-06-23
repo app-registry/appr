@@ -32,6 +32,7 @@ def repo_name(namespace, name):
     def _check(name, scope):
         if name is None:
             raise InvalidUsage("%s: %s is malformed" % (scope, name), {'name': name})
+
     _check(namespace, 'namespace')
     _check(name, 'package-name')
     return "%s/%s" % (namespace, name)

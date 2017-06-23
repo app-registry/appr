@@ -3,8 +3,7 @@ import time
 import appr.models.kv
 from appr.models.kv.models_index_base import ModelsIndexBase
 from appr.models.kv.redis import redis_client
-from appr.exception import (UnableToLockResource,
-                           ResourceNotFound)
+from appr.exception import (UnableToLockResource, ResourceNotFound)
 
 
 class ModelsIndexRedis(ModelsIndexBase):
@@ -26,13 +25,15 @@ class ModelsIndexRedis(ModelsIndexBase):
 
     def _get_lock(self, lock_key, ttl=3, timeout=4):
         if timeout is not None:
-            timeout_time = time.time() + timeout   # 5 minutes from now
+            timeout_time = time.time() + timeout  # 5 minutes from now
         while True:
             if redis_client.set(lock_key, 'locked', nx=True, ex=ttl):
                 return True
             else:
                 if timeout is None or time.time() > timeout_time:
-                    raise UnableToLockResource("%s already locked" % lock_key, {"lock_key": lock_key, "ttl": ttl})
+                    raise UnableToLockResource("%s already locked" % lock_key,
+                                               {"lock_key": lock_key,
+                                                "ttl": ttl})
                 else:
                     time.sleep(0.2)
 

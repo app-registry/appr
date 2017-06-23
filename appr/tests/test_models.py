@@ -1,12 +1,8 @@
 from operator import itemgetter
 import collections
 import pytest
-from appr.exception import (InvalidRelease,
-                           PackageAlreadyExists,
-                           PackageReleaseNotFound,
-                           Forbidden,
-                           ChannelNotFound,
-                           PackageNotFound)
+from appr.exception import (InvalidRelease, PackageAlreadyExists, PackageReleaseNotFound,
+                            Forbidden, ChannelNotFound, PackageNotFound)
 
 
 def convert_utf8(data):
@@ -41,7 +37,8 @@ class TestModels:
         assert p._data is None
         p.blob = db_class.Blob("titi/rocketchat", package_b64blob)
         assert p.blob.b64blob == package_b64blob
-        assert p.data['content']['digest'] == "8dc8a2c479f770fd710e0dddaa7af0e6b495bc6375cdf2b4a649f4c2b03e27d5"
+        assert p.data['content'][
+            'digest'] == "8dc8a2c479f770fd710e0dddaa7af0e6b495bc6375cdf2b4a649f4c2b03e27d5"
         assert p.blob.digest == "8dc8a2c479f770fd710e0dddaa7af0e6b495bc6375cdf2b4a649f4c2b03e27d5"
 
     @pytest.mark.integration
@@ -74,8 +71,8 @@ class TestModels:
 
     @pytest.mark.integration
     def test_get_blob(self, db_with_data1):
-        blob = db_with_data1.Blob.get("titi/rocketchat",
-                                      "d3b54b7912fe770a61b59ab612a442eac52a8a5d8d05dbe92bf8f212d68aaa80")
+        blob = db_with_data1.Blob.get(
+            "titi/rocketchat", "d3b54b7912fe770a61b59ab612a442eac52a8a5d8d05dbe92bf8f212d68aaa80")
         assert blob.digest == "d3b54b7912fe770a61b59ab612a442eac52a8a5d8d05dbe92bf8f212d68aaa80"
         assert blob.size == 778L
 
@@ -115,7 +112,8 @@ class TestModels:
         p.save()
         fetchpackage = newdb.Package.get('titi/rocketchat', '2.3.4', 'kpm')
         assert fetchpackage.digest == "8dc8a2c479f770fd710e0dddaa7af0e6b495bc6375cdf2b4a649f4c2b03e27d5"
-        assert newdb.Blob.get('titi/rocketchat', fetchpackage.digest).size == fetchpackage.blob_size
+        assert newdb.Blob.get('titi/rocketchat',
+                              fetchpackage.digest).size == fetchpackage.blob_size
 
     @pytest.mark.integration
     def test_save_package_exists(self, newdb, package_b64blob):
@@ -158,7 +156,8 @@ class TestModels:
         assert p.channels(db_with_data1.Channel) == ['stable']
         p2 = db_with_data1.Package.get("titi/rocketchat", '1.0.1', "kpm")
         assert sorted(p2.channels(db_with_data1.Channel)) == sorted(['dev'])
-        assert sorted(p2.channels(db_with_data1.Channel, iscurrent=False)) == sorted(['dev', 'stable'])
+        assert sorted(p2.channels(db_with_data1.Channel, iscurrent=False)) == sorted(
+            ['dev', 'stable'])
         p3 = db_with_data1.Package.get("titi/rocketchat", '0.0.1', "kpm")
         assert sorted(p3.channels(db_with_data1.Channel)) == sorted([])
 

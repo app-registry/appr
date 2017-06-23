@@ -94,3 +94,12 @@ coveralls: test
 
 pylint:
 	-pylint --rcfile=".pylintrc" appr
+
+yapf:
+	yapf -r appr -i
+
+yapf-diff:
+	yapf -r appr -d
+
+yapf-test: yapf-diff
+	if [ `yapf -r appr -d | wc -l` -gt 0 ] ; then false ; else true ;fi

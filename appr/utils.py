@@ -98,8 +98,7 @@ def convert_utf8(data):
 
 
 # from celery/kombu https://github.com/celery/celery (BSD license)
-def symbol_by_name(name, aliases={}, imp=None, package=None,
-                   sep='.', default=None, **kwargs):
+def symbol_by_name(name, aliases={}, imp=None, package=None, sep='.', default=None, **kwargs):
     """Get symbol by qualified name.
 
     The name should be the full dot-separated path to the class::
@@ -133,6 +132,7 @@ def symbol_by_name(name, aliases={}, imp=None, package=None,
         True
 
     """
+
     def _reraise(tp, value, tb=None):
         if value.__traceback__ is not tb:
             raise value.with_traceback(tb)
@@ -154,8 +154,7 @@ def symbol_by_name(name, aliases={}, imp=None, package=None,
             module = imp(module_name, package=package, **kwargs)
         except ValueError as exc:
             _reraise(ValueError,
-                     ValueError("Couldn't import {0!r}: {1}".format(name, exc)),
-                     sys.exc_info()[2])
+                     ValueError("Couldn't import {0!r}: {1}".format(name, exc)), sys.exc_info()[2])
         return getattr(module, cls_name) if cls_name else module
     except (ImportError, AttributeError):
         if default is None:

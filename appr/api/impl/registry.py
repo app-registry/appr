@@ -1,6 +1,5 @@
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -36,10 +35,12 @@ def _get_package(package, version_query, media_type, package_class):
 
 def pull_blob(package, digest, blob_class):
     blob = blob_class.get(package, digest)
-    resp = {"package": package,
-            "blob": blob.b64blob,
-            "release": digest,
-            "filename": "%s_%s.tar.gz" % (package.replace("/", "_"), digest[0:8])}
+    resp = {
+        "package": package,
+        "blob": blob.b64blob,
+        "release": digest,
+        "filename": "%s_%s.tar.gz" % (package.replace("/", "_"), digest[0:8])
+    }
     return resp
 
 
@@ -79,10 +80,12 @@ def pull(package, version_query, media_type, package_class, blob_class):
     """
     packagemodel = _get_package(package, version_query, media_type, package_class=package_class)
     blob = blob_class.get(package, packagemodel.digest)
-    resp = {"package": package,
-            "blob": blob.b64blob,
-            "release": packagemodel.release,
-            "filename": "%s_%s.tar.gz" % (packagemodel.package.replace("/", "_"), packagemodel.release)}
+    resp = {
+        "package": package,
+        "blob": blob.b64blob,
+        "release": packagemodel.release,
+        "filename": "%s_%s.tar.gz" % (packagemodel.package.replace("/", "_"), packagemodel.release)
+    }
     return resp
 
 
@@ -190,11 +193,7 @@ def list_packages(namespace, package_class, **kwargs):
     return resp
 
 
-def show_package(package,
-                 release,
-                 media_type,
-                 channel_class,
-                 package_class):
+def show_package(package, release, media_type, channel_class, package_class):
     """
     Returns package details
 
@@ -263,15 +262,11 @@ def show_package(package,
     return response
 
 
-def show_package_releases(package,
-                          media_type,
-                          package_class):
+def show_package_releases(package, media_type, package_class):
     return package_class.view_releases(package, media_type)
 
 
-def show_package_manifests(package,
-                           release,
-                           package_class):
+def show_package_manifests(package, release, package_class):
     return package_class.view_manifests(package, release)
 
 

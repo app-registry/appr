@@ -3,7 +3,6 @@ import json
 import pytest
 from appr.utils import symbol_by_name
 
-
 LOCAL_DIR = os.path.dirname(__file__)
 
 
@@ -136,8 +135,7 @@ def db_names():
 
 
 def get_db_classes():
-    class_names = os.getenv("APPR_DB_CLASSES",
-                            "appr.models.kv.etcd.db:EtcdDB,\
+    class_names = os.getenv("APPR_DB_CLASSES", "appr.models.kv.etcd.db:EtcdDB,\
                             appr.models.kv.filesystem.db:FilesystemDB,\
                             appr.models.kv.redis.db:RedisDB").replace(r" ", "").split(",")
     return [symbol_by_name(symbol) for symbol in class_names]
@@ -154,7 +152,7 @@ def class_name(obj):
 
 @pytest.fixture()
 def kv_prefix(monkeypatch):
-    monkeypatch.setattr('appr.models.kv.APPR_KV_PREFIX',  "appr-tests/packages/")
+    monkeypatch.setattr('appr.models.kv.APPR_KV_PREFIX', "appr-tests/packages/")
     monkeypatch.setenv("APPR_KV_PREFIX", "appr-tests/packages/")
 
 

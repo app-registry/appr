@@ -4,8 +4,7 @@ import etcd
 import appr.models.kv
 from appr.models.kv.models_index_base import ModelsIndexBase
 from appr.models.kv.etcd import etcd_client
-from appr.exception import (UnableToLockResource,
-                           ResourceNotFound)
+from appr.exception import (UnableToLockResource, ResourceNotFound)
 
 
 class ModelsIndexEtcd(ModelsIndexBase):
@@ -30,14 +29,16 @@ class ModelsIndexEtcd(ModelsIndexBase):
 
     def _get_lock(self, lock_key, ttl=3, timeout=4):
         if timeout is not None:
-            timeout_time = time.time() + timeout   # 5 minutes from now
+            timeout_time = time.time() + timeout  # 5 minutes from now
         while True:
             try:
                 etcd_client.write(lock_key, 'lock', prevExist=False, ttl=ttl)
                 return True
             except etcd.EtcdAlreadyExist:
                 if timeout is None or time.time() > timeout_time:
-                    raise UnableToLockResource("%s already locked" % lock_key, {"lock_key": lock_key, "ttl": ttl})
+                    raise UnableToLockResource("%s already locked" % lock_key,
+                                               {"lock_key": lock_key,
+                                                "ttl": ttl})
                 else:
                     time.sleep(0.2)
 

@@ -19,8 +19,10 @@ class ChannelBase(object):
 
     def add_release(self, release, package_class):
         if self._check_release(release, package_class) is False:
-            raise PackageReleaseNotFound("Release %s doesn't exist for package %s" % (release, self.package),
-                                         {"package": self.package, "release": release})
+            raise PackageReleaseNotFound("Release %s doesn't exist for package %s" %
+                                         (release, self.package),
+                                         {"package": self.package,
+                                          "release": release})
         self.current = release
         return self.save()
 
@@ -38,9 +40,7 @@ class ChannelBase(object):
 
     def to_dict(self):
         releases = self.releases()
-        return ({"releases": releases,
-                 "name": self.name,
-                 "current": self.current_release()})
+        return ({"releases": releases, "name": self.name, "current": self.current_release()})
 
     def __repr__(self):
         return "%s(%s, %s)" % (self.__class__, self.name, self.package)

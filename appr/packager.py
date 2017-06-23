@@ -6,7 +6,6 @@ import tarfile
 import io
 import os
 
-
 LOGGER = logging.getLogger(__name__)
 
 

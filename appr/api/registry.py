@@ -3,24 +3,18 @@ from base64 import b64decode
 from flask import jsonify, request, Blueprint, current_app
 from appr.api.app import getvalues, repo_name
 import appr.api.impl.registry
-from appr.exception import (ApprException,
-                           InvalidUsage,
-                           InvalidParams,
-                           InvalidRelease,
-                           UnableToLockResource,
-                           UnauthorizedAccess,
-                           Unsupported,
-                           PackageAlreadyExists,
-                           PackageNotFound,
-                           ChannelNotFound,
-                           PackageReleaseNotFound)
+from appr.exception import (
+    ApprException, InvalidUsage, InvalidParams, InvalidRelease, UnableToLockResource,
+    UnauthorizedAccess, Unsupported, PackageAlreadyExists, PackageNotFound, ChannelNotFound,
+    PackageReleaseNotFound)
 
 from appr.models import Blob, DEFAULT_MEDIA_TYPE
 from appr.models import Package
 from appr.models import Channel
 
-
-registry_app = Blueprint('registry', __name__,)
+registry_app = Blueprint(
+    'registry',
+    __name__,)
 
 
 @registry_app.errorhandler(Unsupported)
@@ -52,8 +46,9 @@ def pre_request_logging():
         "http_method": request.method,
         "original_url": request.url,
         "path": request.path,
-        "data":  values,
-        "headers": dict(request.headers.to_list())})
+        "data": values,
+        "headers": dict(request.headers.to_list())
+    })
 
 
 @registry_app.route("/test_error")
@@ -71,9 +66,9 @@ def _pull(data, json_format=True):
     return resp
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/blobs/sha256/<string:digest>",
-                    methods=['GET'],
-                    strict_slashes=False)
+@registry_app.route(
+    "/api/v1/packages/<string:namespace>/<string:package_name>/blobs/sha256/<string:digest>",
+    methods=['GET'], strict_slashes=False)
 def blobs(namespace, package_name, digest):
     reponame = repo_name(namespace, package_name)
     data = appr.api.impl.registry.pull_blob(reponame, digest, blob_class=Blob)
@@ -81,9 +76,9 @@ def blobs(namespace, package_name, digest):
     return _pull(data, json_format=json_format)
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/blobs/sha256/<string:digest>/json",
-                    methods=['GET'],
-                    strict_slashes=False)
+@registry_app.route(
+    "/api/v1/packages/<string:namespace>/<string:package_name>/blobs/sha256/<string:digest>/json",
+    methods=['GET'], strict_slashes=False)
 def blobs_json(namespace, package_name, digest):
     reponame = repo_name(namespace, package_name)
     data = appr.api.impl.registry.pull_blob(reponame, digest, blob_class=Blob)
@@ -109,8 +104,8 @@ def pull_json(namespace, package_name, release, media_type):
     return _pull(data, json_format=True)
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>",
-                    methods=['POST'], strict_slashes=False)
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>", methods=['POST'],
+                    strict_slashes=False)
 def push(namespace, package_name):
     reponame = repo_name(namespace, package_name)
     values = getvalues()
@@ -119,13 +114,8 @@ def push(namespace, package_name):
     force = (values.get('force', 'false') == 'true')
     metadata = values.get('metadata', None)
     blob = Blob(reponame, values['blob'])
-    result = appr.api.impl.registry.push(reponame,
-                                        release,
-                                        media_type,
-                                        blob,
-                                        force,
-                                        Package,
-                                        metadata=metadata)
+    result = appr.api.impl.registry.push(reponame, release, media_type, blob, force, Package,
+                                         metadata=metadata)
     return jsonify(result)
 
 
@@ -134,10 +124,8 @@ def push(namespace, package_name):
     methods=['DELETE'], strict_slashes=False)
 def delete_package(namespace, package_name, release, media_type):
     reponame = repo_name(namespace, package_name)
-    result = appr.api.impl.registry.delete_package(reponame,
-                                                  release,
-                                                  media_type,
-                                                  package_class=Package)
+    result = appr.api.impl.registry.delete_package(reponame, release, media_type,
+                                                   package_class=Package)
     return jsonify(result)
 
 
@@ -145,9 +133,8 @@ def delete_package(namespace, package_name, release, media_type):
 def list_packages():
     values = getvalues()
     namespace = values.get('namespace', None)
-    result = appr.api.impl.registry.list_packages(namespace, Package,
-                                                 search=values.get('query', None),
-                                                 media_type=values.get('media_type', None))
+    result = appr.api.impl.registry.list_packages(namespace, Package, search=values.get(
+        'query', None), media_type=values.get('media_type', None))
     resp = current_app.make_response(json.dumps(result))
     resp.mimetype = 'application/json'
     return resp
@@ -161,25 +148,23 @@ def search_packages():
     return jsonify(result)
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/<string:release>/<string:media_type>",
-                    methods=['GET'], strict_slashes=False)
+@registry_app.route(
+    "/api/v1/packages/<string:namespace>/<string:package_name>/<string:release>/<string:media_type>",
+    methods=['GET'], strict_slashes=False)
 def show_package(namespace, package_name, release, media_type):
     reponame = repo_name(namespace, package_name)
-    result = appr.api.impl.registry.show_package(reponame, release,
-                                                media_type,
-                                                channel_class=Channel,
-                                                package_class=Package)
+    result = appr.api.impl.registry.show_package(reponame, release, media_type,
+                                                 channel_class=Channel, package_class=Package)
     return jsonify(result)
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>",
-                    methods=['GET'], strict_slashes=False)
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>", methods=['GET'],
+                    strict_slashes=False)
 def show_package_releases(namespace, package_name):
     reponame = repo_name(namespace, package_name)
     media_type = getvalues().get('media_type', None)
-    result = appr.api.impl.registry.show_package_releases(reponame,
-                                                         media_type=media_type,
-                                                         package_class=Package)
+    result = appr.api.impl.registry.show_package_releases(reponame, media_type=media_type,
+                                                          package_class=Package)
     return jsonify(result)
 
 
@@ -187,9 +172,8 @@ def show_package_releases(namespace, package_name):
                     methods=['GET'], strict_slashes=False)
 def show_package_release_manifests(namespace, package_name, release):
     reponame = repo_name(namespace, package_name)
-    result = appr.api.impl.registry.show_package_manifests(reponame,
-                                                          release,
-                                                          package_class=Package)
+    result = appr.api.impl.registry.show_package_manifests(reponame, release,
+                                                           package_class=Package)
     return jsonify(result)
 
 
@@ -204,8 +188,9 @@ def list_channels(namespace, package_name):
     return resp
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/channels/<string:channel_name>",
-                    methods=['GET'], strict_slashes=False)
+@registry_app.route(
+    "/api/v1/packages/<string:namespace>/<string:package_name>/channels/<string:channel_name>",
+    methods=['GET'], strict_slashes=False)
 def show_channel(namespace, package_name, channel_name):
     reponame = repo_name(namespace, package_name)
     result = appr.api.impl.registry.show_channel(reponame, channel_name, Channel)
@@ -217,9 +202,8 @@ def show_channel(namespace, package_name, channel_name):
     methods=['POST'], strict_slashes=False)
 def add_channel_release(namespace, package_name, channel_name, release):
     reponame = repo_name(namespace, package_name)
-    result = appr.api.impl.registry.add_channel_release(reponame, channel_name, release,
-                                                       channel_class=Channel,
-                                                       package_class=Package)
+    result = appr.api.impl.registry.add_channel_release(
+        reponame, channel_name, release, channel_class=Channel, package_class=Package)
     return jsonify(result)
 
 
@@ -228,16 +212,15 @@ def add_channel_release(namespace, package_name, channel_name, release):
     methods=['DELETE'], strict_slashes=False)
 def delete_channel_release(namespace, package_name, channel_name, release):
     reponame = repo_name(namespace, package_name)
-    result = appr.api.impl.registry.delete_channel_release(reponame, channel_name, release,
-                                                          channel_class=Channel,
-                                                          package_class=Package)
+    result = appr.api.impl.registry.delete_channel_release(
+        reponame, channel_name, release, channel_class=Channel, package_class=Package)
     return jsonify(result)
 
 
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/channels/<string:channel_name>",
-                    methods=['DELETE'], strict_slashes=False)
+@registry_app.route(
+    "/api/v1/packages/<string:namespace>/<string:package_name>/channels/<string:channel_name>",
+    methods=['DELETE'], strict_slashes=False)
 def delete_channel(namespace, package_name, channel_name):
     reponame = repo_name(namespace, package_name)
-    result = appr.api.impl.registry.delete_channel(reponame, channel_name,
-                                                  channel_class=Channel)
+    result = appr.api.impl.registry.delete_channel(reponame, channel_name, channel_class=Channel)
     return jsonify(result)

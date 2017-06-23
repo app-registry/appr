@@ -4,13 +4,10 @@ import hashlib
 import datetime
 import semantic_version
 from appr.semver import last_version, select_version
-from appr.exception import (InvalidRelease,
-                           PackageAlreadyExists,
-                           raise_package_not_found,
-                           PackageReleaseNotFound)
+from appr.exception import (
+    InvalidRelease, PackageAlreadyExists, raise_package_not_found, PackageReleaseNotFound)
 
 from appr.models.blob_base import BlobBase
-
 
 SCHEMA_VERSION = "v0"
 
@@ -28,7 +25,8 @@ def content_media_type(media_type):
 
 
 def manifest_media_type(media_type):
-    return "application/vnd.appr.package-manifest.%s.%s.json" % (get_media_type(media_type), SCHEMA_VERSION)
+    return "application/vnd.appr.package-manifest.%s.%s.json" % (get_media_type(media_type),
+                                                                 SCHEMA_VERSION)
 
 
 def digest_manifest(manifest):
@@ -36,8 +34,7 @@ def digest_manifest(manifest):
 
 
 class PackageBase(object):
-    def __init__(self, package_name, release=None,
-                 media_type=None, blob=None, metadata=None):
+    def __init__(self, package_name, release=None, media_type=None, blob=None, metadata=None):
         self.package = package_name
         self.media_type = get_media_type(media_type)
         self.namespace, self.name = package_name.split("/")
@@ -67,10 +64,12 @@ class PackageBase(object):
         """ Returns all available channels for a package """
         channels = channel_class.all(self.package)
         result = []
+        #  yapf:disable
         for channel in channels:
-            if ((iscurrent and channel.current == self.release)
-               or (not iscurrent and self.release in channel.releases())):
+            if ((iscurrent and channel.current == self.release) or
+               (not iscurrent and self.release in channel.releases())):
                 result.append(channel.name)
+        #  yapf:enable
         return result
 
     @property
@@ -94,10 +93,12 @@ class PackageBase(object):
         return manifest_media_type(self.media_type)
 
     def content_descriptor(self):
-        return {"mediaType": self.content_media_type,
-                "size": self.blob_size,
-                "digest": self.digest,
-                "urls": []}
+        return {
+            "mediaType": self.content_media_type,
+            "size": self.blob_size,
+            "digest": self.digest,
+            "urls": []
+        }
 
     @classmethod
     def view_manifests(cls, package_name, release, manifest_only=False, media_type=None):
@@ -113,24 +114,28 @@ class PackageBase(object):
         return res
 
     def manifest(self):
-        manifest = {"mediaType": self.manifest_media_type,
-                    "content": self.content_descriptor()}
+        manifest = {"mediaType": self.manifest_media_type, "content": self.content_descriptor()}
         return manifest
 
     @classmethod
     def view_releases(cls, package, media_type=None):
-        return [item for release in cls.all_releases(package, media_type=media_type)
-                for item in cls.view_manifests(package, release, False, media_type=media_type)]
+        return [
+            item
+            for release in cls.all_releases(package, media_type=media_type)
+            for item in cls.view_manifests(package, release, False, media_type=media_type)
+        ]
 
     @property
     def data(self):
         if self._data is None:
             self._data = {'created_at': datetime.datetime.utcnow().isoformat()}
-        d = {"package": self.package,
-             "release": self.release,
-             "metadata": self.metadata,
-             "mediaType": self.manifest_media_type,
-             "content": self.content_descriptor()}
+        d = {
+            "package": self.package,
+            "release": self.release,
+            "metadata": self.metadata,
+            "mediaType": self.manifest_media_type,
+            "content": self.content_descriptor()
+        }
         self._data.update(d)
         return self._data
 
@@ -186,8 +191,10 @@ class PackageBase(object):
         package = self.package
         release = self.get_release(package, release_query)
         if release is None:
-            raise PackageReleaseNotFound("No release match '%s' for package '%s'" % (release_query, package),
-                                         {"package": package, "release_query": release_query})
+            raise PackageReleaseNotFound("No release match '%s' for package '%s'" % (release_query,
+                                                                                     package),
+                                         {"package": package,
+                                          "release_query": release_query})
 
         self.data = self._fetch(package, str(release), media_type)
         return self
@@ -196,7 +203,8 @@ class PackageBase(object):
         self.check_release(self.release)
         if self.isdeleted_release(self.package, self.release) and not force:
             raise PackageAlreadyExists("Package release %s existed" % self.package,
-                                       {"package": self.package, "release": self.release})
+                                       {"package": self.package,
+                                        "release": self.release})
         self.blob.save(self.content_media_type)
         self._save(force, **kwargs)
 
