@@ -36,6 +36,12 @@ test_requirements = [
     "pytest-cov",
     "pytest-ordering",
     "requests-mock"
+    "coverage>=4.0",
+    "flake8",
+    "pytest-flask>=0.10.0",
+    "tox>=2.1.1",
+    "sphinxcontrib-napoleon",
+    "gunicorn>=0.19",
 ]
 
 requirements = base_requirements + cli_requirements + server_requirements

@@ -1,0 +1,12 @@
+bumpversion>=0.5.3
+coverage>=4.0
+flake8
+pytest>=2.9.1
+pytest-cov>=2.2.1
+pytest-flask>=0.10.0
+pytest-ordering
+python-etcd>=0.4.3
+requests-mock
+tox>=2.1.1
+sphinxcontrib-napoleon
+gunicorn>=0.19
