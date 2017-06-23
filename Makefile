@@ -11,6 +11,7 @@ endef
 export BROWSER_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 VERSION := `cat VERSION`
+db := "filesystem"
 
 help:
 	@echo "clean - remove all build, test, coverage and Python artifacts"
@@ -49,10 +50,10 @@ clean-test:
 lint: flake8 pylint
 
 test:
-	py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests
+	APPR_TEST_DB=$(db) py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests -m "not live" --cov-config=.coverage-unit.ini
 
 test-all:
-	py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests
+	py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests --cov-config=.coverage-unit.ini
 
 tox:
 	tox
@@ -93,7 +94,10 @@ coveralls: test
 	coveralls
 
 pylint:
-	-pylint --rcfile=".pylintrc" appr
+	pylint --rcfile=".pylintrc" appr -E -r y
+
+pylint-all:
+	pylint --rcfile=".pylintrc" appr
 
 yapf:
 	yapf -r appr -i

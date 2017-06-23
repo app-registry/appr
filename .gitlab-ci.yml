@@ -8,6 +8,7 @@ stages:
 variables:
   FAILFASTCI_NAMESPACE: 'failfast-ci'
   IMAGE: quay.io/ant31/appr-server
+  CODECOV: 82510329-4647-4e4d-88ee-98ee1b2536c4
 
 cache:
   paths:
@@ -29,8 +30,10 @@ test-filesystem:
   image: python:2.7
   script:
     - pip install -U python-coveralls
+    - pip install -U codecov
     - make test
     - coveralls
+    - codecov --token=$CODECOV
   variables:
     APPR_TEST_DB: filesystem
 
