@@ -84,11 +84,11 @@ pylint:
   tags:
     - kubernetes
 
-docker-build:
-  <<: *docker
-  stage: build
-  script:
-    - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
+# docker-build:
+#   <<: *docker
+#   stage: build
+#   script:
+#     - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
 
 .docker-push: &docker-push
   <<: *docker
@@ -97,18 +97,18 @@ docker-build:
     - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
     - docker push $IMAGE:$CI_BUILD_REF_NAME
 
-docker-release:
-  <<: *docker-push
-  only:
-    - tags
-    - master
+# docker-release:
+#   <<: *docker-push
+#   only:
+#     - tags
+#     - master
 
-docker-push:
-  <<: *docker-push
-  except:
-    - tags
-    - master
-  when: manual
+# docker-push:
+#   <<: *docker-push
+#   except:
+#     - tags
+#     - master
+#   when: manual
 
 pypi-release:
   <<: *job

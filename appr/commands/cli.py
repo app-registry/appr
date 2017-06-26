@@ -1,6 +1,7 @@
 import argparse
 import os
 
+from appr.commands.runserver import RunServerCmd
 from appr.commands.push import PushCmd
 from appr.commands.inspect import InspectCmd
 from appr.commands.pull import PullCmd
@@ -31,6 +32,7 @@ def all_commands():
         ConfigCmd.name: ConfigCmd,
         ListPackageCmd.name: ListPackageCmd,
         HelmCmd.name: HelmCmd,
+        RunServerCmd.name: RunServerCmd,
     }
 
 

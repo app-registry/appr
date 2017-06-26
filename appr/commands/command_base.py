@@ -25,7 +25,7 @@ class PackageName(argparse.Action):
             package_parts = parse_package_name(name)
             _set_package(parser, namespace, self.dest, package_parts)
         except ValueError as exc:
-            raise parser.error(exc.message)
+            raise parser.error(str(exc))
 
 
 class RegistryHost(argparse.Action):
@@ -47,7 +47,8 @@ class CommandBase(object):
     default_media_type = None
     parse_unknown = False
 
-    def __init__(self, args_options):
+    def __init__(self, args_options, unknown=None):
+        self.unknown = unknown
         self.args_options = args_options
         self.output = args_options.output
 
@@ -62,14 +63,18 @@ class CommandBase(object):
             print(self._render_console())
 
     @classmethod
-    def call(cls, options, render=True):
-        cls(options).exec_cmd(render=render)
+    def call(cls, options, unknown=None, render=True):
+        if cls.parse_unknown:
+            obj = cls(options, unknown)
+        else:
+            obj = cls(options)
+        obj.exec_cmd(render=render)
 
     def exec_cmd(self, render=True):
         try:
             self._call()
         except requests.exceptions.RequestException as exc:
-            payload = {"message": exc.message}
+            payload = {"message": str(exc)}
             if exc.response is not None:
                 payload["response"] = exc.response.content
             raise argparse.ArgumentTypeError("\n" + yaml.safe_dump(
