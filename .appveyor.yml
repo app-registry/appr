@@ -1,0 +1,58 @@
+environment:
+
+  matrix:
+
+    # For Python versions available on Appveyor, see
+    # http://www.appveyor.com/docs/installed-software#python
+    # The list here is complete (excluding Python 2.6, which
+    # isn't covered by this document) at the time of writing.
+
+    # - PYTHON: "C:\\Python27"
+    # - PYTHON: "C:\\Python33"
+    # - PYTHON: "C:\\Python34"
+    # - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python27-x64"
+      BIN_NAME: appr-%APPVEYOR_REPO_TAG_NAME%-win-x64
+    # - PYTHON: "C:\\Python33-x64"
+    # - PYTHON: "C:\\Python34-x64"
+    # - PYTHON: "C:\\Python35-x64"
+
+install:
+
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "python --version"
+
+  # Upgrade to the latest version of pip to avoid it displaying warnings
+  # about it being out of date.
+  - "pip install --disable-pip-version-check --user --upgrade pip"
+
+  # We need wheel installed to build wheels
+  - "pip install -r requirements_tests.txt"
+  - "pip install -U pyinstaller"
+  - "pip install -e ."
+
+build: off
+
+test_script:
+  # Run the project tests
+  - "py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests"
+
+after_test:
+  # If tests are successful, create binary packages for the project.
+  - "pyinstaller --onefile bin/appr"
+  - ps: "ls dist"
+  - "copy dist\\appr.exe %BIN_NAME%.exe"
+  - "mkdir registry"
+  - "copy dist\\appr.exe registry\\appr.exe"
+  - "copy appr\\commands\\plugins\\helm\\appr.sh registry\\appr.sh"
+  - "copy appr\\commands\\plugins\\helm\\plugin.yaml registry\\plugin.yaml"
+  - "7z a registry-%BIN_NAME%-helm-plugin.zip registry\\*.*"
+  - ps: "ls dist"
+  - ps: "ls registry"
+
+artifacts:
+  # Archive the generated packages in the ci.appveyor.com build report.
+  - path: "%BIN_NAME%.exe"
+  - path: registry-%BIN_NAME%-helm-plugin.zip
+    type: zip
+

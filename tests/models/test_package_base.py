@@ -1,10 +1,10 @@
 import pytest
 import os
-from cnr.models.kv.etcd.package import Package as PackageEtcd
-from cnr.models.package_base import PackageBase
+from appr.models.kv.etcd.package import Package as PackageEtcd
+from appr.models.package_base import PackageBase
 
 
-PACKAGE_CLASSES = ([PackageEtcd, PackageBase], ['cnr.etcd', 'cnr.base'])
+PACKAGE_CLASSES = ([PackageEtcd, PackageBase], ['appr.etcd', 'appr.base'])
 @pytest.fixture(params=PACKAGE_CLASSES[0], ids=PACKAGE_CLASSES[1])
 def package_class(request):
     return request.param

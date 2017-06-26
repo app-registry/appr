@@ -1,7 +1,7 @@
 import pytest
 import os.path
 
-from cnr.packager import unpack_app
+from appr.packager import unpack_app
 import hashlib
 
 

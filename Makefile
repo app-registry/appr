@@ -47,30 +47,26 @@ clean-test:
 	rm -f .coverage
 	rm -fr htmlcov/
 
-lint:
-	flake8 cnr tests
-
-test-cli:
-	py.test --cov=cnr --cov=bin/cnr --cov-report=html --cov-report=term-missing  --verbose tests -m "cli" --cov-config=.coverage-cli.ini
+lint: flake8 pylint
 
 test:
-	CNR_TEST_DB=$(db) py.test --cov=cnr --cov-report=html --cov-report=term-missing  --verbose tests --cov-config=.coverage-unit.ini -m 'not live'
+	APPR_TEST_DB=$(db) py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests -m "not live" --cov-config=.coverage-unit.ini
 
 test-all:
-	py.test --cov=cnr --cov-report=html --cov-report=term-missing  --verbose tests
+	py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests --cov-config=.coverage-unit.ini
 
 tox:
 	tox
 
 coverage:
-	coverage run --source cnr setup.py test
+	coverage run --source appr setup.py test
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html
 
 docs: install
 	rm -f test1
-	sphinx-apidoc  -f -P -o docs/test1 cnr
+	sphinx-apidoc  -f -P -o docs/test1 appr
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
@@ -98,4 +94,16 @@ coveralls: test
 	coveralls
 
 pylint:
-	pylint --rcfile=~/.pylintrc cnr  -E -r y
+	pylint --rcfile=".pylintrc" appr -E -r y
+
+pylint-all:
+	pylint --rcfile=".pylintrc" appr
+
+yapf:
+	yapf -r appr -i
+
+yapf-diff:
+	yapf -r appr -d
+
+yapf-test: yapf-diff
+	if [ `yapf -r appr -d | wc -l` -gt 0 ] ; then false ; else true ;fi

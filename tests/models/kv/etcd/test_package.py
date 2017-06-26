@@ -1,8 +1,8 @@
 import json
 import pytest
 import etcd
-from cnr.models.kv.etcd.package import Package
-from cnr.exception import (
+from appr.models.kv.etcd.package import Package
+from appr.exception import (
     InvalidRelease,
     UnableToLockResource,
     PackageAlreadyExists
@@ -26,18 +26,18 @@ def test_check_data_invalidrelease():
 
 # def test_push_etcd(monkeypatch, release_data, package_b64blob):
 #     def write(path, data, prevExist=None, ttl=None):
-#         assert path in ["cnr-tests/packages/a/b/releases.json",
-#                         "cnr-tests/packages/a/b/releases.json.lock",
-#                         'cnr-tests/packages/packages.json',
-#                         'cnr-tests/packages/packages.json.lock']
-#         if path == "cnr-tests/packages/a/b/releases.json.lock":
+#         assert path in ["appr-tests/packages/a/b/releases.json",
+#                         "appr-tests/packages/a/b/releases.json.lock",
+#                         'appr-tests/packages/packages.json',
+#                         'appr-tests/packages/packages.json.lock']
+#         if path == "appr-tests/packages/a/b/releases.json.lock":
 #             assert data == 'lock'
-#         if path == "cnr-tests/packages/a/b/releases.json":
+#         if path == "appr-tests/packages/a/b/releases.json":
 #             assert '4.3.0' in json.loads(data)['releases']
-#         if path == "cnr-tests/packages/packages.json":
+#         if path == "appr-tests/packages/packages.json":
 #             d = json.loads(data)
 #             assert 'a' in d['packages'] and 'b' in d['packages']['a']
 #         return True
-#     monkeypatch.setattr("cnr.models.kv.etcd.etcd_client.write", write)
+#     monkeypatch.setattr("appr.models.kv.etcd.etcd_client.write", write)
 #     p = Package('a/b', '4.3.0', 'kpm', package_b64blob)
 #     p.save()

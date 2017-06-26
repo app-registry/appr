@@ -1,5 +1,5 @@
 import pytest
-import cnr.semver
+import appr.semver
 import random
 import copy
 
@@ -34,20 +34,20 @@ def test_ordering(version_list):
     l2 = copy.copy(version_list)
     random.seed(1)
     random.shuffle(l2)
-    assert str(cnr.semver.versions(l2, stable=False)) != str(cnr.semver.versions(version_list, stable=False))
-    assert str(sorted(cnr.semver.versions(l2, stable=False))) == str(cnr.semver.versions(version_list, stable=False))
+    assert str(appr.semver.versions(l2, stable=False)) != str(appr.semver.versions(version_list, stable=False))
+    assert str(sorted(appr.semver.versions(l2, stable=False))) == str(appr.semver.versions(version_list, stable=False))
 
 
 def test_stable_only(version_list):
-    assert cnr.semver.versions(version_list, stable=True) == cnr.semver.versions(["1.4.0", "1.6.0"])
+    assert appr.semver.versions(version_list, stable=True) == appr.semver.versions(["1.4.0", "1.6.0"])
 
 
 def test_last_stable_version(version_list):
-    assert str(cnr.semver.last_version(version_list, True)) == "1.6.0"
+    assert str(appr.semver.last_version(version_list, True)) == "1.6.0"
 
 
 def test_last_unstable_version(version_list):
-    assert str(cnr.semver.last_version(version_list, False)) == "1.7.0-rc"
+    assert str(appr.semver.last_version(version_list, False)) == "1.7.0-rc"
 
 
 def test_select_version(version_query):
@@ -62,4 +62,4 @@ def test_select_version(version_query):
                         (">=0.3.0,<0.6.0-", "0.5.2-rc"),
                         ("==10.0.0", 'None')]
     for query, expected in expected_results:
-        assert str(cnr.semver.select_version(version_query, query)) == expected
+        assert str(appr.semver.select_version(version_query, query)) == expected
