@@ -2,6 +2,7 @@ import os
 from flask import Flask, request
 from flask_cors import CORS
 from appr.exception import InvalidUsage
+from appr.api.config import DevelopmentConfig, ProductionConfig
 
 
 def getvalues():
@@ -17,9 +18,9 @@ def create_app():
     CORS(app)
     setting = os.getenv('APP_ENV', "development")
     if setting != 'production':
-        app.config.from_object('appr.api.config.DevelopmentConfig')
+        app.config.from_object(DevelopmentConfig)
     else:
-        app.config.from_object('appr.api.config.ProductionConfig')
+        app.config.from_object(ProductionConfig)
     from appr.api.info import info_app
     from appr.api.registry import registry_app
     app.register_blueprint(info_app, url_prefix='/cnr')

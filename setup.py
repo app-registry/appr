@@ -20,7 +20,8 @@ server_requirements = [
     'semantic_version',
     'flask',
     'Flask>=0.10.1',
-    'flask-cors'
+    'flask-cors',
+    'gunicorn>=19.7'
 ]
 
 cli_requirements = [
