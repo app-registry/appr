@@ -1,6 +1,6 @@
-[![build status](https://gitlab.com/cn-app-registry/appr-server/badges/master/build.svg)](https://gitlab.com/cn-app-registry/appr-server/commits/master)
-[![Coverage Status](https://coveralls.io/repos/github/cn-app-registry/appr-server/badge.svg)](https://coveralls.io/github/cn-app-registry/appr-server)
-[![Swagger API Reference](https://img.shields.io/badge/swagger-docs-blue.svg)](Documentation/appr-api-swagger.yaml)
+[![build status](https://gitlab.com/failfast-ci/app-registry__appr-server/badges/master/build.svg)](https://gitlab.com/failfast-ci/app-registry__appr-server/commits/master)
+[![Coverage Status](https://coveralls.io/repos/github/cn-app-registry/cnr-server/badge.svg?branch=master)](https://coveralls.io/github/cn-app-registry/cnr-server?branch=master)
+[![Swagger API Reference](https://img.shields.io/badge/swagger-docs-blue.svg)](Documentation/server/appr-api-swagger.yaml)
 
 # APPR Command Line Tool
 
