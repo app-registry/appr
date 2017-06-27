@@ -107,3 +107,14 @@ yapf-diff:
 
 yapf-test: yapf-diff
 	if [ `yapf -r appr -d | wc -l` -gt 0 ] ; then false ; else true ;fi
+
+
+docker-build:
+	docker build -t quay.io/appr/appr:$(VERSION) .
+	docker tag quay.io/appr/appr:$(VERSION) quay.io/appr/appr:latest
+
+docker-push-tag: docker-push
+	docker push quay.io/appr/appr:$(VERSION)
+
+docker-push: docker-build
+	docker push quay.io/appr/appr:latest

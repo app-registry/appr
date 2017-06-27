@@ -11,6 +11,7 @@ with open('README.md') as readme_file:
 
 base_requirements = [
     'future',
+    'futures',
     'requests',
 ]
 
@@ -21,15 +22,25 @@ server_requirements = [
     'flask',
     'Flask>=0.10.1',
     'flask-cors',
-    'gunicorn>=19.7'
+    'gunicorn>=19.7',
+    "gevent",
 ]
 
 cli_requirements = [
     'tabulate',
     'termcolor',
-    'jsonnet',
     'pyyaml',
 ]
+
+extra_requirements = [
+    'urllib3[secure]',
+    'jsonnet',
+    'jinja2>=2.8',
+    'jsonpatch',
+    'tabulate',
+    'ecdsa',
+    'cryptography',
+    ]
 
 test_requirements = [
     "pytest",
@@ -45,7 +56,7 @@ test_requirements = [
     "gunicorn>=0.19",
 ]
 
-requirements = base_requirements + cli_requirements + server_requirements
+requirements = base_requirements + cli_requirements + server_requirements + extra_requirements
 
 
 setup(

@@ -9,7 +9,8 @@ class GunicornApp(gunicorn.app.base.BaseApplication):
     def __init__(self, options=None):
         self.args_options = options or {}
         self.application = create_app()
-        self.defaults = {"worker_class": "gthread"}
+        self.defaults = {}
+        # {"worker_class": "gunicorn.workers.gthread.ThreadWorker"}
 
         super(GunicornApp, self).__init__(self.args_options)
 
