@@ -72,6 +72,16 @@ pylint:
     - pip install pylint
     - make pylint
 
+compile:
+  <<: *job
+  image: python2.7
+  stage: release
+  script:
+    pyinstaller --onefile bin/appr --hidden-import gunicorn.glogging --hidden-import gunicorn.workers.gthread --hidden-import gunicorn.workers
+  artifacts:
+    paths:
+      - dist/appr
+
 .docker: &docker
   variables:
     DOCKER_DRIVER: overlay

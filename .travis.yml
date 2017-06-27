@@ -31,7 +31,7 @@ script:
 
 after_success:
   - echo $BIN_NAME
-  - if [ "$MAKECMD" == "test" ] ; then pyinstaller --onefile bin/appr ; fi
+  - if [ "$MAKECMD" == "test" ] ; then pyinstaller --onefile bin/appr --hidden-import gunicorn.glogging --hidden-import gunicorn.workers.gthread --hidden-import gunicorn.workers ; fi
   - if [ "$MAKECMD" == "test" ] ; then mkdir -p appr-helm/registry; fi
   - if [ "$MAKECMD" == "test" ] ; then mv dist/appr $BIN_NAME; fi
   - if [ "$MAKECMD" == "test" ] ; then chmod +x $BIN_NAME; fi
