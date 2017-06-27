@@ -118,3 +118,7 @@ docker-push-tag: docker-push
 
 docker-push: docker-build
 	docker push quay.io/appr/appr:latest
+
+docker-test:
+	docker build -t quay.io/appr/appr:test -f test.Dockerfile .
+	docker push quay.io/appr/appr:test
