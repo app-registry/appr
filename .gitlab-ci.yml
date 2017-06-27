@@ -7,7 +7,7 @@ stages:
 
 variables:
   FAILFASTCI_NAMESPACE: 'failfast-ci'
-  IMAGE: quay.io/ant31/appr-server
+  IMAGE: quay.io/appr/appr
   CODECOV: 82510329-4647-4e4d-88ee-98ee1b2536c4
 
 cache:
@@ -88,17 +88,17 @@ compile:
   #  DOCKER_HOST: tcp://localhost:2375
   image: docker:git
   before_script:
-    - echo $DOCKER_LOGIN | xargs docker login
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
   services:
      - docker:dind
   tags:
     - kubernetes
 
-# docker-build:
-#   <<: *docker
-#   stage: build
-#   script:
-#     - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
+docker-build:
+  <<: *docker
+  stage: build
+  script:
+    - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
 
 .docker-push: &docker-push
   <<: *docker
@@ -107,18 +107,18 @@ compile:
     - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
     - docker push $IMAGE:$CI_BUILD_REF_NAME
 
-# docker-release:
-#   <<: *docker-push
-#   only:
-#     - tags
-#     - master
+docker-release:
+  <<: *docker-push
+  only:
+    - tags
+    - master
 
-# docker-push:
-#   <<: *docker-push
-#   except:
-#     - tags
-#     - master
-#   when: manual
+docker-push:
+  <<: *docker-push
+  except:
+    - tags
+    - master
+  when: manual
 
 pypi-release:
   <<: *job
