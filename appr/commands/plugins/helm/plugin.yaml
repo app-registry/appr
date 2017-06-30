@@ -1,5 +1,5 @@
 name: "registry"
-version: "0.5.0"
+version: "0.5.1"
 usage: "Integreate APPR client to HELM"
 description: |-
   This plugin provides APPR client to Helm.
