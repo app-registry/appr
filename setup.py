@@ -97,6 +97,6 @@ setup(
         "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.7',
     ],
-    setup_requries=['pytest-runner'],
+    setup_requires=['pytest-runner'],
     test_suite='tests',
     tests_require=test_requirements,)
