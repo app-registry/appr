@@ -1,8 +1,12 @@
+from __future__ import absolute_import, division, print_function
+
 import os
+
 from flask import Flask, request
 from flask_cors import CORS
-from appr.exception import InvalidUsage
+
 from appr.api.config import DevelopmentConfig, ProductionConfig
+from appr.exception import InvalidUsage
 
 
 def getvalues():

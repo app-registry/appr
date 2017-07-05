@@ -1,13 +1,16 @@
+from __future__ import absolute_import, division, print_function
 import os
-import re
 import json
 import logging
+import re
+
 import requests
 from requests.utils import urlparse
+
 import appr
-from appr.discovery import ishosted, discover_sources
 from appr.auth import ApprAuth
 from appr.config import ApprConfig
+from appr.discovery import discover_sources, ishosted
 
 logger = logging.getLogger(__name__)
 DEFAULT_REGISTRY = 'http://localhost:5000'

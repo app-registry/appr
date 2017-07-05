@@ -1,16 +1,18 @@
+from __future__ import absolute_import, division, print_function
+
 import json
 from base64 import b64decode
-from flask import jsonify, request, Blueprint, current_app
-from appr.api.app import getvalues, repo_name
-import appr.api.impl.registry
-from appr.exception import (
-    ApprException, InvalidUsage, InvalidParams, InvalidRelease, UnableToLockResource,
-    UnauthorizedAccess, Unsupported, PackageAlreadyExists, PackageNotFound, ChannelNotFound,
-    PackageReleaseNotFound)
 
-from appr.models import Blob, DEFAULT_MEDIA_TYPE
-from appr.models import Package
-from appr.models import Channel
+from flask import Blueprint, current_app, jsonify, request
+
+import appr.api.impl.registry
+from appr.api.app import getvalues, repo_name
+from appr.exception import (ApprException, ChannelNotFound, InvalidParams,
+                            InvalidRelease, InvalidUsage, PackageAlreadyExists,
+                            PackageNotFound, PackageReleaseNotFound,
+                            UnableToLockResource, UnauthorizedAccess,
+                            Unsupported)
+from appr.models import DEFAULT_MEDIA_TYPE, Blob, Channel, Package
 
 registry_app = Blueprint(
     'registry',

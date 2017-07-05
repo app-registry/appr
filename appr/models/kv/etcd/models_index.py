@@ -1,10 +1,13 @@
+from __future__ import absolute_import, division, print_function
+
 import time
+
 import etcd
 
 import appr.models.kv
-from appr.models.kv.models_index_base import ModelsIndexBase
+from appr.exception import ResourceNotFound, UnableToLockResource
 from appr.models.kv.etcd import etcd_client
-from appr.exception import (UnableToLockResource, ResourceNotFound)
+from appr.models.kv.models_index_base import ModelsIndexBase
 
 
 class ModelsIndexEtcd(ModelsIndexBase):

@@ -1,6 +1,8 @@
+from __future__ import absolute_import, division, print_function
+
 import pytest
 
-from appr.plugins.helm import parse_version, Helm
+from appr.plugins.helm import Helm, parse_version
 
 
 @pytest.mark.parametrize("version,expected", [

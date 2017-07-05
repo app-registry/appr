@@ -1,8 +1,11 @@
+from __future__ import absolute_import, division, print_function
+
 import time
+
 import appr.models.kv
-from appr.models.kv.models_index_base import ModelsIndexBase
+from appr.exception import ResourceNotFound, UnableToLockResource
 from appr.models.kv.filesystem import filesystem_client
-from appr.exception import (UnableToLockResource, ResourceNotFound)
+from appr.models.kv.models_index_base import ModelsIndexBase
 
 
 class ModelsIndexFilesystem(ModelsIndexBase):

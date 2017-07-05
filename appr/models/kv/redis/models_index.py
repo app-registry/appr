@@ -1,9 +1,11 @@
+from __future__ import absolute_import, division, print_function
+
 import time
 
 import appr.models.kv
+from appr.exception import ResourceNotFound, UnableToLockResource
 from appr.models.kv.models_index_base import ModelsIndexBase
 from appr.models.kv.redis import redis_client
-from appr.exception import (UnableToLockResource, ResourceNotFound)
 
 
 class ModelsIndexRedis(ModelsIndexBase):

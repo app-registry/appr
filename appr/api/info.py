@@ -1,4 +1,6 @@
-from flask import (jsonify, request, Blueprint, current_app, url_for)
+from __future__ import absolute_import, division, print_function
+
+from flask import Blueprint, current_app, jsonify, request, url_for
 
 import appr
 

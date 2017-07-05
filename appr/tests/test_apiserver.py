@@ -1,11 +1,14 @@
+from __future__ import absolute_import, division, print_function
+
+import json
 import os
 import urllib
-import json
+
+import pytest
 import requests
 from flask import request
-import pytest
-import appr
 
+import appr
 from appr.client import DEFAULT_PREFIX
 
 

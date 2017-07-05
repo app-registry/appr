@@ -1,10 +1,12 @@
+from __future__ import absolute_import, division, print_function
+
 import base64
 import gzip
 import hashlib
-import logging
-import tarfile
 import io
+import logging
 import os
+import tarfile
 
 LOGGER = logging.getLogger(__name__)
 

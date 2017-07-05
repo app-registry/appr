@@ -1,9 +1,11 @@
+from __future__ import absolute_import, division, print_function
+
 import pytest
-from appr.models.kv.redis.package import Package
+
+from appr.exception import UnableToLockResource
 from appr.models.kv.redis.blob import Blob
-from appr.exception import (
-    UnableToLockResource
-    )
+from appr.models.kv.redis.package import Package
+
 
 def test_locked(monkeypatch, package_b64blob):
     def set(path, data, nx, ex):

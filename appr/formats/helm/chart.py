@@ -1,5 +1,7 @@
-from appr.formats.helm.manifest_chart import ManifestChart
-from appr.formats.kub_base import KubBase
+from __future__ import absolute_import, division, print_function
+
+from appr.formats.base import FormatBase
+from appr.formats.helm.manifest_chart import MANIFEST_FILES, ManifestChart
 
 
 class Chart(KubBase):

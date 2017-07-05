@@ -1,10 +1,11 @@
+from __future__ import absolute_import, division, print_function
+
 import re
+
 import appr.semver as semver
-
-from appr.models.package_base import PackageBase
 from appr.exception import Unsupported
-
 from appr.models.kv.models_index_base import ModelsIndexBase
+from appr.models.package_base import PackageBase
 
 
 class PackageKvBase(PackageBase):

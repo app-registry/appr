@@ -1,9 +1,11 @@
-import pytest
+from __future__ import absolute_import, division, print_function
+
+import hashlib
 import os.path
 
-from appr.packager import unpack_app
-import hashlib
+import pytest
 
+from appr.packager import unpack_app
 
 TAR_MD5SUM = "8ccd8af6ef21af7309839f1c521b6354"
 KUBEUI_FILES = ["manifest.yaml",

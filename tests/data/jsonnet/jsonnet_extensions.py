@@ -1,8 +1,13 @@
-import sys
-import _jsonnet
+from __future__ import absolute_import, division, print_function
+
 import json
-from kpm.template_filters import jsonnet_callbacks
+import sys
+
+import _jsonnet
+
 from kpm.render_jsonnet import RenderJsonnet
+from kpm.template_filters import jsonnet_callbacks
+
 
 #r = RenderJsonnet()
 #result = r.render_jsonnet(open(sys.argv[1]).read())

@@ -1,6 +1,10 @@
-import os
+from __future__ import absolute_import, division, print_function
+
 import json
+import os
+
 import pytest
+
 from appr.utils import symbol_by_name
 
 LOCAL_DIR = os.path.dirname(__file__)

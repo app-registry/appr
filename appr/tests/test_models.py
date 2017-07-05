@@ -1,8 +1,13 @@
-from operator import itemgetter
+from __future__ import absolute_import, division, print_function
+
 import collections
+from operator import itemgetter
+
 import pytest
-from appr.exception import (InvalidRelease, PackageAlreadyExists, PackageReleaseNotFound,
-                            Forbidden, ChannelNotFound, PackageNotFound)
+
+from appr.exception import (ChannelNotFound, Forbidden, InvalidRelease,
+                            PackageAlreadyExists, PackageNotFound,
+                            PackageReleaseNotFound)
 
 
 def convert_utf8(data):

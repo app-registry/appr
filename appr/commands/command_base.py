@@ -1,9 +1,11 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import json
 
-import yaml
 import requests
+import yaml
+
 from appr.client import ApprClient
 from appr.utils import parse_package_name, parse_version, split_package_name
 

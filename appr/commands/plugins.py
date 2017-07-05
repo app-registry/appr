@@ -1,10 +1,14 @@
+from __future__ import absolute_import, division, print_function
+
 import os
 from os.path import expanduser
 import tarfile
 
 import requests
+
 from appr.commands.command_base import CommandBase
 from appr.utils import mkdir_p, get_current_script_path
+
 
 LOCAL_DIR = os.path.dirname(__file__)
 

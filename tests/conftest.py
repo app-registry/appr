@@ -1,19 +1,19 @@
+from __future__ import absolute_import, division, print_function
 import os.path
 import base64
 import json
 
 import pytest
 
-from appr.commands.cli import get_parser, all_commands
-from appr.tests.conftest import (
-    data_dir, discovery_html, app, api_prefix, fake_home,
-    get_response, kubeui_package, package_b64blob,
-    pack_tar, kubeui_blob, package_dir, bad_package_dir, empty_package_dir,
-    deploy, ns_resource, rc_resource, svc_resource,
-    db_names, get_db_classes, class_name, kv_prefix, db, dbdata1,
-    db_class, newdb, db_with_data1
-    )
-
+from appr.commands.cli import all_commands, get_parser
+from appr.tests.conftest import (api_prefix, app, bad_package_dir, class_name,
+                                 data_dir, db, db_class, db_names,
+                                 db_with_data1, dbdata1, deploy,
+                                 discovery_html, empty_package_dir, fake_home,
+                                 get_db_classes, get_response, kubeui_blob,
+                                 kubeui_package, kv_prefix, newdb, ns_resource,
+                                 pack_tar, package_b64blob, package_dir,
+                                 rc_resource, svc_resource)
 
 LOCAL_DIR = os.path.dirname(__file__)
 

@@ -1,10 +1,14 @@
-from base64 import b64encode
+from __future__ import absolute_import, division, print_function
+
 import json
+from base64 import b64encode
+
 import pytest
 import requests
 import requests_mock
-from appr.client import ApprClient, DEFAULT_REGISTRY, DEFAULT_PREFIX
+
 import appr
+from appr.client import DEFAULT_PREFIX, DEFAULT_REGISTRY, ApprClient
 
 
 @pytest.fixture()

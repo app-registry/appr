@@ -1,4 +1,6 @@
-from semantic_version import Version, Spec
+from __future__ import absolute_import, division, print_function
+
+from semantic_version import Spec, Version
 
 
 def versions(versions_str, stable=False):

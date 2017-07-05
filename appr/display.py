@@ -1,6 +1,8 @@
+from __future__ import absolute_import, division, print_function
+
 from tabulate import tabulate
 
-from appr.utils import get_media_type
+from appr.utils import colorize, get_media_type
 
 
 def print_packages(packages, registry_host=""):

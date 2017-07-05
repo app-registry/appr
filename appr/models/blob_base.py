@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import appr.packager as packager
 
 DEFAULT_MEDIA_TYPE = 'kpm'

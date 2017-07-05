@@ -1,5 +1,7 @@
-from appr.commands.command_base import CommandBase
+from __future__ import absolute_import, division, print_function
+
 from appr.api.gevent_app import GeventApp
+from appr.commands.command_base import CommandBase
 
 
 class RunServerCmd(CommandBase):

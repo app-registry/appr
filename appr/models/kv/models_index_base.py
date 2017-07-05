@@ -1,8 +1,12 @@
-import json
+from __future__ import absolute_import, division, print_function
+
 import datetime
+import json
+
 import appr.semver
-from appr.exception import (ResourceNotFound, raise_channel_not_found, raise_package_not_found,
-                            PackageAlreadyExists, PackageNotFound)
+from appr.exception import (PackageAlreadyExists, PackageNotFound,
+                            ResourceNotFound, raise_channel_not_found,
+                            raise_package_not_found)
 
 DEFAULT_LOCK_TIMEOUT = 3
 

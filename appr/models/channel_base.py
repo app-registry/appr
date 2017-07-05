@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from appr.exception import PackageReleaseNotFound, raise_channel_not_found
 
 

@@ -1,9 +1,14 @@
-import sys
-import os.path
-import errno
-import re
+from __future__ import absolute_import, division, print_function
+
 import collections
+import errno
 import importlib
+import os
+import os.path
+import re
+import sys
+
+from termcolor import colored
 
 
 PACKAGE_REGEXP = r"^(.*?\/)([a-z0-9_-]+\/[a-z0-9_-]+)([:@][a-z0-9._+-]+|@sha256:[a-z0-9]+)?$"

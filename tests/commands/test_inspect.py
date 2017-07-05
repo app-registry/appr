@@ -1,7 +1,10 @@
+from __future__ import absolute_import, division, print_function
+
 import pytest
 import requests_mock
-from appr.commands.inspect import InspectCmd
+
 from appr.client import DEFAULT_PREFIX
+from appr.commands.inspect import InspectCmd
 
 
 def get_inspectcmd(cli_parser, args=[]):

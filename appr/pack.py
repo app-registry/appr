@@ -1,21 +1,13 @@
+from __future__ import absolute_import, division, print_function
+
 import base64
+import fnmatch
+import glob
 import gzip
 import hashlib
-import tarfile
-import glob
 import io
 import os
-import fnmatch
-
-# 1. download the package
-# 2. untar it to dest directory with the packagename_version/
-# 3. open and read manifest.yaml
-# 4. interate on deploy and download if not present (packagename_version/deps/deppackagename_version.kub) and extract
-#    the packages to packagename_version/deps/deppackagename_version/.
-# 5. interate on deploy and load manifest.yml of all packages
-# 6. foreach manifest create the files to packagename_version/resources
-# 7. foreach manifest check if resources exists are create it
-#
+import tarfile
 
 AUTHORIZED_FILES = [
     "*.libjsonnet", "*.jsonnet", "*.yaml", "README.md", "LICENSE", "AUTHORS", "NOTICE",
