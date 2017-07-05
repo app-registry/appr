@@ -47,7 +47,7 @@ class ApprDB(object):
             i += 1
             channel = cls.Channel(channel_data['name'], channel_data['package'])
             channel.add_release(channel_data['current'], cls.Package)
-            print "%s/%s  restored-channel: %s" % (str(i), str(size), channel.name)
+            print("%s/%s  restored-channel: %s" % (str(i), str(size), channel.name))
 
     @classmethod
     def restore_backup_from_file(cls, filepath):

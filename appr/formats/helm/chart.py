@@ -4,10 +4,10 @@ from appr.formats.base import FormatBase
 from appr.formats.helm.manifest_chart import MANIFEST_FILES, ManifestChart
 
 
-class Chart(KubBase):
+class Chart(object):
     media_type = "helm"
     platform = "helm"
-    manifest_file = ['Chart.yml', 'Chart.yaml']
+    manifest_file = MANIFEST_FILES
 
     def _create_manifest(self):
         return ManifestChart(self.package)

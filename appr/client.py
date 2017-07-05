@@ -208,3 +208,19 @@ class ApprClient(object):
         result = resp.json()
         self.auth.add_token(self.host, result['token'])
         return result
+
+    def generate(self, name, namespace=None, variables=None, version=None, shards=None):
+        path = "/api/v1/packages/%s/generate" % name
+        params = {}
+        body = {}
+        body['variables'] = variables or {}
+        if namespace:
+            params['namespace'] = namespace
+        if shards:
+            body['shards'] = shards
+        if version:
+            params['version'] = version
+        r = requests.get(
+            self._url(path), data=json.dumps(body), params=params, headers=self.headers)
+        r.raise_for_status()
+        return r.json()

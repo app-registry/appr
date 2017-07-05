@@ -10,7 +10,7 @@ import os
 import tarfile
 
 AUTHORIZED_FILES = [
-    "*.libjsonnet", "*.jsonnet", "*.yaml", "README.md", "LICENSE", "AUTHORS", "NOTICE",
+    "*.libsonnet",  "*.libjsonnet", "*.jsonnet", "*.yaml", "README.md", "LICENSE", "AUTHORS", "NOTICE",
     "manifests", "deps/*.kub"
 ]
 
@@ -20,8 +20,8 @@ AUTHORIZED_TEMPLATES = ["*.yaml", "*.jsonnet", "*.libjsonnet", "*.yml", "*.j2"]
 def authorized_files():
     files = []
     for name in AUTHORIZED_FILES:
-        for f in glob.glob(name):
-            files.append(f)
+        for filename in glob.glob(name):
+            files.append(filename)
     for root, _, filenames in os.walk('templates'):
         for name in AUTHORIZED_TEMPLATES:
             for filename in fnmatch.filter(filenames, name):
@@ -95,10 +95,10 @@ class ApprPackage(object):
         self._load_blob(blob, b64_encoded)
         self.io_file = io.BytesIO(self.blob)
         self.tar = tarfile.open(fileobj=self.io_file, mode='r:gz')
-        for m in self.tar.getmembers():
-            tf = self.tar.extractfile(m)
-            if tf is not None:
-                self.files[tf.name] = tf.read()
+        for member in self.tar.getmembers():
+            tfile = self.tar.extractfile(member)
+            if tfile is not None:
+                self.files[tfile.name] = tfile.read()
 
     def extract(self, dest):
         self.tar.extractall(dest)

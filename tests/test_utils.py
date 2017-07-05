@@ -64,3 +64,13 @@ def test_parse_package_name(package, expected):
 def test_parse_bad_package_name(package, expected):
     with pytest.raises(ValueError):
         assert appr.utils.parse_package_name(package) == expected
+
+@pytest.mark.parametrize("array,expected", [
+    ([], []),
+    ([[3]], [3]),
+    ([[4, 5]], [4, 5]),
+    ([[4, 5], []], [4, 5]),
+    ([[4, 5], [3, 4]], [4, 5, 3, 4]),
+])
+def test_flatten(array, expected):
+    assert appr.utils.flatten(array) == expected

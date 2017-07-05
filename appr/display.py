@@ -45,3 +45,12 @@ def print_channels(channels):
     for channel in channels:
         table.append([channel['name'], channel['current']])
     return tabulate(table, header)
+
+
+def print_deploy_result(table):
+    header = ["package", "release", "type", "name", "namespace", "status"]
+    for r in table:
+        status = r.pop()
+        r.append(colorize(status))
+
+    return tabulate(table, header)

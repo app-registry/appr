@@ -75,7 +75,7 @@ setup(
         'appr.plugins',
         'appr.formats',
         'appr.formats.helm',
-        'appr.formats.kpm',
+        'appr.formats.appr',
         'appr.tests',
         'appr.api',
         'appr.api.impl',

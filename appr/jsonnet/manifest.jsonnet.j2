@@ -1,0 +1,32 @@
+local kpm = import "kpm.libjsonnet";
+
+function(
+ params={}
+)
+
+kpm.package({
+  package:  {expander: 'jinja2'} + {{manifest.package}},
+{% if manifest.variables is defined %}
+  variables: {{manifest.variables|json}},
+{% else %}
+  variables: {},
+{% endif %}
+
+{% if manifest.shards is defined and manifest.shards|length > 0 %}
+ shards: {{manifest.shards}},
+{% endif %}
+
+{% if manifest.resources is defined and manifest.resources|length > 0 %}
+ resources: [{% for item in manifest.resources %}
+    {{item|json}} + {template:: (importstr "templates/{{item.file}}")},
+{%- endfor %}
+],
+{% endif %}
+
+{% if manifest.deploy is defined %}
+ deploy: {{manifest.deploy}}
+{% else %}
+  deploy: [],
+{% endif %}
+
+}, params)
