@@ -65,6 +65,7 @@ def test_parse_bad_package_name(package, expected):
     with pytest.raises(ValueError):
         assert appr.utils.parse_package_name(package) == expected
 
+
 @pytest.mark.parametrize("array,expected", [
     ([], []),
     ([[3]], [3]),
@@ -74,3 +75,16 @@ def test_parse_bad_package_name(package, expected):
 ])
 def test_flatten(array, expected):
     assert appr.utils.flatten(array) == expected
+
+
+def test_convert_utf8():
+    data = {u"test": {u"test2": u"test3"},
+            u"array": [u"a1", u"a2"], u"int": 5}
+    assert {"test": {"test2": "test3"},
+            "array": ["a1", "a2"], "int": 5} == appr.utils.convert_utf8(data)
+
+
+def test_colorize(monkeypatch):
+    assert appr.utils.colorize('ok') == "\x1b[32mok\x1b[0m"
+    monkeypatch.setenv("APPR_COLORIZE_OUTPUT", "false")
+    assert appr.utils.colorize('ok') == "ok"

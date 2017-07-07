@@ -10,9 +10,8 @@ import os
 import tarfile
 
 AUTHORIZED_FILES = [
-    "*.libsonnet",  "*.libjsonnet", "*.jsonnet", "*.yaml", "README.md", "LICENSE", "AUTHORS", "NOTICE",
-    "manifests", "deps/*.kub"
-]
+    "*.libsonnet", "*.libjsonnet", "*.jsonnet", "*.yaml", "README.md", "LICENSE", "AUTHORS",
+    "NOTICE", "manifests", "deps/*.kub"]
 
 AUTHORIZED_TEMPLATES = ["*.yaml", "*.jsonnet", "*.libjsonnet", "*.yml", "*.j2"]
 
@@ -78,6 +77,7 @@ class ApprPackage(object):
         self.blob = None
         self.io_file = None
         self._digest = None
+        self._size = None
         self.b64blob = None
         if blob is not None:
             self.load(blob, b64_encoded)
@@ -104,9 +104,8 @@ class ApprPackage(object):
         self.tar.extractall(dest)
 
     def pack(self, dest):
-        f = open(dest, "wb")
-        f.write(self.blob)
-        f.close()
+        with open(dest, "wb") as destfile:
+            destfile.write(self.blob)
 
     def tree(self, directory=None):
         files = list(self.files.keys())
@@ -121,14 +120,6 @@ class ApprPackage(object):
     def file(self, filename):
         return self.files[filename]
 
-    def isjsonnet(self):
-        if "manifest.yaml" in self.files:
-            return False
-        elif "manifest.jsonnet" in self.files:
-            return True
-        else:
-            raise RuntimeError("Unknown manifest format")
-
     @property
     def manifest(self):
         manifests_files = ["manifest.yaml", "manifest.jsonnet", "Chart.yaml", "Chart.yml"]
@@ -138,9 +129,17 @@ class ApprPackage(object):
         raise RuntimeError("Unknown manifest format")
 
     @property
+    def size(self):
+        if self._size is None:
+            self.io_file.seek(0, os.SEEK_END)
+            self._size = self.io_file.tell()
+        return self._size
+
+    @property
     def digest(self):
         if self._digest is None:
             self.io_file.seek(0)
             gunzip = gzip.GzipFile(fileobj=self.io_file, mode='r').read()
             self._digest = hashlib.sha256(gunzip).hexdigest()
+            self.io_file.seek(0)
         return self._digest

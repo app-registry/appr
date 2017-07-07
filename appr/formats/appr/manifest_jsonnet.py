@@ -4,9 +4,10 @@ import os.path
 
 import yaml
 
-from appr.formats.manifest import ManifestBase
-from appr.packager import authorized_files
+from appr.formats.appr.manifest import ManifestBase
+from appr.pack import authorized_files
 from appr.render_jsonnet import RenderJsonnet, yaml_to_jsonnet
+
 
 __all__ = ['ManifestJsonnet']
 
@@ -24,8 +25,16 @@ class ManifestJsonnet(ManifestBase):
 
         super(ManifestJsonnet, self).__init__()
 
+    def _isjsonnet(self, package):
+        if "manifest.yaml" in package.files:
+            return False
+        elif "manifest.jsonnet" in package.files:
+            return True
+        else:
+            raise RuntimeError("Unknown manifest format")
+
     def _load_from_package(self, package):
-        if package.isjsonnet():
+        if self._isjsonnet(package):
             self._load_jsonnet(package.manifest, package.files)
         else:
             self._load_yaml(package.manifest, package.files)
