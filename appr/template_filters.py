@@ -86,14 +86,14 @@ def gen_privatekey(keytype='rsa', key='', seed=None):
 
 
 def jinja_env():
-    from kpm.template_filters import jinja_filters
+    from appr.template_filters import jinja_filters
     jinjaenv = jinja2.Environment()
     jinjaenv.filters.update(jinja_filters())
     return jinjaenv
 
 
 def jinja_template(val, env=None):
-    from kpm.utils import convert_utf8
+    from appr.utils import convert_utf8
     jinjaenv = jinja_env()
     template = jinjaenv.from_string(val)
     if env is not None:
@@ -107,8 +107,8 @@ def readfile(val):
 
 
 def jsonnet(val, env=None):
-    from kpm.render_jsonnet import RenderJsonnet
-    from kpm.utils import convert_utf8
+    from appr.render_jsonnet import RenderJsonnet
+    from appr.utils import convert_utf8
     r = RenderJsonnet()
     if env is not None:
         variables = convert_utf8(json.loads(env))

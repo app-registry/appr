@@ -49,7 +49,7 @@ def fake_home(monkeypatch, tmpdir):
 
 
 def get_response(name, kind):
-    f = open(LOCAL_DIR + "data/responses/%s-%s.json" % (name, kind))
+    f = open(LOCAL_DIR + "/data/responses/%s-%s.json" % (name, kind))
     r = f.read()
     f.close()
     return r
@@ -58,9 +58,9 @@ def get_response(name, kind):
 @pytest.fixture(scope="module")
 def kubeui_package():
     import base64
-    import appr.packager
+    import appr.pack
     with open(LOCAL_DIR + "/data/kube-ui.tar.gz", "rb") as f:
-        package = appr.packager.Package(base64.b64encode(f.read()))
+        package = appr.pack.ApprPackage(base64.b64encode(f.read()))
     return package
 
 
@@ -108,6 +108,14 @@ def pack_tar(package_dir, tmpdir):
     kub = os.path.join(str(tmpdir.mkdir("tars")), "kube-ui.tar.gz")
     pack_app(kub)
     return kub
+
+
+@pytest.fixture(scope="module")
+def deploy_json():
+    f = open(LOCAL_DIR + "/data/kube-ui_release.json", 'r')
+    r = f.read()
+    f.close()
+    return r
 
 
 @pytest.fixture(scope="module")

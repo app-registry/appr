@@ -10,3 +10,7 @@ requests-mock
 tox>=2.1.1
 sphinxcontrib-napoleon
 gunicorn>=0.19
+yapf
+pep8
+pylint
+pyinstaller

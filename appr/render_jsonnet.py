@@ -24,9 +24,9 @@ def yaml_to_jsonnet(manifestyaml, tla_codes=None):
     jinja_env.filters.update(filters.jinja_filters())
     # 1. Resolve old manifest variables
     # Load 'old' manifest.yaml
-    v = {"manifest": convert_utf8(json.loads(json.dumps(yaml.load(manifestyaml))))}
+    tempvars = {"manifest": convert_utf8(json.loads(json.dumps(yaml.load(manifestyaml))))}
     # Get variable from the 'old' manfiest and update  them
-    variables = v['manifest'].get("variables", {})
+    variables = tempvars['manifest'].get("variables", {})
     if tla_codes is not None and 'params' in tla_codes:
         tla = json.loads(tla_codes['params']).get("variables", {})
         variables.update(tla)
@@ -46,11 +46,13 @@ def yaml_to_jsonnet(manifestyaml, tla_codes=None):
 
 class RenderJsonnet(object):
 
-    def __init__(self, files=None, manifestpath=None):
+    def __init__(self, files=None, manifestpath=None, lib_dirs=[]):
         self.manifestdir = None
         if manifestpath:
             self.manifestdir = os.path.dirname(manifestpath)
         self.files = files
+        lib_dirs.append(os.path.join(os.path.dirname(__file__), "jsonnet/lib"))
+        self.lib_dirs = lib_dirs
 
     #  Returns content if worked, None if file not found, or throws an exception
     def try_path(self, path, rel):
@@ -64,14 +66,16 @@ class RenderJsonnet(object):
                 with open(rel) as f:
                     self.files[rel] = f.read()
             return rel, self.files[rel]
-        elif os.path.isfile(libfilepath):
-            with open(libfilepath) as f:
-                return rel, f.read()
-        elif self.manifestdir:
+        elif self.manifestdir and os.path.isfile(os.path.join(self.manifestdir, rel)):
             filepath = os.path.join(self.manifestdir, rel)
-            if os.path.isfile(filepath):
-                with open(filepath) as f:
-                    return rel, f.read()
+            with open(filepath) as f:
+                return rel, f.read()
+        else:
+            for libdir in self.lib_dirs:
+                path = os.path.join(libdir, rel)
+                if os.path.isfile(path):
+                    with open(path) as f:
+                        return rel, f.read()
 
         if rel[0] == '/':
             full_path = rel

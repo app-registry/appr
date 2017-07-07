@@ -103,7 +103,7 @@ class Kubernetes(object):
 
         self.kind = self.obj['kind'].lower()
         self.name = self.obj['metadata']['name']
-        self.kpmhash = self._get_kpmhash(self.obj)
+        self.apprhash = self._get_apprhash(self.obj)
         self.namespace = self._namespace(namespace)
         self.result = None
         if proxy:
@@ -127,7 +127,7 @@ class Kubernetes(object):
     def create(self, force=False, dry=False, strategy='update'):
         """
           - Check if resource name exists
-          - if it exists check if the kpmhash is the same
+          - if it exists check if the apprhash is the same
           - if not the same delete the resource and recreate it
           - if force == true, delete the resource and recreate it
           - if doesnt exists create it
@@ -145,9 +145,9 @@ class Kubernetes(object):
         if r is None:
             self._call(cmd, dry=dry)
             return 'created'
-        elif (self.kpmhash is None or self._get_kpmhash(r) == self.kpmhash) and force is False:
+        elif (self.apprhash is None or self._get_apprhash(r) == self.apprhash) and force is False:
             return 'ok'
-        elif self._get_kpmhash(r) != self.kpmhash or force is True:
+        elif self._get_apprhash(r) != self.apprhash or force is True:
             if strategy == 'replace' or force:
                 if self.delete(dry=dry) == 'protected':
                     return 'protected'
@@ -159,7 +159,7 @@ class Kubernetes(object):
             self._call(cmd, dry=dry)
             return action
 
-    def _get_kpmhash(self, r):
+    def _get_apprhash(self, r):
         if 'annotations' in r['metadata'] and ANNOTATIONS['hash'] in r['metadata']['annotations']:
             return r['metadata']['annotations'][ANNOTATIONS['hash']]
         else:
