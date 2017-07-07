@@ -52,7 +52,7 @@ def cli():
         if args.parse_unknown:
             args.func(args, unknown)
         else:
-            args = parser.parse_args()
+            args = parser.parse_known_args()
             args.func(args)
 
     except (argparse.ArgumentTypeError, argparse.ArgumentError) as exc:
