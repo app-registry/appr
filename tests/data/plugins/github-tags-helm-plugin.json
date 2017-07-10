@@ -1,0 +1,65 @@
+[
+  {
+    "name": "v0.5.1",
+    "zipball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/zipball/v0.5.1",
+    "tarball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/tarball/v0.5.1",
+    "commit": {
+      "sha": "4f75d9ecedc1f1188da74cbb103a27a177223301",
+      "url": "https://api.github.com/repos/app-registry/appr-helm-plugin/commits/4f75d9ecedc1f1188da74cbb103a27a177223301"
+    }
+  },
+  {
+    "name": "v0.4.1",
+    "zipball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/zipball/v0.4.1",
+    "tarball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/tarball/v0.4.1",
+    "commit": {
+      "sha": "6ec0ca1b73676db00fb65e7398b513b3a5da729d",
+      "url": "https://api.github.com/repos/app-registry/appr-helm-plugin/commits/6ec0ca1b73676db00fb65e7398b513b3a5da729d"
+    }
+  },
+  {
+    "name": "v0.4.0",
+    "zipball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/zipball/v0.4.0",
+    "tarball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/tarball/v0.4.0",
+    "commit": {
+      "sha": "abcca68303f6b0e548d481bc56f2760151cad5c1",
+      "url": "https://api.github.com/repos/app-registry/appr-helm-plugin/commits/abcca68303f6b0e548d481bc56f2760151cad5c1"
+    }
+  },
+  {
+    "name": "v0.3.8",
+    "zipball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/zipball/v0.3.8",
+    "tarball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/tarball/v0.3.8",
+    "commit": {
+      "sha": "526a2111e99f0fcb38ac17c8d2075f40685a6108",
+      "url": "https://api.github.com/repos/app-registry/appr-helm-plugin/commits/526a2111e99f0fcb38ac17c8d2075f40685a6108"
+    }
+  },
+  {
+    "name": "v0.3.7",
+    "zipball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/zipball/v0.3.7",
+    "tarball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/tarball/v0.3.7",
+    "commit": {
+      "sha": "ed5d3ef6a4376d9d0725a7e13d5f28ecaea7da4c",
+      "url": "https://api.github.com/repos/app-registry/appr-helm-plugin/commits/ed5d3ef6a4376d9d0725a7e13d5f28ecaea7da4c"
+    }
+  },
+  {
+    "name": "v0.0.1",
+    "zipball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/zipball/v0.0.1",
+    "tarball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/tarball/v0.0.1",
+    "commit": {
+      "sha": "79bb4c1503cb04d4587c52f61751e1de72dad6f2",
+      "url": "https://api.github.com/repos/app-registry/appr-helm-plugin/commits/79bb4c1503cb04d4587c52f61751e1de72dad6f2"
+    }
+  },
+  {
+    "name": "0.3.8-dev",
+    "zipball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/zipball/0.3.8-dev",
+    "tarball_url": "https://api.github.com/repos/app-registry/appr-helm-plugin/tarball/0.3.8-dev",
+    "commit": {
+      "sha": "9db0966cfaeabb88341e869c23eb474b43270a05",
+      "url": "https://api.github.com/repos/app-registry/appr-helm-plugin/commits/9db0966cfaeabb88341e869c23eb474b43270a05"
+    }
+  }
+]
