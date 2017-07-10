@@ -79,11 +79,10 @@ compile:
 
 .docker: &docker
   variables:
-    DOCKER_DRIVER: overlay
     DOCKER_HOST: tcp://localhost:2375
   image: docker:git
   before_script:
-    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS quay.io
   services:
      - docker:dind
   tags:
