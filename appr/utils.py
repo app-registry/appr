@@ -1,9 +1,10 @@
-import os
+import sys
+import os.path
 import errno
 import re
 import collections
 import importlib
-import sys
+
 
 PACKAGE_REGEXP = r"^(.*?\/)([a-z0-9_-]+\/[a-z0-9_-]+)([:@][a-z0-9._+-]+|@sha256:[a-z0-9]+)?$"
 
@@ -160,3 +161,12 @@ def symbol_by_name(name, aliases={}, imp=None, package=None, sep='.', default=No
         if default is None:
             raise
     return default
+
+
+def get_current_script_path():
+    executable = sys.executable
+    if os.path.basename(executable) == "appr":
+        path = executable
+    else:
+        path = sys.argv[0]
+    return os.path.realpath(path)

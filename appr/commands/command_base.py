@@ -46,6 +46,7 @@ class CommandBase(object):
     RegistryClient = ApprClient
     default_media_type = None
     parse_unknown = False
+    output_default = 'text'
 
     def __init__(self, args_options, unknown=None):
         self.unknown = unknown
@@ -64,6 +65,7 @@ class CommandBase(object):
 
     @classmethod
     def call(cls, options, unknown=None, render=True):
+        # @TODO(ant31): all methods should have the 'unknown' parameter
         if cls.parse_unknown:
             obj = cls(options, unknown)
         else:
@@ -99,7 +101,7 @@ class CommandBase(object):
         raise NotImplementedError
 
     def _render_yaml(self):
-        print(yaml.safe_dump(self._render_dict()))
+        print(yaml.safe_dump(self._render_dict(), default_flow_style=False))
 
     def _call(self):
         raise NotImplementedError
@@ -114,7 +116,7 @@ class CommandBase(object):
 
     @classmethod
     def _add_output_option(cls, parser):
-        parser.add_argument("--output", default="text", choices=['text', 'none', 'json', 'yaml'],
+        parser.add_argument("--output", default=cls.output_default, choices=['text', 'none', 'json', 'yaml'],
                             help="output format")
 
     @classmethod

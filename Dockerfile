@@ -21,4 +21,5 @@ RUN /pyinstaller/pyinstaller.sh --onefile --noconfirm \
 from alpine:latest
 RUN apk --no-cache add ca-certificates
 COPY --from=0 /opt/appr-server/dist/appr /usr/bin/
+RUN appr plugins install helm
 ENTRYPOINT ["appr"]

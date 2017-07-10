@@ -17,7 +17,7 @@ def get_db_class(name=None):
         db = FilesystemDB
 
     elif name == "redis":
-        from appr.models.kv.filesystem.db import RedisDB
+        from appr.models.kv.redis.db import RedisDB
         db = RedisDB
 
     elif name == "etcd":
