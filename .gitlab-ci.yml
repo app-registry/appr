@@ -71,7 +71,8 @@ compile:
   <<: *job
   stage: release
   script:
-    pyinstaller --onefile bin/appr --hidden-import gunicorn.glogging --hidden-import gunicorn.workers.gthread --hidden-import gunicorn.workers
+    - pip install pyinstaller
+    - pyinstaller --onefile bin/appr --hidden-import gunicorn.glogging --hidden-import gunicorn.workers.gthread --hidden-import gunicorn.workers
   artifacts:
     paths:
       - dist/appr
