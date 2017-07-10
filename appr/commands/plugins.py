@@ -14,7 +14,7 @@ def install_helm_plugin(plugin, plugin_info):
     tarball_src = ("https://github.com/%s/releases/download/%s/registry-helm-plugin.tar.gz" %
                    (plugin_info['repo'], version))
     helm_home = os.getenv("HELM_HOME", os.path.join(expanduser("~"), ".helm"))
-    plugin_path = os.path.join(helm_home, "plugins")
+    plugin_path = os.getenv("HELM_PLUGIN_DIR", os.path.join(helm_home, "plugins"))
     mkdir_p(plugin_path)
     tardest = os.path.join(plugin_path, "appr-helm-plugin-%s.tar.gz" % version)
     res = requests.get(tarball_src)
@@ -71,18 +71,11 @@ class PluginsCmd(CommandBase):
         cmd.render()
 
     @classmethod
-    def _list(cls, options, unknown=None):
-        """ List available plugins and there status: installed / not installed and current version """
-        pass
-
-    @classmethod
     def _add_arguments(cls, parser):
         sub = parser.add_subparsers()
         install_cmd = sub.add_parser('install')
-        list_cmd = sub.add_parser('list')
         cls._init_args(install_cmd)
         install_cmd.set_defaults(func=cls._install)
-        list_cmd.set_defaults(func=cls._list)
 
     def _render_dict(self):
         return self.status

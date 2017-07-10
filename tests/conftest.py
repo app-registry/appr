@@ -1,3 +1,4 @@
+import os.path
 import base64
 import json
 
@@ -13,6 +14,20 @@ from appr.tests.conftest import (
     db_class, newdb, db_with_data1
     )
 
+
+LOCAL_DIR = os.path.dirname(__file__)
+
+
+@pytest.fixture()
+def plugin_helm_tarball():
+    with open(os.path.join(LOCAL_DIR, "data/plugins/appr-helm-plugin-v0.5.1.tar.gz"), "rb") as f:
+        return f.read()
+
+
+@pytest.fixture()
+def plugin_helm_releases():
+    with open(os.path.join(LOCAL_DIR, "data/plugins/github-tags-helm-plugin.json"), "rb") as f:
+        return f.read()
 
 
 @pytest.fixture()
