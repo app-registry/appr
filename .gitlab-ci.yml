@@ -80,11 +80,11 @@ compile:
 .docker: &docker
   variables:
     DOCKER_HOST: tcp://localhost:2375
-  image: docker:git
+  image: docker:17.06-git
   before_script:
     - docker login -u $DOCKER_USER -p $DOCKER_PASS quay.io
   services:
-     - docker:dind
+     - docker:17.06-dind
   tags:
     - kubernetes
 
