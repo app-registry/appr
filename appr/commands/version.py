@@ -13,6 +13,7 @@ class VersionCmd(CommandBase):
         self.api_version = None
         self.client_version = None
         self.registry_host = options.registry_host
+        self.ssl_verify = options.cacert or not options.insecure
 
     @classmethod
     def _add_arguments(cls, parser):
@@ -21,7 +22,7 @@ class VersionCmd(CommandBase):
     def _api_version(self):
         api_version = None
         try:
-            client = self.RegistryClient(self.registry_host)
+            client = self.RegistryClient(self.registry_host, requests_verify=self.ssl_verify)
             api_version = client.version()
         except requests.exceptions.RequestException:
             api_version = ".. Connection error"

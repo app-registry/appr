@@ -14,6 +14,7 @@ class ListPackageCmd(CommandBase):
         self.query = options.search
         self.media_type = options.media_type
         self.result = None
+        self.ssl_verify = options.cacert or not options.insecure
 
     @classmethod
     def _add_arguments(cls, parser):
@@ -25,7 +26,7 @@ class ListPackageCmd(CommandBase):
         parser.add_argument("-s", "--search", default=None, help="search query")
 
     def _call(self):
-        client = self.RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host, requests_verify=self.ssl_verify)
         params = {}
         if self.user:
             params['username'] = self.user

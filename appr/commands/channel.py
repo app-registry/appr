@@ -18,6 +18,7 @@ class ChannelCmd(CommandBase):
         self.version_parts = options.version_parts
         self.status = None
         self.channels = {}
+        self.ssl_verify = options.cacert or not options.insecure
 
     @classmethod
     def _add_arguments(cls, parser):
@@ -34,7 +35,7 @@ class ChannelCmd(CommandBase):
                             help="Remove a release from the channel")
 
     def _call(self):
-        client = self.RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host, requests_verify=self.ssl_verify)
         package = self.package
         name = self.channel
         if self.delete is True:

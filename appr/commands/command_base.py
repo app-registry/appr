@@ -113,6 +113,9 @@ class CommandBase(object):
     @classmethod
     def _add_registryhost_option(cls, parser):
         parser.add_argument("-H", "--registry-host", default=None, help=argparse.SUPPRESS)
+        parser.add_argument("-k", "--insecure", action="store_true",
+                            default=False, help="turn off verification of the https certificate")
+        parser.add_argument("--cacert", nargs='?', default=None, help="CA certificate to verify peer against (SSL)")
 
     @classmethod
     def _add_output_option(cls, parser):
@@ -147,3 +150,6 @@ class CommandBase(object):
     @classmethod
     def _add_registryhost_arg(cls, parser):
         parser.add_argument("registry_host", nargs=1, action=RegistryHost, help='registry API url')
+        parser.add_argument("-k", "--insecure", action="store_true",
+                            default=False, help="turn off verification of the https certificate")
+        parser.add_argument("--cacert", nargs='?', default=None, help="CA certificate to verify peer against (SSL)")

@@ -1,3 +1,4 @@
+import os
 import re
 import json
 import logging
@@ -14,19 +15,25 @@ DEFAULT_PREFIX = "/cnr"
 
 
 class ApprClient(object):
-    def __init__(self, endpoint=DEFAULT_REGISTRY, auth=None, config=None, insecure=False):
+    def __init__(self, endpoint=DEFAULT_REGISTRY, auth=None, config=None, requests_verify=True):
         if not auth:
             auth = ApprAuth()
         if not config:
             config = ApprConfig()
         self.auth = auth
         self.config = config
-        self.endpoint = self._configure_endpoint(endpoint, insecure)
+        self.endpoint = self._configure_endpoint(endpoint)
         self.host = self.endpoint.geturl()
         self._headers = {
             'Content-Type': 'application/json',
             'User-Agent': "apprpy-cli/%s" % appr.__version__
         }
+
+        if 'APPR_CA_BUNDLES' in os.environ:
+            requests_verify = os.environ['APPR_CA_BUNDLES']
+        if requests_verify is None:
+            requests_verify = True
+        self.verify = requests_verify
 
     def _url(self, path):
         return self.endpoint.geturl() + path
@@ -35,14 +42,14 @@ class ApprClient(object):
         """ return the Authorization bearer """
         return self.auth.token(self.host)
 
-    def _configure_endpoint(self, endpoint, insecure):
+    def _configure_endpoint(self, endpoint):
         if endpoint is None:
             endpoint = DEFAULT_REGISTRY
         alias = self.config.get_registry_alias(endpoint)
         if alias:
             endpoint = alias
         if not re.match("https?://", endpoint):
-            if insecure or str.startswith(endpoint, "localhost"):
+            if endpoint.startswith("localhost"):
                 scheme = "http://"
             else:
                 scheme = "https://"
@@ -60,7 +67,7 @@ class ApprClient(object):
 
     def version(self):
         path = "/version"
-        resp = requests.get(self._url(path), headers=self.headers)
+        resp = requests.get(self._url(path), headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         return resp.json()
 
@@ -71,7 +78,7 @@ class ApprClient(object):
         params = {}
         if media_type:
             params["media_type"] = media_type
-        resp = requests.get(self._url(path), params=params, headers=self.headers)
+        resp = requests.get(self._url(path), params=params, headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         return resp.json()
 
@@ -106,19 +113,19 @@ class ApprClient(object):
 
     def pull(self, name, version_parts, media_type):
         path = self._pull_path(name, version_parts, media_type)
-        resp = requests.get(path, headers=self.headers)
+        resp = requests.get(path, headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         return resp.content
 
     def pull_json(self, name, version_parts, media_type):
         path = self._pull_path(name, version_parts, media_type)
-        resp = requests.get(path, params={'format': 'json'}, headers=self.headers)
+        resp = requests.get(path, params={'format': 'json'}, headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         return resp.json()
 
     def list_packages(self, params):
         path = "/api/v1/packages"
-        resp = requests.get(self._url(path), params=params, headers=self.headers)
+        resp = requests.get(self._url(path), params=params, headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         return resp.json()
 
@@ -130,14 +137,14 @@ class ApprClient(object):
         path = "/api/v1/packages/%s/%s" % (organization, pname)
         resp = requests.post(
             self._url(path), params={"force": str(force).lower()}, data=json.dumps(body),
-            headers=self.headers)
+            headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         return resp.json()
 
     def delete_package(self, name, version, media_type):
         organization, name = name.split("/")
         path = "/api/v1/packages/%s/%s/%s/%s" % (organization, name, version, media_type)
-        resp = requests.delete(self._url(path), headers=self.headers)
+        resp = requests.delete(self._url(path), headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         return resp.json()
 
@@ -145,7 +152,7 @@ class ApprClient(object):
         if channel is None:
             channel = ''
         path = "/api/v1/packages/%s/channels/%s" % (name, channel)
-        resp = getattr(requests, action)(self._url(path), params={}, headers=self.headers)
+        resp = getattr(requests, action)(self._url(path), params={}, headers=self.headers, verify=self.verify)
         if channel == '' and resp.status_code == 404:
             return []
         resp.raise_for_status()
@@ -177,7 +184,7 @@ class ApprClient(object):
                     "username": username,
                     "password": password
                 }
-            }), headers=self.headers)
+            }), headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         result = resp.json()
         self.auth.add_token(self.host, result['token'])
@@ -193,7 +200,7 @@ class ApprClient(object):
                     "password_confirmation": password_confirmation,
                     "email": email
                 }
-            }), headers=self.headers)
+            }), headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         result = resp.json()
         self.auth.add_token(self.host, result['token'])

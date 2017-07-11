@@ -32,11 +32,16 @@ class PushCmd(CommandBase):
         self.package_parts = options.package_parts
         self.pname = self.package_parts.get('package', None)
         self.namespace = self.package_parts.get('namespace', None)
+
         if self.namespace is None:
             self.namespace = options.ns
+
         self.version_parts = options.version_parts
+
         if self.version == "default":
             self.version = None
+
+        self.ssl_verify = options.cacert or not options.insecure
         self.status = ''
 
     @classmethod
@@ -49,12 +54,11 @@ class PushCmd(CommandBase):
         parser.add_argument("-c", "--channel", default=None, help="Set a channel")
         parser.add_argument("--version-parts", default={}, help=argparse.SUPPRESS)
         parser.add_argument("--package-parts", default={}, help=argparse.SUPPRESS)
-
         parser.add_argument('package', nargs='?', default=None, action=PackageSplit,
                             help="repository dest")
 
     def _push(self):
-        client = self.RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host, requests_verify=self.ssl_verify)
         filename = package_filename(self.package_name, self.version, self.media_type)
         kubepath = os.path.join(tempfile.gettempdir(), filename + ".tar.gz")
         pack_kub(kubepath, filter_files=self.filter_files, prefix=self.prefix)

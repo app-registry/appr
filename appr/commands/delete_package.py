@@ -12,6 +12,7 @@ class DeletePackageCmd(CommandBase):
         self.version = options.version
         self.media_type = options.media_type
         self.result = None
+        self.ssl_verify = options.cacert or not options.insecure
 
     @classmethod
     def _add_arguments(cls, parser):
@@ -21,7 +22,7 @@ class DeletePackageCmd(CommandBase):
         cls._add_packageversion_option(parser)
 
     def _call(self):
-        client = self.RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host, requests_verify=self.ssl_verify)
         self.result = client.delete_package(self.package, version=self.version,
                                             media_type=self.media_type)
 

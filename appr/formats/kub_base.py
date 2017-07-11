@@ -16,11 +16,11 @@ class KubBase(object):
     manifest_file = []
     appr_client = ApprClient
 
-    def __init__(self, name, version='default', endpoint=None):
+    def __init__(self, name, version='default', endpoint=None, ssl_verify=True):
         self._deploy_name = name
 
         self.endpoint = endpoint
-        self._registry = self.appr_client(endpoint=self.endpoint)
+        self._registry = self.appr_client(endpoint=self.endpoint, requests_verify=ssl_verify)
         self._deploy_version = version
         self._package = None
         self._manifest = None

@@ -33,7 +33,7 @@ class Helm(object):
     def __init__(self):
         pass
 
-    def download_appr_deps(self, deps, dest=DEFAULT_CHARTS, tarball=False):
+    def download_appr_deps(self, deps, dest=DEFAULT_CHARTS, tarball=False, requests_verify=True):
         """
             Creates a directory 'dep_charts' to download and extract all dependencies
             fetched from the app-registry server.
@@ -46,7 +46,7 @@ class Helm(object):
             name = package_parts['package']
 
             vparts = parse_version(dep['version'])
-            client = ApprClient(package_parts['host'])
+            client = ApprClient(package_parts['host'], requests_verify=requests_verify)
             package_name = '%s/%s' % (package_parts['namespace'], name)
 
             pullpack = client.pull_json(package_name, version_parts=vparts, media_type='helm')
