@@ -14,6 +14,7 @@ class ShowCmd(CommandBase):
         self.verbose = options.wide
         self.media_type = options.media_type
         self.result = None
+        self.ssl_verify = options.cacert or not options.insecure
 
     @classmethod
     def _add_arguments(cls, parser):
@@ -25,7 +26,7 @@ class ShowCmd(CommandBase):
                             action="store_true", default=False)
 
     def _call(self):
-        client = self.RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host, requests_verify=self.ssl_verify)
         self.result = client.show_package(self.package, version=self.version,
                                           media_type=self.media_type)
 

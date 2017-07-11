@@ -18,6 +18,7 @@ class LoginCmd(CommandBase):
         self.email = options.email
         self.user = options.user
         self.status = None
+        self.ssl_verify = options.cacert or not options.insecure
 
     @classmethod
     def _add_arguments(cls, parser):
@@ -29,7 +30,7 @@ class LoginCmd(CommandBase):
         parser.add_argument("-e", "--email", nargs="?", default=None, help="email for signup")
 
     def _call(self):
-        client = self.RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host, requests_verify=self.ssl_verify)
         if self.user is not None:
             user = self.user
         else:

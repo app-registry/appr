@@ -17,6 +17,7 @@ class PullCmd(CommandBase):
         self.media_type = options.media_type
         self.tarball = options.tarball
         self.path = None
+        self.ssl_verify = options.cacert or not options.insecure
 
     @classmethod
     def _add_arguments(cls, parser):
@@ -29,7 +30,7 @@ class PullCmd(CommandBase):
                             help="download the tar.gz")
 
     def _call(self):
-        client = self.RegistryClient(self.registry_host)
+        client = self.RegistryClient(self.registry_host, requests_verify=self.ssl_verify)
         pullpack = client.pull_json(self.package, version_parts=self.version_parts,
                                     media_type=self.media_type)
         package = ApprPackage(pullpack['blob'], b64_encoded=True)
