@@ -18,6 +18,7 @@ from appr.commands.jsonnet import JsonnetCmd
 from appr.commands.runserver import RunServerCmd
 from appr.commands.show import ShowCmd
 from appr.commands.version import VersionCmd
+from appr.commands.deploy import DeployCmd
 
 
 def all_commands():
@@ -33,11 +34,11 @@ def all_commands():
         DeletePackageCmd.name: DeletePackageCmd,
         PluginsCmd.name: PluginsCmd,
         ConfigCmd.name: ConfigCmd,
+        DeployCmd.name: DeployCmd,
         ListPackageCmd.name: ListPackageCmd,
         HelmCmd.name: HelmCmd,
         RunServerCmd.name: RunServerCmd,
-        JsonnetCmd.name: JsonnetCmd,
-    }
+        JsonnetCmd.name: JsonnetCmd, }
 
 
 def get_parser(commands):

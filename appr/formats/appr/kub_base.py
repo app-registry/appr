@@ -12,14 +12,17 @@ from appr.discovery import ishosted, split_package_name
 from appr.formats.appr.manifest_jsonnet import ManifestJsonnet
 from appr.formats.base import FormatBase
 from appr.utils import convert_utf8, mkdir_p
+from appr.platforms.kubernetes import ANNOTATIONS
 
 
 class KubBase(FormatBase):
-    media_type = "appr"
+    media_type = "kpm"
     target = "kubernetes"
 
     def __init__(self, name, version=None, variables=None, shards=None, namespace=None,
-                 endpoint=None, resources=None):
+                 endpoint=None, resources=None, ssl_verify=True, **kwargs):
+        super(KubBase, self).__init__(name, version=version, endpoint=endpoint,
+                                      ssl_verify=ssl_verify, **kwargs)
 
         if shards.__class__ in [str, unicode]:
             shards = json.loads(shards)
@@ -27,15 +30,11 @@ class KubBase(FormatBase):
         if variables is None:
             variables = {}
 
-        if version is None:
-            {"key": "version", "values": 'default'}
-
         self.endpoint = endpoint
 
         self._dependencies = None
         self._resources = None
         self._deploy_name = name
-        self._deploy_version = version
         self._deploy_shards = shards
         self._deploy_resources = resources
         self._package = None
@@ -56,20 +55,18 @@ class KubBase(FormatBase):
         for resource in resources:
             name = resource['metadata']['name']
             kind = resource['kind'].lower()
+            protected = resource.get('annotations', {}).get(ANNOTATIONS['protected'], False)
             r.append({
                 "file": "%s-%s.yaml" % (name, kind),
                 "name": name,
                 "generated": True,
                 "order": -1,
-                "protected": False,
+                "protected": protected,
                 "value": resource,
                 "patch": [],
                 "variables": {},
-                "type": kind
-            })
+                "type": kind})
         return r
-
-    @property
 
     def _create_manifest(self):
         return ManifestJsonnet(self.package, {"params": json.dumps(self.tla_codes)})
@@ -113,14 +110,13 @@ class KubBase(FormatBase):
                 variables['kpmparent'] = {
                     'name': self.name,
                     'shards': self.shards,
-                    'variables': self.variables
-                }
+                    'variables': self.variables}
 
                 kub = self.kubClass(dep['name'], endpoint=self.endpoint, version={
                     "key": "version",
-                    "value": dep.get('version', 'default')
-                }, variables=variables, resources=dep.get('resources', None), shards=dep.get(
-                    'shards', None), namespace=self.namespace)
+                    "value": dep.get('version', 'default')}, variables=variables,
+                                    resources=dep.get('resources', None), shards=dep.get(
+                                        'shards', None), namespace=self.namespace)
                 self._dependencies.append(kub)
             else:
                 self._dependencies.append(self)

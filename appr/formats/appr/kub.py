@@ -28,9 +28,11 @@ class Kub(KubBase):
 
     def _resource_build(self, kub, resource):
         self._annotate_resource(kub, resource)
+        kind = resource['value']['kind'].lower()
+
         return {
             "file":
-                resource['file'],
+                resource.get('file', "%s-%s.yaml" % (self._resource_name(resource), kind)),
             "update_mode":
                 resource.get('update_mode', 'update'),
             "hash":
@@ -40,12 +42,11 @@ class Kub(KubBase):
             "name":
                 self._resource_name(resource),
             "kind":
-                resource['value']['kind'].lower(),
+                kind,
             "endpoint":
                 get_endpoint(resource['value']['kind'].lower()).format(namespace=self.namespace),
             "body":
-                json.dumps(resource['value'])
-        }
+                json.dumps(resource['value'])}
 
     # @TODO do it in jsonnet
     def _annotate_resource(self, kub, resource):
@@ -88,8 +89,7 @@ class Kub(KubBase):
                 resource['patch'].append({
                     "op": op,
                     "path": "/metadata/namespace",
-                    "value": self.namespace
-                })
+                    "value": self.namespace})
 
             if len(resource['patch']):
                 patch = jsonpatch.JsonPatch(resource['patch'])
@@ -115,8 +115,7 @@ class Kub(KubBase):
             "value": value,
             "patch": [],
             "variables": {},
-            "type": "namespace"
-        }
+            "type": "namespace"}
         return resource
 
     def build(self):
@@ -130,8 +129,7 @@ class Kub(KubBase):
             "package": kub.name,
             "version": kub.version,
             "namespace": kub.namespace,
-            "resources": []
-        }
+            "resources": []}
         for resource in kub.resources():
             package['resources'].\
                 append(self._resource_build(kub, resource))
@@ -139,7 +137,6 @@ class Kub(KubBase):
 
     def _process_deploy(self, dry=False, force=False, fmt="txt", proxy=None, action="create",
                         dest="/tmp/appr"):
-
         def output_progress(kubsource, status, fmt="text"):
             if fmt == 'text':
                 print(" --> %s (%s): %s" % (kubsource.name, kubsource.kind, colorize(status)))
@@ -174,9 +171,10 @@ class Kub(KubBase):
                     'update_mode', 'update'))
                 if fmt == "text":
                     output_progress(kubresource, status)
-                result_line = OrderedDict([("package", pname), ("version", version), (
-                    "kind", kubresource.kind), ("dry", dry), ("name", kubresource.name), (
-                        "namespace", kubresource.namespace), ("status", status)])
+                result_line = OrderedDict(
+                    [("package", pname), ("version", version), ("kind", kubresource.kind),
+                     ("dry", dry), ("name", kubresource.name),
+                     ("namespace", kubresource.namespace), ("status", status)])
 
                 if status != 'ok' and action == 'create':
                     kubresource.wait(3)

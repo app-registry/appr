@@ -47,7 +47,6 @@ class PackageSplit(argparse.Action):
 
 
 class LoadVariables(argparse.Action):
-
     def _parse_cmd(self, var):
         r = {}
         try:
@@ -162,14 +161,15 @@ class CommandBase(object):
     @classmethod
     def _add_registryhost_option(cls, parser):
         parser.add_argument("-H", "--registry-host", default=None, help=argparse.SUPPRESS)
-        parser.add_argument("-k", "--insecure", action="store_true",
-                            default=False, help="turn off verification of the https certificate")
-        parser.add_argument("--cacert", nargs='?', default=None, help="CA certificate to verify peer against (SSL)")
+        parser.add_argument("-k", "--insecure", action="store_true", default=False,
+                            help="turn off verification of the https certificate")
+        parser.add_argument("--cacert", nargs='?', default=None,
+                            help="CA certificate to verify peer against (SSL)")
 
     @classmethod
     def _add_output_option(cls, parser):
-        parser.add_argument("--output", default=cls.output_default, choices=['text', 'none', 'json', 'yaml'],
-                            help="output format")
+        parser.add_argument("--output", default=cls.output_default, choices=[
+            'text', 'none', 'json', 'yaml'], help="output format")
 
     @classmethod
     def _add_mediatype_option(cls, parser, default=None, required=False):
@@ -180,7 +180,7 @@ class CommandBase(object):
 
         parser.add_argument(
             "-t", "--media-type", default=default, required=required,
-            help='package format: [kpm, kpm-compose, helm, docker-compose, kubernetes]')
+            help='package format: [kpm, kpm-compose, helm, docker-compose, kubernetes, appr]')
 
     @classmethod
     def _add_packagename_option(cls, parser):
@@ -199,6 +199,7 @@ class CommandBase(object):
     @classmethod
     def _add_registryhost_arg(cls, parser):
         parser.add_argument("registry_host", nargs=1, action=RegistryHost, help='registry API url')
-        parser.add_argument("-k", "--insecure", action="store_true",
-                            default=False, help="turn off verification of the https certificate")
-        parser.add_argument("--cacert", nargs='?', default=None, help="CA certificate to verify peer against (SSL)")
+        parser.add_argument("-k", "--insecure", action="store_true", default=False,
+                            help="turn off verification of the https certificate")
+        parser.add_argument("--cacert", nargs='?', default=None,
+                            help="CA certificate to verify peer against (SSL)")

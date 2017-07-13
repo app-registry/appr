@@ -5,9 +5,8 @@ from operator import itemgetter
 
 import pytest
 
-from appr.exception import (ChannelNotFound, Forbidden, InvalidRelease,
-                            PackageAlreadyExists, PackageNotFound,
-                            PackageReleaseNotFound)
+from appr.exception import (ChannelNotFound, Forbidden, InvalidRelease, PackageAlreadyExists,
+                            PackageNotFound, PackageReleaseNotFound)
 
 
 def convert_utf8(data):
@@ -161,8 +160,8 @@ class TestModels:
         assert p.channels(db_with_data1.Channel) == ['stable']
         p2 = db_with_data1.Package.get("titi/rocketchat", '1.0.1', "kpm")
         assert sorted(p2.channels(db_with_data1.Channel)) == sorted(['dev'])
-        assert sorted(p2.channels(db_with_data1.Channel, iscurrent=False)) == sorted(
-            ['dev', 'stable'])
+        assert sorted(p2.channels(db_with_data1.Channel, iscurrent=False)) == sorted([
+            'dev', 'stable'])
         p3 = db_with_data1.Package.get("titi/rocketchat", '0.0.1', "kpm")
         assert sorted(p3.channels(db_with_data1.Channel)) == sorted([])
 

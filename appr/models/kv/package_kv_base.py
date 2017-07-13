@@ -78,8 +78,7 @@ class PackageKvBase(PackageBase):
                 'manifests': manifest_list,
                 'name': package_name,
                 'visibility': 'public',
-                'created_at': created_at
-            }
+                'created_at': created_at}
             result.append(view)
         return result
 

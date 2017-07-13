@@ -77,6 +77,16 @@ class UnableToLockResource(ApprException):
     errorcode = "resource-in-use"
 
 
+class InvalidVersion(ApprException):
+    status_code = 422
+    errorcode = "invalid-version"
+
+
+class PackageVersionNotFound(ApprException):
+    status_code = 404
+    errorcode = "package-version-not-found"
+
+
 def raise_package_not_found(package, release=None, media_type=None):
     raise PackageNotFound("package %s doesn't exist, v: %s, type: %s" % (package, str(release),
                                                                          str(media_type)),
@@ -87,17 +97,17 @@ def raise_package_not_found(package, release=None, media_type=None):
 
 def raise_channel_not_found(package, channel=None, release=None):
     if channel is None:
-        raise ChannelNotFound("No channel found for package '%s'" % (package),
-                              {'package': package})
+        raise ChannelNotFound("No channel found for package '%s'" % (package), {
+            'package': package})
     else:
-        raise ChannelNotFound("Channel '%s' doesn't exist for package '%s'" % (channel, package),
-                              {'channel': channel,
-                               'package': package,
-                               'release': release})
+        raise ChannelNotFound("Channel '%s' doesn't exist for package '%s'" % (channel, package), {
+            'channel': channel,
+            'package': package,
+            'release': release})
 
 
 def raise_package_exists(package, release, media_type):
-    raise PackageAlreadyExists("%s - %s - %s exists already " % (package, release, media_type),
-                               {"package": package,
-                                "release": release,
-                                "media_type": media_type})
+    raise PackageAlreadyExists("%s - %s - %s exists already " % (package, release, media_type), {
+        "package": package,
+        "release": release,
+        "media_type": media_type})

@@ -19,9 +19,12 @@ class RunServerCmd(CommandBase):
 
     @classmethod
     def _add_arguments(cls, parser):
-        parser.add_argument("-p", "--port", nargs="?", default=5000, type=int, help="server port listen")
-        parser.add_argument("-b", "--bind", nargs="?", default="0.0.0.0", help="server bind address")
-        parser.add_argument("--db-class", nargs="?", default="filesystem", help="db class for storage")
+        parser.add_argument("-p", "--port", nargs="?", default=5000, type=int,
+                            help="server port listen")
+        parser.add_argument("-b", "--bind", nargs="?", default="0.0.0.0",
+                            help="server bind address")
+        parser.add_argument("--db-class", nargs="?", default="filesystem",
+                            help="db class for storage")
 
     def _render_dict(self):
         return self.status

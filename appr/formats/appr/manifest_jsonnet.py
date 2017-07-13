@@ -8,14 +8,12 @@ from appr.formats.appr.manifest import ManifestBase
 from appr.pack import authorized_files
 from appr.render_jsonnet import RenderJsonnet, yaml_to_jsonnet
 
-
 __all__ = ['ManifestJsonnet']
 
 MANIFEST_FILES = ['manifest.jsonnet', 'manifest.yaml', 'manifest.yml', 'kpm-manifest.jsonnet']
 
 
 class ManifestJsonnet(ManifestBase):
-
     def __init__(self, package=None, tla_codes=None):
         self.tla_codes = tla_codes
         if package is not None:
@@ -28,7 +26,7 @@ class ManifestJsonnet(ManifestBase):
     def _isjsonnet(self, package):
         if "manifest.yaml" in package.files:
             return False
-        elif "manifest.jsonnet" in package.files:
+        elif "manifest.jsonnet" in package.files or "appr.jsonnet":
             return True
         else:
             raise RuntimeError("Unknown manifest format")

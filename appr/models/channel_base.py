@@ -22,9 +22,9 @@ class ChannelBase(object):
     def add_release(self, release, package_class):
         if self._check_release(release, package_class) is False:
             raise PackageReleaseNotFound("Release %s doesn't exist for package %s" %
-                                         (release, self.package),
-                                         {"package": self.package,
-                                          "release": release})
+                                         (release, self.package), {
+                                             "package": self.package,
+                                             "release": release})
         self.current = release
         return self.save()
 

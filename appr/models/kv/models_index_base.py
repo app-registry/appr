@@ -4,9 +4,8 @@ import datetime
 import json
 
 import appr.semver
-from appr.exception import (PackageAlreadyExists, PackageNotFound,
-                            ResourceNotFound, raise_channel_not_found,
-                            raise_package_not_found)
+from appr.exception import (PackageAlreadyExists, PackageNotFound, ResourceNotFound,
+                            raise_channel_not_found, raise_package_not_found)
 
 DEFAULT_LOCK_TIMEOUT = 3
 
@@ -72,8 +71,7 @@ class ModelsIndexBase(object):
                 pdata = {
                     "created_at": datetime.datetime.utcnow().isoformat(),
                     'name': name,
-                    'namespace': namespace
-                }
+                    'namespace': namespace}
                 self.packages_data['packages'][namespace][name] = pdata
                 self._write_data(self.packages_key, self.packages_data)
         finally:
@@ -109,8 +107,7 @@ class ModelsIndexBase(object):
                 raise PackageAlreadyExists("Package exists already", {
                     "package": self.package,
                     "release": release,
-                    "media_type": media_type
-                })
+                    "media_type": media_type})
             data['releases'][release]['manifests'][media_type] = package_data
             self._write_data(self.releases_key, data)
             self.add_package(self.package)
@@ -122,7 +119,8 @@ class ModelsIndexBase(object):
         try:
             self.get_lock(self.releases_key)
             data = self.releases_data
-            if release not in data['releases'] or media_type not in data['releases'][release]['manifests']:
+            if release not in data['releases'] or media_type not in data['releases'][release][
+                    'manifests']:
                 raise_package_not_found(self.package)
             data['releases'][release]['manifests'].pop(media_type)
             if not data['releases'][release]['manifests']:
@@ -204,8 +202,7 @@ class ModelsIndexBase(object):
             data['channels'][channel] = {
                 'name': channel,
                 'current': release,
-                'package': self.package
-            }
+                'package': self.package}
             if channel not in data['releases'][release]['channels']:
                 data['releases'][release]['channels'].append(channel)
             self._write_data(self.releases_key, data)
@@ -282,11 +279,9 @@ class ModelsIndexBase(object):
 
         releases = [
             release for release, x in self.releases_data['releases'].iteritems()
-            if channel in x['channels']
-        ]
+            if channel in x['channels']]
         ordered_releases = [
-            str(x) for x in sorted(appr.semver.versions(releases, False), reverse=True)
-        ]
+            str(x) for x in sorted(appr.semver.versions(releases, False), reverse=True)]
         return ordered_releases
 
     def release_channels(self, release):
@@ -300,8 +295,7 @@ class ModelsIndexBase(object):
             if namespace in self.packages_data['packages']:
                 result = [
                     "%s/%s" % (namespace, name)
-                    for name in self.packages_data['packages'][namespace].keys()
-                ]
+                    for name in self.packages_data['packages'][namespace].keys()]
         else:
             for namespace, packages in self.packages_data['packages'].iteritems():
                 for name in packages.keys():

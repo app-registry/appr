@@ -29,8 +29,7 @@ class ApprClient(object):
         self.host = self.endpoint.geturl()
         self._headers = {
             'Content-Type': 'application/json',
-            'User-Agent': "apprpy-cli/%s" % appr.__version__
-        }
+            'User-Agent': "apprpy-cli/%s" % appr.__version__}
 
         if 'APPR_CA_BUNDLES' in os.environ:
             requests_verify = os.environ['APPR_CA_BUNDLES']
@@ -81,7 +80,8 @@ class ApprClient(object):
         params = {}
         if media_type:
             params["media_type"] = media_type
-        resp = requests.get(self._url(path), params=params, headers=self.headers, verify=self.verify)
+        resp = requests.get(
+            self._url(path), params=params, headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         return resp.json()
 
@@ -122,13 +122,15 @@ class ApprClient(object):
 
     def pull_json(self, name, version_parts, media_type):
         path = self._pull_path(name, version_parts, media_type)
-        resp = requests.get(path, params={'format': 'json'}, headers=self.headers, verify=self.verify)
+        resp = requests.get(path, params={'format': 'json'}, headers=self.headers,
+                            verify=self.verify)
         resp.raise_for_status()
         return resp.json()
 
     def list_packages(self, params):
         path = "/api/v1/packages"
-        resp = requests.get(self._url(path), params=params, headers=self.headers, verify=self.verify)
+        resp = requests.get(
+            self._url(path), params=params, headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         return resp.json()
 
@@ -155,7 +157,8 @@ class ApprClient(object):
         if channel is None:
             channel = ''
         path = "/api/v1/packages/%s/channels/%s" % (name, channel)
-        resp = getattr(requests, action)(self._url(path), params={}, headers=self.headers, verify=self.verify)
+        resp = getattr(requests, action)(self._url(path), params={}, headers=self.headers,
+                                         verify=self.verify)
         if channel == '' and resp.status_code == 404:
             return []
         resp.raise_for_status()
@@ -185,9 +188,7 @@ class ApprClient(object):
             self._url(path), data=json.dumps({
                 "user": {
                     "username": username,
-                    "password": password
-                }
-            }), headers=self.headers, verify=self.verify)
+                    "password": password}}), headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         result = resp.json()
         self.auth.add_token(self.host, result['token'])
@@ -201,9 +202,7 @@ class ApprClient(object):
                     "username": username,
                     "password": password,
                     "password_confirmation": password_confirmation,
-                    "email": email
-                }
-            }), headers=self.headers, verify=self.verify)
+                    "email": email}}), headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         result = resp.json()
         self.auth.add_token(self.host, result['token'])

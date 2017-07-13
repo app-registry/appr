@@ -10,7 +10,6 @@ import sys
 import itertools
 from termcolor import colored
 
-
 PACKAGE_REGEXP = r"^(.*?\/)([a-z0-9_-]+\/[a-z0-9_-]+)([:@][a-z0-9._+-]+|@sha256:[a-z0-9]+)?$"
 
 
@@ -93,14 +92,12 @@ def colorize(status):
             'replaced': 'yellow',
             'absent': 'green',
             'deleted': 'red',
-            'protected': 'magenta'
-        }
+            'protected': 'magenta'}
     color = msg.get(status, None)
     if color:
         return colored(status, color)
     else:
         return status
-
 
 
 class Singleton(type):

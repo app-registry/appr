@@ -9,7 +9,6 @@ import requests
 from appr.commands.command_base import CommandBase
 from appr.utils import mkdir_p, get_current_script_path
 
-
 LOCAL_DIR = os.path.dirname(__file__)
 
 
@@ -36,17 +35,16 @@ def install_helm_plugin(plugin, plugin_info):
         'plugin-version': version,
         'status': 'installed',
         'path': os.path.join(plugin_path, 'registry'),
-        'symlink': execscript
-    }
+        'symlink': execscript}
 
 
 class PluginsCmd(CommandBase):
     name = 'plugins'
     help_message = "Install plugins"
     plugins = {
-        'helm': {'repo': 'app-registry/appr-helm-plugin',
-                 'install_method': install_helm_plugin}
-    }
+        'helm': {
+            'repo': 'app-registry/appr-helm-plugin',
+            'install_method': install_helm_plugin}}
     output_default = "yaml"
 
     def __init__(self, options):

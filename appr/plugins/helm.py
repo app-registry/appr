@@ -64,8 +64,7 @@ class Helm(object):
             helm_deps[name] = {
                 'name': name,
                 'version': release,
-                'repository': 'file://%s/%s' % (packagepath, name)
-            }
+                'repository': 'file://%s/%s' % (packagepath, name)}
         return helm_deps
 
     def build_dep(self, dest=DEFAULT_CHARTS, overwrite=False):
