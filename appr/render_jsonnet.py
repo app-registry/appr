@@ -45,7 +45,6 @@ def yaml_to_jsonnet(manifestyaml, tla_codes=None):
 
 
 class RenderJsonnet(object):
-
     def __init__(self, files=None, manifestpath=None, lib_dirs=[]):
         self.manifestdir = None
         if manifestpath:
@@ -58,9 +57,6 @@ class RenderJsonnet(object):
     def try_path(self, path, rel):
         if not rel:
             raise RuntimeError('Got invalid filename (empty string).')
-
-        libfilepath = os.path.join(os.path.dirname(__file__), "jsonnet/lib/%s" % rel)
-
         if self.files is not None and rel in self.files:
             if self.files[rel] is None:
                 with open(rel) as f:
@@ -72,9 +68,9 @@ class RenderJsonnet(object):
                 return rel, f.read()
         else:
             for libdir in self.lib_dirs:
-                path = os.path.join(libdir, rel)
-                if os.path.isfile(path):
-                    with open(path) as f:
+                libpath = os.path.join(libdir, rel)
+                if os.path.isfile(libpath):
+                    with open(libpath) as f:
                         return rel, f.read()
 
         if rel[0] == '/':
@@ -96,15 +92,14 @@ class RenderJsonnet(object):
 
     def render_jsonnet(self, manifeststr, tla_codes=None):
         try:
-            json_str = _jsonnet.evaluate_snippet(
+            json_str = _jsonnet.evaluate_snippet(  # pylint: disable=no-member
                 "snippet", manifeststr, import_callback=self.import_callback,
                 native_callbacks=filters.jsonnet_callbacks(), tla_codes=tla_codes)
 
         except RuntimeError as e:
             print("tla_codes: %s" % (str(tla_codes)))
             print("\n".join([
-                "%s %s" % (i, line) for i, line in enumerate(
-                    [l for l in manifeststr.split("\n") if re.match(r"^ *#", l) is None])
-            ]))
+                "%s %s" % (i, line) for i, line in enumerate([
+                    l for l in manifeststr.split("\n") if re.match(r"^ *#", l) is None])]))
             raise e
         return json.loads(json_str)

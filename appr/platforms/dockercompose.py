@@ -6,7 +6,6 @@ __all__ = ['DockerCompose']
 
 
 class DockerCompose(object):
-
     def __init__(self, kubcompose):
         self.kubcompose = kubcompose
         self.result = None

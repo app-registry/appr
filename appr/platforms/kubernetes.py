@@ -47,8 +47,7 @@ resource_endpoints = {
     "statefulset":
         "apis/apps/v1beta1/namespaces/{namespace}/statefulsets",
     "storageclass":
-        "apis/storage.k8s.io/v1beta1/statefulsets",
-}
+        "apis/storage.k8s.io/v1beta1/statefulsets", }
 
 resources_alias = {
     "ds": "daemonsets",
@@ -62,8 +61,7 @@ resources_alias = {
     "pv": "persistentvolumes",
     "pvc": "persistentvolumeclaims",
     "rc": "replicationcontrollers",
-    "svc": "services"
-}
+    "svc": "services"}
 
 ANNOTATIONS = {
     'protected': 'resource.appr/protected',
@@ -71,8 +69,7 @@ ANNOTATIONS = {
     'version': 'package.appr/version',
     'parent': 'package.appr/parent',
     'update-mode': 'resource.appr/update-mode',
-    'package': 'package.appr/package'
-}
+    'package': 'package.appr/package'}
 
 
 def get_endpoint(kind):
@@ -89,7 +86,6 @@ def get_endpoint(kind):
 
 
 class Kubernetes(object):
-
     def __init__(self, namespace=None, endpoint=None, body=None, proxy=None):
 
         self.proxy = None

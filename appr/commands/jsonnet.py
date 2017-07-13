@@ -21,10 +21,12 @@ class JsonnetCmd(CommandBase):
     @classmethod
     def _add_arguments(cls, parser):
         parser.add_argument("--namespace", help="kubernetes namespace", default='default')
-        parser.add_argument("-x", "--variables", help="variables", default={}, action=LoadVariables)
+        parser.add_argument("-x", "--variables", help="variables", default={},
+                            action=LoadVariables)
         parser.add_argument('filepath', nargs=1, help="Fetch package from the registry")
         parser.add_argument('--raw', action="store_true", default=False, help=argparse.SUPPRESS)
-        parser.add_argument('-J', '--lib-dir', action='append', default=[], help="Specify an additional library search dir")
+        parser.add_argument('-J', '--lib-dir', action='append', default=[],
+                            help="Specify an additional library search dir")
 
     def _call(self):
         r = RenderJsonnet(manifestpath=self.filepath, lib_dirs=self.extra_libs)

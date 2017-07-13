@@ -1,4 +1,4 @@
-from kpm.commands.deploy import DeployCmd
+from appr.commands.deploy import DeployCmd
 
 
 class GenerateCmd(DeployCmd):

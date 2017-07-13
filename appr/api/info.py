@@ -6,7 +6,7 @@ import appr
 
 info_app = Blueprint(
     'info',
-    __name__,)
+    __name__, )
 
 
 @info_app.before_request
@@ -22,8 +22,7 @@ def pre_request_logging():
         "original_url": request.url,
         "path": request.path,
         "data": values,
-        "headers": dict(request.headers.to_list())
-    })
+        "headers": dict(request.headers.to_list())})
 
 
 @info_app.route("/")

@@ -33,9 +33,9 @@ class ModelsIndexFilesystem(ModelsIndexBase):
                 return True
             else:
                 if timeout is None or time.time() > timeout_time:
-                    raise UnableToLockResource("%s already locked" % lock_key,
-                                               {"lock_key": lock_key,
-                                                "ttl": ttl})
+                    raise UnableToLockResource("%s already locked" % lock_key, {
+                        "lock_key": lock_key,
+                        "ttl": ttl})
                 else:
                     time.sleep(0.2)
 

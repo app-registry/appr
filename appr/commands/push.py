@@ -9,6 +9,7 @@ import requests
 
 from appr.commands.command_base import CommandBase, PackageSplit
 from appr.formats.helm.manifest_chart import ManifestChart
+from appr.formats.appr.manifest_jsonnet import ManifestJsonnet
 from appr.formats.utils import detect_format
 from appr.pack import pack_kub
 from appr.utils import package_filename
@@ -72,8 +73,7 @@ class PushCmd(CommandBase):
             "release": self.version,
             "metadata": self.metadata,
             "media_type": self.media_type,
-            "blob": base64.b64encode(kubefile.read())
-        }
+            "blob": base64.b64encode(kubefile.read())}
         try:
             client.push(self.package_name, body, self.force)
             self.status = "package: %s (%s | %s) pushed\n" % (self.package_name, self.version,
@@ -110,7 +110,17 @@ class PushCmd(CommandBase):
         self.namespace, self.pname = self.package_name.split("/")
 
     def _kpm(self):
-        raise NotImplementedError
+        self.filter_files = True
+        self.manifest = ManifestJsonnet()
+        ns, name = self.manifest.package['name'].split("/")
+        if not self.namespace:
+            self.namespace = ns
+        if not self.pname:
+            self.pname = name
+        self.package_name = "%s/%s" % (self.namespace, self.pname)
+        if not self.version or self.version == "default":
+            self.version = self.manifest.package['version']
+        self.metadata = self.manifest.metadata()
 
     def _init(self):
         if self.media_type is None:
@@ -132,8 +142,7 @@ class PushCmd(CommandBase):
             "package": self.package_name,
             "version": self.version,
             "media_type": self.media_type,
-            "channel": self.channel
-        }
+            "channel": self.channel}
 
     def _render_console(self):
         return self.status

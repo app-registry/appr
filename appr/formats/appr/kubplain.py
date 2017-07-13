@@ -13,4 +13,5 @@ class KubPlain(Kub):
         return Manifest(self._deploy_name, self._deploy_version)
 
     def add_resources(self, k8s_resources):
-        self.manifest['resources'] = self.manifest.resources + self.create_kub_resources(k8s_resources)
+        self.manifest[
+            'resources'] = self.manifest.resources + self.create_kub_resources(k8s_resources)

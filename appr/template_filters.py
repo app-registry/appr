@@ -172,24 +172,22 @@ def jinja_filters():
         'b64encode': b64encode,
         'gen_privatekey': gen_privatekey,
         'rand_alphanum': rand_alphanum,
-        'rand_alpha': rand_alpha
-    }
+        'rand_alpha': rand_alpha}
     return filters
 
 
 def jsonnet_callbacks():
     filters = {
-        'read': (('filepath',), readfile),
+        'read': (('filepath', ), readfile),
         'hash': (('data', 'hashtype'), get_hash),
-        'to_yaml': (('value',), json_to_yaml),
+        'to_yaml': (('value', ), json_to_yaml),
         'rand_alphanum': (('size', 'seed'), rand_alphanum),
         'rand_alpha': (('size', 'seed'), rand_alpha),
         'randint': (('size', 'seed'), randint),
         'jinja2': (('template', 'env'), jinja_template),
         'jsonnet': (('template', 'env'), jsonnet),
-        'json_loads': (('jsonstr',), json_loads),
-        'yaml_loads': (('jsonstr',), yaml_loads),
-        'obj_loads': (('jsonstr',), obj_loads),
-        'privatekey': (('keytype', "key", "seed"), gen_privatekey),
-    }
+        'json_loads': (('jsonstr', ), json_loads),
+        'yaml_loads': (('jsonstr', ), yaml_loads),
+        'obj_loads': (('jsonstr', ), obj_loads),
+        'privatekey': (('keytype', "key", "seed"), gen_privatekey), }
     return filters

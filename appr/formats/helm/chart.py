@@ -4,7 +4,7 @@ from appr.formats.base import FormatBase
 from appr.formats.helm.manifest_chart import MANIFEST_FILES, ManifestChart
 
 
-class Chart(object):
+class Chart(FormatBase):
     media_type = "helm"
     platform = "helm"
     manifest_file = MANIFEST_FILES

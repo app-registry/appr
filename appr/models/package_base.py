@@ -7,8 +7,9 @@ import re
 
 import semantic_version
 
-from appr.exception import (InvalidRelease, PackageAlreadyExists, InvalidUsage,
-                            PackageReleaseNotFound, raise_package_not_found)
+from appr.exception import (
+    InvalidUsage, InvalidRelease, PackageAlreadyExists, PackageReleaseNotFound, raise_package_not_found)
+
 from appr.models.blob_base import BlobBase
 from appr.semver import last_version, select_version
 
@@ -100,8 +101,7 @@ class PackageBase(object):
             "mediaType": self.content_media_type,
             "size": self.blob_size,
             "digest": self.digest,
-            "urls": []
-        }
+            "urls": []}
 
     @classmethod
     def view_manifests(cls, package_name, release, manifest_only=False, media_type=None):
@@ -125,8 +125,7 @@ class PackageBase(object):
         return [
             item
             for release in cls.all_releases(package, media_type=media_type)
-            for item in cls.view_manifests(package, release, False, media_type=media_type)
-        ]
+            for item in cls.view_manifests(package, release, False, media_type=media_type)]
 
     @property
     def data(self):
@@ -137,8 +136,7 @@ class PackageBase(object):
             "release": self.release,
             "metadata": self.metadata,
             "mediaType": self.manifest_media_type,
-            "content": self.content_descriptor()
-        }
+            "content": self.content_descriptor()}
         self._data.update(d)
         return self._data
 
@@ -215,9 +213,9 @@ class PackageBase(object):
     def save(self, force=False, **kwargs):
         self.check_release(self.release)
         if self.isdeleted_release(self.package, self.release) and not force:
-            raise PackageAlreadyExists("Package release %s existed" % self.package,
-                                       {"package": self.package,
-                                        "release": self.release})
+            raise PackageAlreadyExists("Package release %s existed" % self.package, {
+                "package": self.package,
+                "release": self.release})
         self.blob.save(self.content_media_type)
         self._save(force, **kwargs)
 

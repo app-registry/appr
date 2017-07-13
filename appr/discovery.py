@@ -63,8 +63,7 @@ def discover_sources(package, version, media_type, secure=False):
             'name': name,
             'version': version,
             "media_type": media_type,
-            "mediatype": media_type
-        }
+            "mediatype": media_type}
         p = MetaHTMLParser(variables)
         p.feed(r.content.decode())
         if package in p.meta:

@@ -5,7 +5,7 @@ import os.path
 
 import pytest
 
-from appr.packager import unpack_app
+from appr.pack import unpack_kub
 
 TAR_MD5SUM = "8ccd8af6ef21af7309839f1c521b6354"
 KUBEUI_FILES = ["manifest.yaml",
@@ -19,8 +19,8 @@ def _check_app(path):
         assert os.path.exists(os.path.join(str(path), f))
 
 
-def test_unpack_app(pack_tar, tmpdir):
-    unpack_app(pack_tar, str(tmpdir))
+def test_unpack_kub(pack_tar, tmpdir):
+    unpack_kub(pack_tar, str(tmpdir))
     _check_app(str(tmpdir))
 
 

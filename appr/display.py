@@ -12,9 +12,8 @@ def print_packages(packages, registry_host=""):
         release = package["default"]
         manifests = ", ".join(package['manifests'])
         table.append([
-            registry_host + "/" + package['name'], release, str(package.get('downloads', '-')),
-            manifests
-        ])
+            registry_host + "/" + package['name'], release,
+            str(package.get('downloads', '-')), manifests])
     return tabulate(table, header)
 
 
@@ -27,14 +26,12 @@ def print_package_info(packages, extended=False):
         row = [
             package['release'],
             get_media_type(package['content']['mediaType']),
-            package['content']['digest'],
-        ]
+            package['content']['digest'], ]
         if extended:
             row = row + [
                 package['created_at'],
                 package['content']['size'],
-                package.get('downloads', '-'),
-            ]
+                package.get('downloads', '-'), ]
         table.append(row)
     return tabulate(table, header)
 

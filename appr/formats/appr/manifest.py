@@ -1,5 +1,4 @@
 class ManifestBase(dict):
-
     def __init__(self, name=None, version=None):
         self.name = name
         self.version = version
@@ -23,10 +22,11 @@ class ManifestBase(dict):
 
     @property
     def package(self):
-        return self.get("package", {'version': self.version,
-                                    'name': self.name,
-                                    'description': '',
-                                    'author': ''})
+        return self.get("package", {
+            'version': self.version,
+            'name': self.name,
+            'description': '',
+            'author': ''})
 
     @property
     def shards(self):
@@ -47,16 +47,14 @@ class ManifestBase(dict):
             "variables": self.variables,
             "resources": self.resources,
             "shards": self.shards,
-            "deploy": self.deploy
-        })
+            "deploy": self.deploy})
 
     def metadata(self):
         return {
             'variables': self.variables,
             'resources': self.resources,
             "shards": self.shards,
-            'dependencies': self.dependencies
-        }
+            'dependencies': self.dependencies}
 
 
 class Manifest(ManifestBase):

@@ -134,10 +134,10 @@ class TestServer:
     def test_push_package(self, newdb, package_b64blob, client):
         package = "titi/rocketchat"
         url = self._url_for("api/v1/packages/%s" % package)
-        res = self.Client(client, self.headers()).post(
-            url, body={'release': '2.4.1',
-                       'media_type': 'kpm',
-                       'blob': package_b64blob})
+        res = self.Client(client, self.headers()).post(url, body={
+            'release': '2.4.1',
+            'media_type': 'kpm',
+            'blob': package_b64blob})
         assert res.status_code == 200
         p = newdb.Package.get(package, '2.4.1', 'kpm')
         blob = newdb.Blob.get(p.package, p.digest)
@@ -150,8 +150,7 @@ class TestServer:
             'package': package,
             'release': 'anc',
             'media_type': 'kpm',
-            'blob': package_b64blob
-        })
+            'blob': package_b64blob})
         assert res.status_code == 422
 
     def test_push_package_already_exists(self, db_with_data1, package_b64blob, client):
@@ -161,8 +160,7 @@ class TestServer:
             'package': package,
             'release': '1.0.1',
             'media_type': 'kpm',
-            'blob': package_b64blob
-        })
+            'blob': package_b64blob})
         assert res.status_code == 409
 
     def test_push_package_already_exists_force(self, db_with_data1, package_b64blob, client):
@@ -173,8 +171,7 @@ class TestServer:
             'release': '1.0.1',
             'force': 'true',
             'media_type': 'kpm',
-            'blob': package_b64blob
-        })
+            'blob': package_b64blob})
         assert res.status_code == 200
 
     def test_get_blob(self, db_with_data1, client):
@@ -305,8 +302,8 @@ class TestServer:
         url = self._url_for("api/v1/packages/%s/channels" % (package))
         res = self.Client(client, self.headers()).get(url)
         assert res.status_code == 200
-        assert sorted(self.json(res)) == sorted(
-            [c.to_dict() for c in db_with_data1.Channel.all(package)])
+        assert sorted(self.json(res)) == sorted([
+            c.to_dict() for c in db_with_data1.Channel.all(package)])
 
     def test_list_channels_404(self, newdb, client):
         package = "titi/no"
