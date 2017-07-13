@@ -1,4 +1,5 @@
 from __future__ import absolute_import, division, print_function
+import subprocess
 import os.path
 import base64
 import json
@@ -10,9 +11,9 @@ from appr.tests.conftest import (api_prefix, app, bad_package_dir, class_name,
                                  data_dir, db, db_class, db_names,
                                  db_with_data1, dbdata1, deploy,
                                  discovery_html, empty_package_dir, fake_home,
-                                 get_db_classes, get_response, kubeui_blob,
-                                 kubeui_package, kv_prefix, newdb, ns_resource,
-                                 pack_tar, package_b64blob, package_dir,
+                                 get_db_classes, get_response, kubeui_blob, deploy,
+                                 deploy_json, kubeui_package, kv_prefix, newdb,
+                                 ns_resource, pack_tar, package_b64blob, package_dir,
                                  rc_resource, svc_resource)
 
 LOCAL_DIR = os.path.dirname(__file__)
@@ -49,3 +50,52 @@ def package_data():
 def jinja_env():
     import appr.template_filters
     return appr.template_filters.jinja_env()
+
+
+
+@pytest.fixture()
+def subcall_cmd(monkeypatch):
+    def get_cmd(cmd, stderr="err"):
+        return " ".join(cmd)
+    monkeypatch.setattr("subprocess.check_output", get_cmd)
+
+
+@pytest.fixture()
+def subcall_cmd_error(monkeypatch):
+    def get_cmd(cmd, stderr="err"):
+        raise subprocess.CalledProcessError("a", "b", "c")
+    monkeypatch.setattr("subprocess.check_output", get_cmd)
+
+
+
+@pytest.fixture()
+def subcall_get_assert(monkeypatch):
+    def get_cmd(cmd, stderr="err"):
+        kind, name = cmd[2], cmd[3]
+        assert " ".join(cmd) == "kubectl get %s %s -o json --namespace testns" % (kind, name)
+        return get_response(name, kind)
+    monkeypatch.setattr("subprocess.check_output", get_cmd)
+
+
+@pytest.fixture()
+def subcall_all(monkeypatch):
+    def get_cmd(cmd, stderr="err"):
+        action, kind, name = cmd[1], cmd[2], cmd[3]
+        if action != "create":
+            return get_response(name, kind)
+        else:
+            with open(name, 'r') as f:
+                return f.read()
+    monkeypatch.setattr("subprocess.check_output", get_cmd)
+
+
+@pytest.fixture()
+def subcall_delete(monkeypatch):
+    def get_cmd(cmd, stderr="err"):
+        action, kind, name = cmd[1], cmd[2], cmd[3]
+        if action == "get":
+            assert " ".join(cmd) == "kubectl get %s %s -o json --namespace testns" % (kind, name)
+        elif action == "delete":
+            assert " ".join(cmd) == "kubectl delete %s %s --namespace testns" % (kind, name)
+        return get_response(name, kind)
+    monkeypatch.setattr("subprocess.check_output", get_cmd)
