@@ -81,7 +81,7 @@ def get_endpoint(kind):
     elif kind + "s" in resource_endpoints:
         name = kind + "s"
     else:
-        return None
+        return 'unknown'
     return resource_endpoints[name]
 
 
