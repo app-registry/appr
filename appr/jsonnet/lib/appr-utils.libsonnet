@@ -59,6 +59,16 @@
       std.native("json_loads")(data)
    ),
 
+   # b64encode
+   b64encode(str):: (
+      std.native("b64encode")(str)
+   ),
+
+   # b64decode
+   b64decode(str):: (
+      std.native("b64decode")(str)
+   ),
+
    # Convert yaml string to object
    yamlLoads(data):: (
       std.native("yaml_loads")(data)),
@@ -76,6 +86,7 @@
   objectFieldsHidden(obj):: (
      std.setDiff(std.objectFieldsAll(obj), std.objectFields(obj))
   ),
+
 
   objectFlatten(obj):: (
     // Merge 1 level dict depth into toplevel
@@ -100,7 +111,12 @@
    capitalize(str):: (
      std.char(std.codepoint(str[0]) - 32) + str[1:]
    ),
-   test: self.capitalize("test"),
+   tests: {
+        capitalize: (assert apprutils.capitalize("test") == 'Test'; true),
+        b64encode: (assert apprutils.b64encode("toto") == "dG90bw=="; true),
+        b64decode: (assert apprutils.b64decode(apprutils.b64encode("toto")) == "toto"; true),
+
+        },
 
    local initSeed = apprutils.randAlpha(256),
 }

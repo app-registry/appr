@@ -178,6 +178,8 @@ def jinja_filters():
 
 def jsonnet_callbacks():
     filters = {
+        'b64encode': (('value', ), b64encode),
+        'b64decode': (('value', ), b64decode),
         'read': (('filepath', ), readfile),
         'hash': (('data', 'hashtype'), get_hash),
         'to_yaml': (('value', ), json_to_yaml),
