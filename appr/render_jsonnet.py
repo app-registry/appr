@@ -55,15 +55,25 @@ class RenderJsonnet(object):
 
     #  Returns content if worked, None if file not found, or throws an exception
     def try_path(self, path, rel):
+        if rel[0] == '/':
+            full_path = rel
+        else:
+            full_path = path + rel
+
+        if full_path[-1] == '/':
+            raise RuntimeError('Attempted to import a directory')
+
         if not rel:
             raise RuntimeError('Got invalid filename (empty string).')
-        if self.files is not None and rel in self.files:
-            if self.files[rel] is None:
-                with open(rel) as f:
-                    self.files[rel] = f.read()
-            return rel, self.files[rel]
-        elif self.manifestdir and os.path.isfile(os.path.join(self.manifestdir, rel)):
-            filepath = os.path.join(self.manifestdir, rel)
+        if self.files is not None and full_path in self.files:
+            if self.files[full_path] is None:
+                with open(full_path) as f:
+                    self.files[full_path] = f.read()
+            return rel, self.files[full_path]
+
+        # @TODO(ant31) fail if full_path is absolute
+        elif self.manifestdir and os.path.isfile(os.path.join(self.manifestdir, full_path)):
+            filepath = os.path.join(self.manifestdir, full_path)
             with open(filepath) as f:
                 return rel, f.read()
         else:
@@ -73,14 +83,9 @@ class RenderJsonnet(object):
                     with open(libpath) as f:
                         return rel, f.read()
 
-        if rel[0] == '/':
-            full_path = rel
-        else:
-            full_path = path + rel
-        if full_path[-1] == '/':
-            raise RuntimeError('Attempted to import a directory')
         if not os.path.isfile(full_path):
             return full_path, None
+
         with open(full_path) as f:
             return full_path, f.read()
 
