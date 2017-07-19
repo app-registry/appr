@@ -13,7 +13,7 @@ AUTHORIZED_FILES = [
     "*.libsonnet", "*.libjsonnet", "*.jsonnet", "*.yaml", "README.md", "LICENSE", "AUTHORS",
     "NOTICE", "manifests", "deps/*.kub"]
 
-AUTHORIZED_TEMPLATES = ["*.yaml", "*.jsonnet", "*.libjsonnet", "*.yml", "*.j2"]
+AUTHORIZED_TEMPLATES = ["*.yaml", "*.jsonnet", "*.libjsonnet", "*.yml", "*.j2", "*.libsonnet"]
 
 
 def authorized_files():
@@ -45,7 +45,7 @@ def all_files():
                     skip = True
                     break
             if not skip:
-                files.append(path)
+                files.append(path.replace("./", ""))
     return files
 
 
@@ -58,7 +58,7 @@ def pack_kub(kub, filter_files=True, prefix=None):
     for filepath in files:
         arcname = None
         if prefix:
-            arcname = os.path.join(prefix, filepath.replace("./", ""))
+            arcname = os.path.join(prefix, filepath)
         tar.add(filepath, arcname=arcname)
 
     tar.close()

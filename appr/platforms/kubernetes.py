@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-
+import hashlib
 import json
 import logging
 import subprocess
@@ -68,6 +68,7 @@ ANNOTATIONS = {
     'hash': 'resource.appr/hash',
     'version': 'package.appr/version',
     'parent': 'package.appr/parent',
+    'rand': 'resource.appr/rand',
     'update-mode': 'resource.appr/update-mode',
     'package': 'package.appr/package'}
 
@@ -96,10 +97,9 @@ class Kubernetes(object):
         self.obj = None
         self.protected = False
         self._resource_load()
-
         self.kind = self.obj['kind'].lower()
         self.name = self.obj['metadata']['name']
-        self.apprhash = self._get_apprhash(self.obj)
+        self.force_rotate = ANNOTATIONS['rand'] in self.obj['metadata'].get('annotations', {})
         self.namespace = self._namespace(namespace)
         self.result = None
         if proxy:
@@ -111,6 +111,20 @@ class Kubernetes(object):
             if (ANNOTATIONS['protected'] in self.obj['metadata']['annotations'] and
                     self.obj['metadata']['annotations'][ANNOTATIONS['protected']] == 'true'):
                 self.protected = True
+
+    def _gethash(self, src):
+        # Copy rand value
+        if (ANNOTATIONS['rand'] in src['metadata'].get('annotations', {})
+            and ANNOTATIONS['rand'] not in self.obj['metadata']['annotations']):
+            self.obj['metadata']['annotations'][ANNOTATIONS['rand']] = src['metadata']['annotations'][ANNOTATIONS['rand']]
+
+        if ANNOTATIONS['hash'] in self.obj['metadata'].get('annotations', {}):
+            if self.obj['metadata']['annotations'][ANNOTATIONS['hash']] is None:
+                sha = hashlib.sha256(json.dumps(self.obj, sort_keys=True)).hexdigest()
+                self.obj['metadata']['annotations'][ANNOTATIONS['hash']] = sha
+            return self.obj['metadata']['annotations'][ANNOTATIONS['hash']]
+        else:
+            return None
 
     def _namespace(self, namespace=None):
         if namespace:
@@ -128,7 +142,10 @@ class Kubernetes(object):
           - if force == true, delete the resource and recreate it
           - if doesnt exists create it
         """
+        force = force or self.force_rotate
         r = self.get()
+        rhash = r['metadata'].get('annotations', {}).get(ANNOTATIONS['hash'], None)
+        objhash = self._gethash(r)
         f = tempfile.NamedTemporaryFile()
         method = "apply"
         if self.proxy:
@@ -136,17 +153,19 @@ class Kubernetes(object):
             strategy = "replace"
 
         cmd = [method, '-f', f.name]
-        f.write(self.body)
+
+        f.write(json.dumps(self.obj))
         f.flush()
         if r is None:
             self._call(cmd, dry=dry)
             return 'created'
-        elif (self.apprhash is None or self._get_apprhash(r) == self.apprhash) and force is False:
+        elif (objhash is None or rhash == objhash) and force is False:
             return 'ok'
-        elif self._get_apprhash(r) != self.apprhash or force is True:
-            if strategy == 'replace' or force:
-                if self.delete(dry=dry) == 'protected':
-                    return 'protected'
+        elif rhash != objhash or force is True:
+            if self.protected:
+                return 'protected'
+            if strategy == 'replace':
+                self.delete(dry=dry)
                 action = "replaced"
             elif strategy == "update":
                 action = "updated"
@@ -154,12 +173,6 @@ class Kubernetes(object):
                 raise ValueError("Unknown action %s" % action)
             self._call(cmd, dry=dry)
             return action
-
-    def _get_apprhash(self, r):
-        if 'annotations' in r['metadata'] and ANNOTATIONS['hash'] in r['metadata']['annotations']:
-            return r['metadata']['annotations'][ANNOTATIONS['hash']]
-        else:
-            return None
 
     def get(self):
         cmd = ['get', self.kind, self.name, '-o', 'json']
