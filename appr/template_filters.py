@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-
+import os
 import hashlib
 import json
 import random
@@ -106,6 +106,17 @@ def readfile(val):
         return f.read()
 
 
+def listdir(path):
+    return os.listdir(path)
+
+
+def walkdir(path):
+    files = []
+    for root, _, filenames in os.walk(path):
+        for filename in filenames:
+            files.append(os.path.join(root, filename))
+    return files
+
 def jsonnet(val, env=None):
     from appr.render_jsonnet import RenderJsonnet
     from appr.utils import convert_utf8
@@ -156,6 +167,13 @@ def yaml_loads(value):
     return yaml.load(value)
 
 
+def path_exists(path, isfile=None):
+    if isfile:
+        return os.path.isfile(path)
+    else:
+        return os.path.exists(path)
+
+
 def obj_loads(value):
     try:
         return json.loads(value)
@@ -180,6 +198,9 @@ def jsonnet_callbacks():
     filters = {
         'b64encode': (('value', ), b64encode),
         'b64decode': (('value', ), b64decode),
+        'path_exists': (('path', 'isfile',), path_exists),
+        'walkdir': (('path', ), walkdir),
+        'listdir': (('path', ), listdir),
         'read': (('filepath', ), readfile),
         'hash': (('data', 'hashtype'), get_hash),
         'to_yaml': (('value', ), json_to_yaml),
