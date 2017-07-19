@@ -114,7 +114,7 @@ class Kubernetes(object):
 
     def _gethash(self, src):
         # Copy rand value
-        if (ANNOTATIONS['rand'] in src['metadata'].get('annotations', {})
+        if (src is not None and ANNOTATIONS['rand'] in src['metadata'].get('annotations', {})
             and ANNOTATIONS['rand'] not in self.obj['metadata']['annotations']):
             self.obj['metadata']['annotations'][ANNOTATIONS['rand']] = src['metadata']['annotations'][ANNOTATIONS['rand']]
 
@@ -144,7 +144,8 @@ class Kubernetes(object):
         """
         force = force or self.force_rotate
         r = self.get()
-        rhash = r['metadata'].get('annotations', {}).get(ANNOTATIONS['hash'], None)
+        if r is not None:
+            rhash = r['metadata'].get('annotations', {}).get(ANNOTATIONS['hash'], None)
         objhash = self._gethash(r)
         f = tempfile.NamedTemporaryFile()
         method = "apply"
