@@ -101,9 +101,12 @@ def jinja_template(val, env=None):
     return template.render(variables)
 
 
-def readfile(val):
-    with open(val, 'r') as f:
-        return f.read()
+def readfile(val, encode=False):
+    with open(val, 'rb') as f:
+        content = f.read()
+        if encode:
+            content = b64encode(content)
+        return content
 
 
 def listdir(path):
@@ -201,7 +204,7 @@ def jsonnet_callbacks():
         'path_exists': (('path', 'isfile',), path_exists),
         'walkdir': (('path', ), walkdir),
         'listdir': (('path', ), listdir),
-        'read': (('filepath', ), readfile),
+        'read': (('filepath', 'b64encodee',), readfile),
         'hash': (('data', 'hashtype'), get_hash),
         'to_yaml': (('value', ), json_to_yaml),
         'rand_alphanum': (('size', 'seed'), rand_alphanum),

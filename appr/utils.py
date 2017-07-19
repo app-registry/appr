@@ -110,15 +110,17 @@ class Singleton(type):
 
 
 def convert_utf8(data):
-    if isinstance(data, basestring):
-        return str(data)
-    elif isinstance(data, collections.Mapping):
-        return dict(map(convert_utf8, data.iteritems()))
-    elif isinstance(data, collections.Iterable):
-        return type(data)(map(convert_utf8, data))
-    else:
+    try:
+        if isinstance(data, basestring):
+            return str(data)
+        elif isinstance(data, collections.Mapping):
+            return dict(map(convert_utf8, data.iteritems()))
+        elif isinstance(data, collections.Iterable):
+            return type(data)(map(convert_utf8, data))
+        else:
+            return data
+    except UnicodeEncodeError as exc:
         return data
-
 
 # from celery/kombu https://github.com/celery/celery (BSD license)
 def symbol_by_name(name, aliases={}, imp=None, package=None, sep='.', default=None, **kwargs):
