@@ -5,7 +5,7 @@ import os.path
 import yaml
 
 from appr.formats.appr.manifest import ManifestBase
-from appr.pack import authorized_files
+from appr.pack import all_files
 from appr.render_jsonnet import RenderJsonnet, yaml_to_jsonnet
 
 __all__ = ['ManifestJsonnet']
@@ -44,7 +44,7 @@ class ManifestJsonnet(ManifestBase):
                 break
         _, ext = os.path.splitext(mfile)
         with open(mfile) as f:
-            auth_files = authorized_files()
+            auth_files = all_files()
             files = dict(zip(auth_files, [None] * len(auth_files)))
             if ext == '.jsonnet':
                 self._load_jsonnet(f.read(), files)

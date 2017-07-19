@@ -88,3 +88,41 @@ def test_colorize(monkeypatch):
     assert appr.utils.colorize('ok') == "\x1b[32mok\x1b[0m"
     monkeypatch.setenv("APPR_COLORIZE_OUTPUT", "false")
     assert appr.utils.colorize('ok') == "ok"
+
+
+@pytest.mark.parametrize("version,expected", [
+    ("v2.3.0", {
+        "key": "version",
+        "value": "v2.3.0"
+    }),
+    (":v2.3.0", {
+        "key": "channel",
+        "value": "v2.3.0"
+    }),
+    (":stable", {
+        "key": "channel",
+        "value": "stable"
+    }),
+    ("stable", {
+        "key": "version",
+        "value": "stable"
+    }),
+    ("stable", {
+        "key": "version",
+        "value": "stable"
+    }),
+    ("sha256:4242a432aehf", {
+        "key": "digest",
+        "value": "4242a432aehf"
+    }),
+    ("sha256-4242", {
+        "key": "version",
+        "value": "sha256-4242"
+    }),
+    ("sha256-4242", {
+        "key": "version",
+        "value": "sha256-4242"
+    }),
+])
+def test_parse_version_req(version, expected):
+    assert appr.utils.parse_version_req(version) == expected

@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import hashlib
 import json
 import logging
+import os
 import os.path
 from collections import OrderedDict
 
@@ -53,9 +54,10 @@ class Kub(KubBase):
         sha = None
         if 'annotations' not in resource['value']['metadata']:
             resource['value']['metadata']['annotations'] = {}
+
         if resource.get('hash', True):
-            sha = hashlib.sha256(json.dumps(resource['value'])).hexdigest()
-            resource['value']['metadata']['annotations'][ANNOTATIONS['hash']] = sha
+            # Hash is calculated later
+            resource['value']['metadata']['annotations'][ANNOTATIONS['hash']] = None
         annotation = resource['value']['metadata']['annotations']
         annotation[ANNOTATIONS['version']] = kub.version
         annotation[ANNOTATIONS['package']] = kub.name
@@ -177,7 +179,7 @@ class Kub(KubBase):
                      ("namespace", kubresource.namespace), ("status", status)])
 
                 if status != 'ok' and action == 'create':
-                    kubresource.wait(3)
+                    kubresource.wait(os.getenv("APPR_KUB_SECONDS", 0.1))
                 results.append(result_line)
                 if fmt == "text":
                     header = ["package", "version", "kind", "name", "namespace", "status"]

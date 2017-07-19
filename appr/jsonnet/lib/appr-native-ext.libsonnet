@@ -15,8 +15,8 @@
    ),
 
    # Read a file
-   readfile(filepath):: (
-      std.native("read")(filepath)
+   readfile(filepath, encode=false):: (
+      std.native("read")(filepath, encode)
    ),
 
    # Random alpha-numeric string of length `size`

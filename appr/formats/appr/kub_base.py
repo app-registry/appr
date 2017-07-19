@@ -11,7 +11,7 @@ import yaml
 from appr.discovery import ishosted, split_package_name
 from appr.formats.appr.manifest_jsonnet import ManifestJsonnet
 from appr.formats.base import FormatBase
-from appr.utils import convert_utf8, mkdir_p
+from appr.utils import convert_utf8, mkdir_p, parse_version_req
 from appr.platforms.kubernetes import ANNOTATIONS
 
 
@@ -111,10 +111,9 @@ class KubBase(FormatBase):
                     'name': self.name,
                     'shards': self.shards,
                     'variables': self.variables}
-
-                kub = self.kubClass(dep['name'], endpoint=self.endpoint, version={
-                    "key": "version",
-                    "value": dep.get('version', 'default')}, variables=variables,
+                kub = self.kubClass(dep['name'], endpoint=self.endpoint,
+                                    version=parse_version_req(dep.get('version', None)),
+                                    variables=variables,
                                     resources=dep.get('resources', None), shards=dep.get(
                                         'shards', None), namespace=self.namespace)
                 self._dependencies.append(kub)

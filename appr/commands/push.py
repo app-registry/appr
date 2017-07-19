@@ -110,7 +110,7 @@ class PushCmd(CommandBase):
         self.namespace, self.pname = self.package_name.split("/")
 
     def _kpm(self):
-        self.filter_files = True
+        self.filter_files = False
         self.manifest = ManifestJsonnet()
         ns, name = self.manifest.package['name'].split("/")
         if not self.namespace:

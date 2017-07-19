@@ -38,6 +38,24 @@ def parse_version(version):
         return {'key': 'unknown', 'value': version}
 
 
+def parse_version_req(version):
+    """
+     Converts a version string to a dict with following rules:
+       if string starts with ':' it is a channel
+       if string starts with 'sha256' it is a digest
+       else it is a release
+    """
+    if version is None:
+        version = "default"
+    if version[0] == ':' or version.startswith('channel:'):
+        parts = {'key': 'channel', 'value': version.split(':')[1]}
+    elif version.startswith('sha256:'):
+        parts = {'key': 'digest', 'value': version.split('sha256:')[1]}
+    else:
+        parts = {'key': 'version', 'value': version}
+    return parts
+
+
 def split_package_name(name):
     sp = name.split("/")
     package_parts = {"host": None, "namespace": None, "package": None, "version": None}
@@ -110,15 +128,17 @@ class Singleton(type):
 
 
 def convert_utf8(data):
-    if isinstance(data, basestring):
-        return str(data)
-    elif isinstance(data, collections.Mapping):
-        return dict(map(convert_utf8, data.iteritems()))
-    elif isinstance(data, collections.Iterable):
-        return type(data)(map(convert_utf8, data))
-    else:
+    try:
+        if isinstance(data, basestring):
+            return str(data)
+        elif isinstance(data, collections.Mapping):
+            return dict(map(convert_utf8, data.iteritems()))
+        elif isinstance(data, collections.Iterable):
+            return type(data)(map(convert_utf8, data))
+        else:
+            return data
+    except UnicodeEncodeError as exc:
         return data
-
 
 # from celery/kombu https://github.com/celery/celery (BSD license)
 def symbol_by_name(name, aliases={}, imp=None, package=None, sep='.', default=None, **kwargs):
