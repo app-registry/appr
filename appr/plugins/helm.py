@@ -8,26 +8,10 @@ import yaml
 
 from appr.client import ApprClient
 from appr.pack import ApprPackage
-from appr.utils import mkdir_p, parse_package_name
+from appr.utils import mkdir_p, parse_package_name, parse_version_req
+
 
 DEFAULT_CHARTS = "appr_charts"
-
-
-def parse_version(version):
-    """
-     Converts a version string to a dict with following rules:
-       if string starts with ':' it is a channel
-       if string starts with 'sha256' it is a digest
-       else it is a release
-    """
-    if version[0] == ':' or version.startswith('channel:'):
-        parts = {'key': 'channel', 'value': version.split(':')[1]}
-    elif version.startswith('sha256:'):
-        parts = {'key': 'digest', 'value': version.split('sha256:')[1]}
-    else:
-        parts = {'key': 'version', 'value': version}
-
-    return parts
 
 
 class Helm(object):
@@ -46,7 +30,7 @@ class Helm(object):
             package_parts = parse_package_name(dep['name'])
             name = package_parts['package']
 
-            vparts = parse_version(dep['version'])
+            vparts = parse_version_req(dep['version'])
             client = ApprClient(package_parts['host'], requests_verify=requests_verify)
             package_name = '%s/%s' % (package_parts['namespace'], name)
 

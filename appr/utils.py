@@ -38,6 +38,24 @@ def parse_version(version):
         return {'key': 'unknown', 'value': version}
 
 
+def parse_version_req(version):
+    """
+     Converts a version string to a dict with following rules:
+       if string starts with ':' it is a channel
+       if string starts with 'sha256' it is a digest
+       else it is a release
+    """
+    if version is None:
+        version = "default"
+    if version[0] == ':' or version.startswith('channel:'):
+        parts = {'key': 'channel', 'value': version.split(':')[1]}
+    elif version.startswith('sha256:'):
+        parts = {'key': 'digest', 'value': version.split('sha256:')[1]}
+    else:
+        parts = {'key': 'version', 'value': version}
+    return parts
+
+
 def split_package_name(name):
     sp = name.split("/")
     package_parts = {"host": None, "namespace": None, "package": None, "version": None}
