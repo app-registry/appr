@@ -92,6 +92,10 @@ def jinja_env():
     return jinjaenv
 
 
+def getenv(name, default=None):
+    return os.getenv(name, default)
+
+
 def jinja_template(val, env=None):
     from appr.utils import convert_utf8
     jinjaenv = jinja_env()
@@ -199,6 +203,7 @@ def jinja_filters():
 
 def jsonnet_callbacks():
     filters = {
+        'getenv': (('value', 'default',), getenv),
         'b64encode': (('value', ), b64encode),
         'b64decode': (('value', ), b64decode),
         'path_exists': (('path', 'isfile',), path_exists),

@@ -118,6 +118,7 @@ class Kubernetes(object):
             and ANNOTATIONS['rand'] not in self.obj['metadata']['annotations']):
             self.obj['metadata']['annotations'][ANNOTATIONS['rand']] = src['metadata']['annotations'][ANNOTATIONS['rand']]
 
+        # TODO(ant31) it should hash before the custom annotations
         if ANNOTATIONS['hash'] in self.obj['metadata'].get('annotations', {}):
             if self.obj['metadata']['annotations'][ANNOTATIONS['hash']] is None:
                 sha = hashlib.sha256(json.dumps(self.obj, sort_keys=True)).hexdigest()
