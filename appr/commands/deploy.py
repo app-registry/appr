@@ -33,7 +33,7 @@ class DeployCmd(CommandBase):
                             help="directory used to extract resources")
         parser.add_argument("--dry-run", action='store_true', default=False,
                             help="do not create the resources on kubernetes")
-        parser.add_argument("--namespace", help="kubernetes namespace", default=None)
+        parser.add_argument("-n", "--namespace", help="kubernetes namespace", default=None)
         parser.add_argument("--api-proxy", help="kubectl proxy url", nargs="?",
                             const="http://localhost:8001")
         parser.add_argument("-x", "--variables", help="variables", default={},
