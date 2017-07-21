@@ -63,7 +63,7 @@ requirements = base_requirements + cli_requirements + server_requirements + extr
 
 setup(
     name='appr',
-    version='0.6.2',
+    version='0.7.0-pre',
     description="cloud-native app registry server",
     long_description=readme,
     author="Antoine Legrand",
