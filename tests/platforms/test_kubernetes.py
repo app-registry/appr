@@ -18,7 +18,7 @@ def test_endpoints():
 
 
 def test_endpoints_missing():
-    assert get_endpoint("bad") is None
+    assert get_endpoint("bad") is 'unknown'
 
 
 def test_protected_is_true_when_annoted(ns_resource):
@@ -68,13 +68,13 @@ def test_kind(svc_resource, rc_resource, ns_resource):
 def test_get_hash(svc_resource):
     ks = Kubernetes(body=svc_resource['body'])
     kbody = json.loads(svc_resource['body'])
-    assert ks.apprhash == ks._get_apprhash(kbody)
-    assert ks.apprhash == kbody['metadata']['annotations']['resource.appr/hash']
+    rhash = ks._gethash(kbody)
+    assert rhash == kbody['metadata']['annotations']['resource.appr/hash']
 
 
 def test_get_empty(ns_resource):
     k = Kubernetes(body=ns_resource['body'])
-    assert k.apprhash is None
+    assert k._gethash(k.obj) is None
 
 
 def test_check_cmd(svc_resource, subcall_cmd):
@@ -201,7 +201,7 @@ def test_create_force(svc_resource, subcall_cmd, monkeypatch):
 
     monkeypatch.setattr("appr.platforms.kubernetes.Kubernetes.get", get)
     k = Kubernetes(body=svc_resource['body'])
-    assert k.create(force=True) == "replaced"
+    assert k.create(force=True) == "updated"
 
 
 def test_create_ok_nohash(ns_resource, subcall_cmd, monkeypatch):

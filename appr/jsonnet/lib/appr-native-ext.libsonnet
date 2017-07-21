@@ -19,6 +19,11 @@
       std.native("read")(filepath, encode)
    ),
 
+   # Get a ENV value
+   getenv(name, default=null):: (
+      std.native("getenv")(name, default)
+   ),
+
    # Random alpha-numeric string of length `size`
    randAlphaNum(size=32, seed=""):: (
       std.native("rand_alphanum")(std.toString(size), seed=seed)
@@ -90,9 +95,9 @@
       std.native("yaml_loads")(data)),
 
    tests: {
-        capitalize: (assert apprnative.capitalize("test") == 'Test'; true),
         b64encode: (assert apprnative.b64encode("toto") == "dG90bw=="; true),
         b64decode: (assert apprnative.b64decode(apprnative.b64encode("toto")) == "toto"; true),
-
+        getenv: (assert std.length(apprnative.getenv("HOME")) > 0;
+                 assert apprnative.getenv("BAD_ENV_APPR", "default_value") == "default_value"; true),
         },
 }

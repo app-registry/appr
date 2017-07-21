@@ -1,11 +1,12 @@
 import os
 import json
 import argparse
-from appr.render_jsonnet import RenderJsonnet
 from appr.commands.command_base import CommandBase, LoadVariables
+from appr.render_jsonnet import RenderJsonnet
 
 
 class JsonnetCmd(CommandBase):
+
     name = 'jsonnet'
     help_message = "Resolve a jsonnet file"
 
