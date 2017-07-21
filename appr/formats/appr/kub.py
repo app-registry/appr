@@ -1,6 +1,5 @@
 from __future__ import absolute_import, division, print_function
 
-import hashlib
 import json
 import logging
 import os
@@ -51,7 +50,6 @@ class Kub(KubBase):
 
     # @TODO do it in jsonnet
     def _annotate_resource(self, kub, resource):
-        sha = None
         if 'annotations' not in resource['value']['metadata']:
             resource['value']['metadata']['annotations'] = {}
 

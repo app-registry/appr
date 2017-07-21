@@ -172,9 +172,7 @@ class CommandBase(object):
             'text', 'none', 'json', 'yaml'], help="output format")
 
     @classmethod
-    def _add_mediatype_option(cls, parser, default=None, required=False):
-        if default is None:
-            default = cls.default_media_type
+    def _add_mediatype_option(cls, parser, default="-", required=False):
         if default is not None:
             required = False
 

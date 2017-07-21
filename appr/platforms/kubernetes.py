@@ -114,10 +114,12 @@ class Kubernetes(object):
 
     def _gethash(self, src):
         # Copy rand value
-        if (src is not None and ANNOTATIONS['rand'] in src['metadata'].get('annotations', {})
-            and ANNOTATIONS['rand'] not in self.obj['metadata']['annotations']):
-            self.obj['metadata']['annotations'][ANNOTATIONS['rand']] = src['metadata']['annotations'][ANNOTATIONS['rand']]
+        if (src is not None and ANNOTATIONS['rand'] in src['metadata'].get('annotations', {}) and
+                ANNOTATIONS['rand'] not in self.obj['metadata']['annotations']):
+            self.obj['metadata']['annotations'][ANNOTATIONS['rand']] = src['metadata'][
+                'annotations'][ANNOTATIONS['rand']]
 
+        # TODO(ant31) it should hash before the custom annotations
         if ANNOTATIONS['hash'] in self.obj['metadata'].get('annotations', {}):
             if self.obj['metadata']['annotations'][ANNOTATIONS['hash']] is None:
                 sha = hashlib.sha256(json.dumps(self.obj, sort_keys=True)).hexdigest()

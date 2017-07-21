@@ -29,20 +29,22 @@ server_requirements = [
 ]
 
 cli_requirements = [
+    'urllib3<1.22',
     'tabulate',
     'termcolor',
     'pyyaml',
 ]
 
 extra_requirements = [
-    'urllib3[secure]',
-    'jsonnet',
+    'urllib3[secure]<1.22',
     'jinja2>=2.8',
     'jsonpatch',
     'tabulate',
     'ecdsa',
     'cryptography',
     ]
+
+optional_requirements = ['jsonnet']
 
 test_requirements = [
     "pytest",
@@ -63,7 +65,7 @@ requirements = base_requirements + cli_requirements + server_requirements + extr
 
 setup(
     name='appr',
-    version='0.6.2',
+    version='0.7.0-pre',
     description="cloud-native app registry server",
     long_description=readme,
     author="Antoine Legrand",
@@ -85,7 +87,7 @@ setup(
         'appr.models.kv.redis',
         'appr.models.kv.filesystem',
     ],
-    scripts=['bin/appr'],
+    scripts=['bin/appr', 'bin/apprc'],
     package_dir={'appr': 'appr'},
     include_package_data=True,
     install_requires=requirements,
@@ -101,4 +103,5 @@ setup(
     ],
     setup_requires=['pytest-runner'],
     test_suite='tests',
+    dependency_links=['https://github.com/requests/requests/tarball/master#egg=requests'],
     tests_require=test_requirements,)

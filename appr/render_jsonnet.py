@@ -5,8 +5,6 @@ import logging
 import os
 import os.path
 import re
-
-import _jsonnet
 import jinja2
 import yaml
 
@@ -96,6 +94,8 @@ class RenderJsonnet(object):
         raise RuntimeError('File not found')
 
     def render_jsonnet(self, manifeststr, tla_codes=None):
+        # @TODO(ant31): workaround until jsonnet compile on windows
+        import _jsonnet
         try:
             json_str = _jsonnet.evaluate_snippet(  # pylint: disable=no-member
                 "snippet", manifeststr, import_callback=self.import_callback,
