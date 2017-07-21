@@ -3,6 +3,7 @@
 [![Swagger API Reference](https://img.shields.io/badge/swagger-docs-blue.svg)](Documentation/server/appr-api-swagger.yaml)
 
 # APPR Command Line Tool
+[CLI commands overview](Documentation/quick-start.md)
 
 ## Install the Helm Registry Plugin
 
