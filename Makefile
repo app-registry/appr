@@ -110,19 +110,25 @@ yapf-test: yapf-diff
 
 
 docker-build:
-	docker build -t quay.io/appr/appr:$(VERSION) .
-	docker tag quay.io/appr/appr:$(VERSION) quay.io/appr/appr:latest
+	docker build -t quay.io/appr/appr:v$(VERSION) .
+	docker tag quay.io/appr/appr:v$(VERSION) quay.io/appr/appr:latest
+
+docker-kubectl:
+	docker build --build-arg with_kubectl=true -t quay.io/appr/appr:v$(VERSION)-kubectl .
+	docker tag quay.io/appr/appr:v$(VERSION)-kubectl quay.io/appr/appr:kubectl
+	docker push quay.io/appr/appr:v$(VERSION)-kubectl
+	docker push quay.io/appr/appr:kubectl
 
 docker-push-tag: docker-push
-	docker push quay.io/appr/appr:$(VERSION)
+	docker push quay.io/appr/appr:v$(VERSION)
 
-docker-push: docker-build
+docker-push: docker-build docker-kubectl
 	docker push quay.io/appr/appr:latest
 
 docker-test:
 	docker build -t quay.io/appr/appr:test -f test.Dockerfile .
 	docker push quay.io/appr/appr:test
 
-docker-pip:
-	docker build -t quay.io/appr/appr:master-pip -f appr-pip.Dockerfile .
-	docker push quay.io/appr/appr:master-pip
+docker-base:
+	docker build  -f Dockerfile.base -t quay.io/appr/appr:base .
+	docker push quay.io/appr/appr:base
