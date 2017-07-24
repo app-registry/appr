@@ -1,3 +1,22 @@
+## 0.7.0 Released on 2017-07-24
+
+- Introduce client-side deployments handling multiple formats:
+  - [ ] [Helm](https://github.com/kubernetes/helm)
+  - [x] [appr](https://github.com/coreos/kpm)
+  - [ ] Plain kubernetes configuration
+
+- Add jsonnet support for future integration with [ksonnet](https://github.com/ksonnet/ksonnet-lib)
+
+- New commands:
+
+``` shell
+# Resolve a jsonnet file, with a set of nativeExtension available
+appr jsonnet FILE
+
+# Client side deployment command
+appr deploy quay.io/ant31/kube-lego --namespace kube-lego
+```
+
 ## 0.6.2 Released on 2017-07-10
 
 - Add options to allow unverified certs or custom CA.
