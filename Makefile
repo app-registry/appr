@@ -122,3 +122,7 @@ docker-push: docker-build
 docker-test:
 	docker build -t quay.io/appr/appr:test -f test.Dockerfile .
 	docker push quay.io/appr/appr:test
+
+docker-pip:
+	docker build -t quay.io/appr/appr:master-pip -f appr-pip.Dockerfile .
+	docker push quay.io/appr/appr:master-pip

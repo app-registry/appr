@@ -4,7 +4,7 @@ ENV workdir /opt/appr-server
 RUN mkdir -p $workdir
 RUN apk --no-cache --update add python py-pip openssl ca-certificates
 RUN apk --no-cache --update add --virtual build-dependencies \
-      python-dev build-base wget openssl-dev libffi-dev
+      python-dev build-base wget openssl-dev libffi-dev libstdc++
 ADD . $workdir
 WORKDIR $workdir
 

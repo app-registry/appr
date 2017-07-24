@@ -29,13 +29,14 @@ server_requirements = [
 ]
 
 cli_requirements = [
+    'urllib3<1.22',
     'tabulate',
     'termcolor',
     'pyyaml',
 ]
 
 extra_requirements = [
-    'urllib3[secure]',
+    'urllib3[secure]<1.22',
     'jsonnet',
     'jinja2>=2.8',
     'jsonpatch',
