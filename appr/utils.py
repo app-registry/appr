@@ -6,7 +6,6 @@ import importlib
 import os
 import os.path
 import re
-import sys
 import itertools
 from termcolor import colored
 
@@ -137,7 +136,7 @@ def convert_utf8(data):
             return type(data)(map(convert_utf8, data))
         else:
             return data
-    except UnicodeEncodeError as exc:
+    except UnicodeEncodeError:
         return data
 
 

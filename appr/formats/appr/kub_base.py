@@ -113,9 +113,8 @@ class KubBase(FormatBase):
                     'variables': self.variables}
                 kub = self.kubClass(dep['name'], endpoint=self.endpoint,
                                     version=parse_version_req(dep.get('version', None)),
-                                    variables=variables,
-                                    resources=dep.get('resources', None), shards=dep.get(
-                                        'shards', None), namespace=self.namespace)
+                                    variables=variables, resources=dep.get('resources', None),
+                                    shards=dep.get('shards', None), namespace=self.namespace)
                 self._dependencies.append(kub)
             else:
                 self._dependencies.append(self)

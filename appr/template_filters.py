@@ -124,6 +124,7 @@ def walkdir(path):
             files.append(os.path.join(root, filename))
     return files
 
+
 def jsonnet(val, env=None):
     from appr.render_jsonnet import RenderJsonnet
     from appr.utils import convert_utf8
@@ -203,13 +204,13 @@ def jinja_filters():
 
 def jsonnet_callbacks():
     filters = {
-        'getenv': (('value', 'default',), getenv),
+        'getenv': (('value', 'default', ), getenv),
         'b64encode': (('value', ), b64encode),
         'b64decode': (('value', ), b64decode),
-        'path_exists': (('path', 'isfile',), path_exists),
+        'path_exists': (('path', 'isfile', ), path_exists),
         'walkdir': (('path', ), walkdir),
         'listdir': (('path', ), listdir),
-        'read': (('filepath', 'b64encodee',), readfile),
+        'read': (('filepath', 'b64encodee', ), readfile),
         'hash': (('data', 'hashtype'), get_hash),
         'to_yaml': (('value', ), json_to_yaml),
         'rand_alphanum': (('size', 'seed'), rand_alphanum),

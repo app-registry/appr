@@ -10,7 +10,6 @@ from appr.client import ApprClient
 from appr.pack import ApprPackage
 from appr.utils import mkdir_p, parse_package_name, parse_version_req
 
-
 DEFAULT_CHARTS = "appr_charts"
 
 
