@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-
+import sys
 import collections
 import errno
 import importlib
@@ -140,6 +140,7 @@ def convert_utf8(data):
     except UnicodeEncodeError as exc:
         return data
 
+
 # from celery/kombu https://github.com/celery/celery (BSD license)
 def symbol_by_name(name, aliases={}, imp=None, package=None, sep='.', default=None, **kwargs):
     """Get symbol by qualified name.
@@ -205,6 +206,14 @@ def symbol_by_name(name, aliases={}, imp=None, package=None, sep='.', default=No
     return default
 
 
+def flatten(array):
+    return list(itertools.chain(*array))
+
+
+def isbundled():
+    return getattr(sys, 'frozen', False)
+
+
 def get_current_script_path():
     executable = sys.executable
     if os.path.basename(executable) == "appr":
@@ -214,5 +223,11 @@ def get_current_script_path():
     return os.path.realpath(path)
 
 
-def flatten(array):
-    return list(itertools.chain(*array))
+def abspath(relative_path):
+    """ Get absolute path """
+    if isbundled():
+        base_path = sys.executable
+    else:
+        base_path = os.path.abspath(".")
+
+    return os.path.realpath(os.path.join(base_path, relative_path))

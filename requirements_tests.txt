@@ -8,3 +8,4 @@ flake8
 pylint
 pep8
 tox
+pytest-sugar

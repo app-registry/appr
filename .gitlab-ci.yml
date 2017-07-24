@@ -71,8 +71,8 @@ compile:
   <<: *job
   stage: release
   script:
-    - pip install pyinstaller
-    - pyinstaller --onefile bin/appr --hidden-import gunicorn.glogging --hidden-import gunicorn.workers.gthread --hidden-import gunicorn.workers
+    - pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip
+    - pyinstaller --add-data "appr/jsonnet/:appr/jsonnet" --onefile bin/appr
   artifacts:
     paths:
       - dist/appr

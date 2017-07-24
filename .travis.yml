@@ -19,7 +19,7 @@ matrix:
         - BIN_NAME=appr-$TRAVIS_OS_NAME-x64
 
 install:
-  - if [ "$MAKECMD" == "test" ] ; then pip install -U pyinstaller ; fi
+  - if [ "$MAKECMD" == "test" ] ; then pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip ; fi
   - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then pip install -U coveralls ; fi
   - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then pip install -U codecov ; fi
   - pip install -r requirements_tests.txt
@@ -31,7 +31,7 @@ script:
 
 after_success:
   - echo $BIN_NAME
-  - if [ "$MAKECMD" == "test" ] ; then pyinstaller --onefile bin/appr --hidden-import gunicorn.glogging --hidden-import gunicorn.workers.gthread --hidden-import gunicorn.workers ; fi
+  - if [ "$MAKECMD" == "test" ] ; then pyinstaller --add-data "appr/jsonnet/:appr/jsonnet" --onefile bin/appr ; fi
   - if [ "$MAKECMD" == "test" ] ; then mkdir -p appr-helm/registry; fi
   - if [ "$MAKECMD" == "test" ] ; then mv dist/appr $BIN_NAME; fi
   - if [ "$MAKECMD" == "test" ] ; then chmod +x $BIN_NAME; fi
