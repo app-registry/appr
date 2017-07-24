@@ -21,7 +21,6 @@ matrix:
 install:
   - if [ "$MAKECMD" == "test" ] ; then pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip ; fi
   - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then pip install -U coveralls ; fi
-  - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then pip install -U codecov ; fi
   - pip install -r requirements_dev.txt
   - pip install -e .
 
@@ -36,7 +35,6 @@ after_success:
   - if [ "$MAKECMD" == "test" ] ; then chmod +x $BIN_NAME; fi
   - if [ "$MAKECMD" == "test" ] ; then cp $BIN_NAME appr-helm/registry/appr; fi
   - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then coveralls ; fi
-  - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then codecov ; fi
 
 
 deploy:
