@@ -1,16 +1,22 @@
-bumpversion>=0.5.3
-coverage>=4.0
+# Missing no:color in upstream
+-e git+https://github.com/ant31/pytest-sugar.git#egg=pytest-sugar
+
+# Missing: --add-data in pypi
+-e git+https://github.com/pyinstaller/pyinstaller.git#egg=pyinstaller
+
+bumpversion
+coverage
 flake8
-pytest>=2.9.1
-pytest-cov>=2.2.1
-pytest-flask>=0.10.0
-pytest-ordering
-python-etcd>=0.4.3
-requests-mock
-tox>=2.1.1
-sphinxcontrib-napoleon
-gunicorn>=0.19
-yapf
+gunicorn
 pep8
+
 pylint
-pyinstaller
+pytest
+pytest-cov
+pytest-flask
+pytest-ordering
+python-etcd
+requests-mock
+sphinxcontrib-napoleon
+tox
+yapf

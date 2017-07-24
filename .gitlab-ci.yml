@@ -22,7 +22,7 @@ cache:
     - make test db=$APPR_TEST_DB
   tags:
     - kubernetes
-  image: quay.io/appr/appr:test
+  image: quay.io/appr/appr:master-pip
 
 test-filesystem:
   <<: *job

@@ -22,7 +22,6 @@ install:
   - if [ "$MAKECMD" == "test" ] ; then pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip ; fi
   - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then pip install -U coveralls ; fi
   - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then pip install -U codecov ; fi
-  - pip install -r requirements_tests.txt
   - pip install -r requirements_dev.txt
   - pip install -e .
 
