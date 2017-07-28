@@ -43,6 +43,7 @@ deploy:
   overwrite: true
   file:
     - $BIN_NAME
+    - bin/apprc
   skip_cleanup: true
   on:
     tags: true

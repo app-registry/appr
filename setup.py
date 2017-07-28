@@ -86,7 +86,7 @@ setup(
         'appr.models.kv.redis',
         'appr.models.kv.filesystem',
     ],
-    scripts=['bin/appr'],
+    scripts=['bin/appr', 'bin/apprc'],
     package_dir={'appr': 'appr'},
     include_package_data=True,
     install_requires=requirements,
