@@ -5,7 +5,7 @@ import datetime
 import semantic_version
 from appr.semver import last_version, select_version
 from appr.exception import (
-    InvalidRelease, PackageAlreadyExists, raise_package_not_found, PackageReleaseNotFound)
+    InvalidUsage, InvalidRelease, PackageAlreadyExists, raise_package_not_found, PackageReleaseNotFound)
 
 from appr.models.blob_base import BlobBase
 
@@ -154,8 +154,16 @@ class PackageBase(object):
         try:
             semantic_version.Version(release)
         except ValueError as e:
-            raise InvalidRelease(e.message, {"version": release})
+            raise InvalidRelease(str(e), {"version": release})
         return None
+
+    @classmethod
+    def _find_media_type(cls, package, release):
+        manifests = cls.manifests(package, release)
+        if len(manifests) != 1:
+            raise InvalidUsage("media-type non specified: [%s]" % ','.join(manifests))
+        else:
+            return manifests[0]
 
     @classmethod
     def get(cls, package, release, media_type):
@@ -166,6 +174,8 @@ class PackageBase(object):
         returns: (package blob(targz) encoded in base64, release)
         """
         p = cls(package, release)
+        if media_type == "-":
+            media_type = cls._find_media_type(package, release)
         p.pull(release, media_type)
         return p
 
@@ -253,4 +263,5 @@ class PackageBase(object):
 
     @classmethod
     def manifests(cls, package, release):
+        """ Returns an array of string """
         raise NotImplementedError
