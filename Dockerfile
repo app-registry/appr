@@ -21,7 +21,7 @@ RUN /pyinstaller/pyinstaller.sh --onefile --noconfirm \
 from alpine:latest
 ARG with_kubectl=false
 ENV HOME=/appr
-RUN mkdir -p /opt/bin && mkdir -p /opt/bin/k8s && mkdir $HOME
+RUN mkdir -p /opt/bin && mkdir -p /opt/bin/k8s && mkdir $HOME && mkdir -p $HOME/local
 ENV PATH=${PATH}:/opt/bin:/opt/bin/k8s
 RUN apk --no-cache add ca-certificates
 ENV WITH_KUBECTL ${with_kubectl}
@@ -31,6 +31,8 @@ RUN if [ "$WITH_KUBECTL" = true ]; then \
     && chmod +x ./kubectl \
     && cp ./kubectl /opt/bin/k8s; \
     fi
+
+WORKDIR /appr/local
 
 COPY --from=0 /opt/appr-server/dist/appr /opt/bin
 RUN appr plugins install helm
