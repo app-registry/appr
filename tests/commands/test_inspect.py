@@ -31,12 +31,6 @@ def test_inspect_tree(cli_parser, package_blob, capsys):
         assert out == "\n".join(default_out)
 
 
-def test_inspect_no_media_type(cli_parser, package_blob, capsys):
-    with pytest.raises(SystemExit) as exc:
-        inspectcmd = get_inspectcmd(cli_parser, ["kpm.sh/foo/bar@1.0.0", "--tree"])
-    assert exc.value.code == 2
-
-
 def test_inspect_default(cli_parser, package_blob, capsys):
     """ Default is the tree view """
     inspectcmd = get_inspectcmd(cli_parser, ["kpm.sh/foo/bar@1.0.0", "-t", "helm", "--tree"])

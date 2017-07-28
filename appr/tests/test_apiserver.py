@@ -112,6 +112,15 @@ class TestServer:
         res = self.Client(client, self.headers()).get(url)
         assert res.status_code == 404
 
+    def test_pull_package_default_media_type(self, db_with_data1, client):
+        package = "titi/rocketchat"
+        release = "1.0.1"
+        media_type = "-"
+        url = self._url_for("api/v1/packages/%s/%s/%s/pull" % (package, release, media_type))
+        res = self.Client(client, self.headers()).get(url, params={'format': 'json'})
+        assert res.status_code == 200
+        assert self.json(res)['media_type'] == "kpm"
+
     def test_pull_package_bad_release(self, db_with_data1, client):
         package = "titi/rocketchat"
         release = "abc"
