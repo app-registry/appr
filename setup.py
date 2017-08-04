@@ -37,13 +37,14 @@ cli_requirements = [
 
 extra_requirements = [
     'urllib3[secure]<1.22',
-    'jsonnet',
     'jinja2>=2.8',
     'jsonpatch',
     'tabulate',
     'ecdsa',
     'cryptography',
     ]
+
+optional_requirements = ['jsonnet']
 
 test_requirements = [
     "pytest",
@@ -102,4 +103,5 @@ setup(
     ],
     setup_requires=['pytest-runner'],
     test_suite='tests',
+    dependency_links=['https://github.com/requests/requests/tarball/master#egg=requests'],
     tests_require=test_requirements,)

@@ -21,7 +21,7 @@ matrix:
 install:
   - if [ "$MAKECMD" == "test" ] ; then pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip ; fi
   - if [ "$MAKECMD" == "test" ] && [ "$TRAVIS_OS_NAME" == "linux" ] ; then pip install -U coveralls ; fi
-  - pip install -r requirements_dev.txt
+  - pip install -r requirements_dev.txt -U
   - pip install -e .
 
 script:

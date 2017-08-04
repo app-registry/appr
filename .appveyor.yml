@@ -29,19 +29,15 @@ install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "pip install setuptools>=6.0"
   - "python --version"
-  - "git clone https://github.com/google/jsonnet.git"
-  - "cd jsonnet"
-  - "python setup.py build --compiler=mingw64"
-  # # Upgrade to the latest version of pip to avoid it displaying warnings
-  # # about it being out of date.
-  # - "pip install --disable-pip-version-check --user --upgrade pip"
+  # Upgrade to the latest version of pip to avoid it displaying warnings
+  # about it being out of date.
+  - "pip install --disable-pip-version-check --user --upgrade pip"
 
   # # We need wheel installed to build wheels
-  # # - "pip install -r requirements_dev.txt"
+  - "pip install -r requirements_dev.txt"
   # - "pip install jsonnet"
-  # - "pip install -e ."
-  # - "pip install -e git+https://github.com/pyinstaller/pyinstaller.git#egg=pyins
-#  taller"
+   - "pip install -e ."
+   - "pip install -e git+https://github.com/pyinstaller/pyinstaller.git#egg=pyinstaller"
 build: off
 
 
@@ -54,15 +50,13 @@ after_test:
   - "pyinstaller --add-data appr/jsonnet;appr/jsonnet --onefile bin/appr"
   - ps: "ls dist"
   - "copy dist\\appr.exe %BIN_NAME%.exe"
-  - "mkdir registry"
-  - "copy dist\\appr.exe registry\\appr.exe"
-  - "7z a registry-%BIN_NAME%-helm-plugin.zip registry\\*.*"
-  - ps: "ls dist"
-  - ps: "ls registry"
+  # - "mkdir registry"
+  # - "copy dist\\appr.exe registry\\appr.exe"
+  # - "7z a registry-%BIN_NAME%-helm-plugin.zip registry\\*.*"
+  # - ps: "ls dist"
+  # - ps: "ls registry"
   - "C:\\projects\\appr\\registry\\appr.exe version quay.io"
 
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report.
   - path: "%BIN_NAME%.exe"
-  - path: registry-%BIN_NAME%-helm-plugin.zip
-    type: zip
