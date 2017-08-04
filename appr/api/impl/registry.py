@@ -84,6 +84,7 @@ def pull(package, version_query, media_type, package_class, blob_class):
         "package": package,
         "blob": blob.b64blob,
         "release": packagemodel.release,
+        "media_type": packagemodel.media_type,
         "filename": "%s_%s.tar.gz" % (packagemodel.package.replace("/", "_"), packagemodel.release)
     }
     return resp

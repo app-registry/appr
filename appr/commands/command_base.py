@@ -44,7 +44,7 @@ class CommandBase(object):
     name = 'command-base'
     help_message = 'describe the command'
     RegistryClient = ApprClient
-    default_media_type = None
+    default_media_type = "-"
     parse_unknown = False
     output_default = 'text'
 
@@ -123,7 +123,7 @@ class CommandBase(object):
                             help="output format")
 
     @classmethod
-    def _add_mediatype_option(cls, parser, default=None, required=True):
+    def _add_mediatype_option(cls, parser, default=None, required=False):
         if default is None:
             default = cls.default_media_type
         if default is not None:
