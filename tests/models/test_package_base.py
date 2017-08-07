@@ -1,8 +1,11 @@
-import pytest
+from __future__ import absolute_import, division, print_function
+
 import os
+
+import pytest
+
 from appr.models.kv.etcd.package import Package as PackageEtcd
 from appr.models.package_base import PackageBase
-
 
 PACKAGE_CLASSES = ([PackageEtcd, PackageBase], ['appr.etcd', 'appr.base'])
 @pytest.fixture(params=PACKAGE_CLASSES[0], ids=PACKAGE_CLASSES[1])

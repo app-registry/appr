@@ -1,7 +1,11 @@
-import pytest
-import appr.semver
-import random
+from __future__ import absolute_import, division, print_function
+
 import copy
+import random
+
+import pytest
+
+import appr.semver
 
 
 @pytest.fixture(scope='module')

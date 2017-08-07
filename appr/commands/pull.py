@@ -1,6 +1,9 @@
+from __future__ import absolute_import, division, print_function
+
 import os
-from appr.pack import ApprPackage
+
 from appr.commands.command_base import CommandBase
+from appr.pack import ApprPackage
 
 
 class PullCmd(CommandBase):
@@ -33,6 +36,7 @@ class PullCmd(CommandBase):
         client = self.RegistryClient(self.registry_host, requests_verify=self.ssl_verify)
         pullpack = client.pull_json(self.package, version_parts=self.version_parts,
                                     media_type=self.media_type)
+        self.media_type = pullpack.get('media_type', '-')
         package = ApprPackage(pullpack['blob'], b64_encoded=True)
         filename = pullpack['filename']
         self.path = os.path.join(self.dest, filename)
@@ -48,8 +52,7 @@ class PullCmd(CommandBase):
             "pull": self.package,
             "media_type": self.media_type,
             "version": self.version,
-            "path": self.path
-        }
+            "path": self.path}
 
     def _render_console(self):
         return "Pull package: %s... \n%s" % (self.package, self.path)

@@ -1,8 +1,11 @@
+from __future__ import absolute_import, division, print_function
+
 import pytest
 import requests
 import requests_mock
+
 import appr
-from appr.client import ApprClient, DEFAULT_REGISTRY, DEFAULT_PREFIX
+from appr.client import DEFAULT_PREFIX, DEFAULT_REGISTRY, ApprClient
 from appr.commands.version import VersionCmd
 
 

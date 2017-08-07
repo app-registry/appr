@@ -1,6 +1,8 @@
-from __future__ import print_function
-import sys
+from __future__ import absolute_import, division, print_function
+
 import os.path
+import sys
+
 import yaml
 
 __all__ = ['ManifestChart']

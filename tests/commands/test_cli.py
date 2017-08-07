@@ -1,7 +1,9 @@
+from __future__ import absolute_import, division, print_function
+
 import pytest
 from pytest import raises
 
-from appr.commands.cli import get_parser, all_commands, cli
+from appr.commands.cli import all_commands, cli, get_parser
 
 
 # Real-test are in test_integration

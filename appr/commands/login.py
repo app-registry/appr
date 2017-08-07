@@ -1,7 +1,8 @@
-from builtins import input
+from __future__ import absolute_import, division, print_function
 
-import getpass
 import argparse
+import getpass
+from builtins import input
 
 from appr.commands.command_base import CommandBase
 

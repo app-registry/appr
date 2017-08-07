@@ -1,35 +1,26 @@
+from __future__ import absolute_import, division, print_function
+
 import base64
+import fnmatch
+import glob
 import gzip
 import hashlib
-import tarfile
-import glob
 import io
 import os
-import fnmatch
-
-# 1. download the package
-# 2. untar it to dest directory with the packagename_version/
-# 3. open and read manifest.yaml
-# 4. interate on deploy and download if not present (packagename_version/deps/deppackagename_version.kub) and extract
-#    the packages to packagename_version/deps/deppackagename_version/.
-# 5. interate on deploy and load manifest.yml of all packages
-# 6. foreach manifest create the files to packagename_version/resources
-# 7. foreach manifest check if resources exists are create it
-#
+import tarfile
 
 AUTHORIZED_FILES = [
-    "*.libjsonnet", "*.jsonnet", "*.yaml", "README.md", "LICENSE", "AUTHORS", "NOTICE",
-    "manifests", "deps/*.kub"
-]
+    "*.libsonnet", "*.libjsonnet", "*.jsonnet", "*.yaml", "README.md", "LICENSE", "AUTHORS",
+    "NOTICE", "manifests", "deps/*.kub"]
 
-AUTHORIZED_TEMPLATES = ["*.yaml", "*.jsonnet", "*.libjsonnet", "*.yml", "*.j2"]
+AUTHORIZED_TEMPLATES = ["*.yaml", "*.jsonnet", "*.libjsonnet", "*.yml", "*.j2", "*.libsonnet"]
 
 
 def authorized_files():
     files = []
     for name in AUTHORIZED_FILES:
-        for f in glob.glob(name):
-            files.append(f)
+        for filename in glob.glob(name):
+            files.append(filename)
     for root, _, filenames in os.walk('templates'):
         for name in AUTHORIZED_TEMPLATES:
             for filename in fnmatch.filter(filenames, name):
@@ -54,7 +45,7 @@ def all_files():
                     skip = True
                     break
             if not skip:
-                files.append(path)
+                files.append(path.replace("./", ""))
     return files
 
 
@@ -67,7 +58,7 @@ def pack_kub(kub, filter_files=True, prefix=None):
     for filepath in files:
         arcname = None
         if prefix:
-            arcname = os.path.join(prefix, filepath.replace("./", ""))
+            arcname = os.path.join(prefix, filepath)
         tar.add(filepath, arcname=arcname)
 
     tar.close()
@@ -86,6 +77,7 @@ class ApprPackage(object):
         self.blob = None
         self.io_file = None
         self._digest = None
+        self._size = None
         self.b64blob = None
         if blob is not None:
             self.load(blob, b64_encoded)
@@ -103,18 +95,17 @@ class ApprPackage(object):
         self._load_blob(blob, b64_encoded)
         self.io_file = io.BytesIO(self.blob)
         self.tar = tarfile.open(fileobj=self.io_file, mode='r:gz')
-        for m in self.tar.getmembers():
-            tf = self.tar.extractfile(m)
-            if tf is not None:
-                self.files[tf.name] = tf.read()
+        for member in self.tar.getmembers():
+            tfile = self.tar.extractfile(member)
+            if tfile is not None:
+                self.files[tfile.name] = tfile.read()
 
     def extract(self, dest):
         self.tar.extractall(dest)
 
     def pack(self, dest):
-        f = open(dest, "wb")
-        f.write(self.blob)
-        f.close()
+        with open(dest, "wb") as destfile:
+            destfile.write(self.blob)
 
     def tree(self, directory=None):
         files = list(self.files.keys())
@@ -129,14 +120,6 @@ class ApprPackage(object):
     def file(self, filename):
         return self.files[filename]
 
-    def isjsonnet(self):
-        if "manifest.yaml" in self.files:
-            return False
-        elif "manifest.jsonnet" in self.files:
-            return True
-        else:
-            raise RuntimeError("Unknown manifest format")
-
     @property
     def manifest(self):
         manifests_files = ["manifest.yaml", "manifest.jsonnet", "Chart.yaml", "Chart.yml"]
@@ -146,9 +129,17 @@ class ApprPackage(object):
         raise RuntimeError("Unknown manifest format")
 
     @property
+    def size(self):
+        if self._size is None:
+            self.io_file.seek(0, os.SEEK_END)
+            self._size = self.io_file.tell()
+        return self._size
+
+    @property
     def digest(self):
         if self._digest is None:
             self.io_file.seek(0)
             gunzip = gzip.GzipFile(fileobj=self.io_file, mode='r').read()
             self._digest = hashlib.sha256(gunzip).hexdigest()
+            self.io_file.seek(0)
         return self._digest

@@ -1,4 +1,6 @@
-import appr.packager as packager
+from __future__ import absolute_import, division, print_function
+
+import appr.pack as packager
 
 DEFAULT_MEDIA_TYPE = 'kpm'
 
@@ -6,7 +8,7 @@ DEFAULT_MEDIA_TYPE = 'kpm'
 class BlobBase(object):
     def __init__(self, package_name, blob, b64_encoded=True):
         self.package = package_name
-        self.packager = packager.Package(blob, b64_encoded)
+        self.packager = packager.ApprPackage(blob, b64_encoded)
 
     @classmethod
     def get(cls, package_name, digest):

@@ -1,13 +1,13 @@
+from __future__ import absolute_import, division, print_function
+
 import json
+
 import etcd
 import pytest
-from appr.models.kv.etcd.package import Package
-from appr.models.kv.etcd.blob import Blob
-from appr.exception import (
-    InvalidRelease,
-    UnableToLockResource
-    )
 
+from appr.exception import InvalidRelease, UnableToLockResource
+from appr.models.kv.etcd.blob import Blob
+from appr.models.kv.etcd.package import Package
 
 
 class MockEtcdResult(object):

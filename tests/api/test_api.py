@@ -1,7 +1,9 @@
-import pytest
-from appr.tests.test_apiserver import ServerTest
-from appr.tests.conftest import db_names
+from __future__ import absolute_import, division, print_function
 
+import pytest
+
+from appr.tests.conftest import db_names
+from appr.tests.test_apiserver import ServerTest
 
 if 'redis' in db_names():
     class TestServerRedis(ServerTest):

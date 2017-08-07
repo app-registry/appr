@@ -1,14 +1,16 @@
+from __future__ import absolute_import, division, print_function
+
 import os
+
 import etcd
 
-from appr.exception import Forbidden
-
-from appr.models.db_base import ApprDB
 import appr.models.kv
+from appr.exception import Forbidden
+from appr.models.db_base import ApprDB
 from appr.models.kv.etcd import etcd_client
-from appr.models.kv.etcd.package import Package
-from appr.models.kv.etcd.channel import Channel
 from appr.models.kv.etcd.blob import Blob
+from appr.models.kv.etcd.channel import Channel
+from appr.models.kv.etcd.package import Package
 
 
 class EtcdDB(ApprDB):
