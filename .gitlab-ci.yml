@@ -1,15 +1,12 @@
 stages:
+  - init
+  - tests
+  - build
   - release
 
-  - build
-  - init
-  - unit-tests
-  - code-style
-  - integration-tests
 variables:
   FAILFASTCI_NAMESPACE: 'failfast-ci'
   IMAGE: quay.io/appr/appr
-
 
 cache:
   paths:
@@ -27,7 +24,7 @@ cache:
 
 test-filesystem:
   <<: *job
-  stage: unit-tests
+  stage: tests
   script:
     - pip install -U python-coveralls
     - make test
@@ -37,7 +34,7 @@ test-filesystem:
 
 test-etcd:
   <<: *job
-  stage: integration-tests
+  stage: tests
   services:
     - quay.io/coreos/etcd:v3.0.6
   variables:
@@ -46,7 +43,7 @@ test-etcd:
 
 test-redis:
   <<: *job
-  stage: integration-tests
+  stage: tests
   services:
     - redis:3
   variables:
@@ -55,16 +52,17 @@ test-redis:
 
 flake8:
   <<: *job
-  stage: code-style
+  stage: tests
   script:
     - make flake8
 
 pylint:
   <<: *job
-  stage: code-style
+  stage: tests
   script:
     - pip install pylint
     - make pylint
+
 
 compile:
   variables:
@@ -102,29 +100,24 @@ docker-build:
     - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
     - docker push $IMAGE:$CI_BUILD_REF_NAME
 
-# docker-build-test:
-#   <<: *docker
-#   stage: init
-#   script:
-#     - make build-test
-#   when: manual
+docker-build-base:
+  <<: *docker
+  stage: init
+  script:
+    - docker build  -f Dockerfile.base -t quay.io/appr/appr:base .
+    - docker push quay.io/appr/appr:base
+  when: manual
 
-# .docker-push: &docker-push
-#   <<: *docker
-# #  stage: release
-#   script:
-#     - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
-#     - docker push $IMAGE:$CI_BUILD_REF_NAME
+docker-release:
+  <<: *docker
+  stage: release
+  script:
+    - docker build --build-arg with_kubectl=true -t quay.io/appr/appr:v$(VERSION)-kubectl .
+    - docker build --build-arg with_kubectl=false -t quay.io/appr/appr .
 
-# docker-release:
-#   <<: *docker-push
-#   only:
-#     - tags
-#     - master
-
-# docker-push:
-#   <<: *docker-push
-#   except:
-#     - tags
-#     - master
-#   when: manual
+    - docker tag quay.io/appr/appr:v$(VERSION)-kubectl quay.io/appr/appr:kubectl
+    - docker push quay.io/appr/appr:v$(VERSION)-kubectl
+    - docker push quay.io/appr/appr:kubectl
+    - docker push quay.io/appr/appr
+  only:
+    - master
