@@ -1,12 +1,14 @@
+from __future__ import absolute_import, division, print_function
+
 import json
-import pytest
+
 import etcd
+import pytest
+
+from appr.exception import (InvalidRelease, PackageAlreadyExists,
+                            UnableToLockResource)
 from appr.models.kv.etcd.package import Package
-from appr.exception import (
-    InvalidRelease,
-    UnableToLockResource,
-    PackageAlreadyExists
-    )
+
 
 @pytest.fixture()
 def release_data():

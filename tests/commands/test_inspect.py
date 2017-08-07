@@ -1,7 +1,10 @@
+from __future__ import absolute_import, division, print_function
+
 import pytest
 import requests_mock
-from appr.commands.inspect import InspectCmd
+
 from appr.client import DEFAULT_PREFIX
+from appr.commands.inspect import InspectCmd
 
 
 def get_inspectcmd(cli_parser, args=[]):
@@ -26,12 +29,6 @@ def test_inspect_tree(cli_parser, package_blob, capsys):
         default_out = ["README.md", "manifest.yaml", "templates/rocketchat-rc.yml", "templates/rocketchat-svc.yml\n"]
         default_out.sort()
         assert out == "\n".join(default_out)
-
-
-def test_inspect_no_media_type(cli_parser, package_blob, capsys):
-    with pytest.raises(SystemExit) as exc:
-        inspectcmd = get_inspectcmd(cli_parser, ["kpm.sh/foo/bar@1.0.0", "--tree"])
-    assert exc.value.code == 2
 
 
 def test_inspect_default(cli_parser, package_blob, capsys):

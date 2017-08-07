@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from appr.models.blob_base import BlobBase
 from appr.models.kv.models_index_base import ModelsIndexBase
 

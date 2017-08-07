@@ -1,10 +1,13 @@
+from __future__ import absolute_import, division, print_function
 import sys
-import os.path
-import errno
-import re
 import collections
+import errno
 import importlib
-
+import os
+import os.path
+import re
+import itertools
+from termcolor import colored
 
 PACKAGE_REGEXP = r"^(.*?\/)([a-z0-9_-]+\/[a-z0-9_-]+)([:@][a-z0-9._+-]+|@sha256:[a-z0-9]+)?$"
 
@@ -32,6 +35,24 @@ def parse_version(version):
         return {'key': 'channel', 'value': version[1:]}
     else:
         return {'key': 'unknown', 'value': version}
+
+
+def parse_version_req(version):
+    """
+     Converts a version string to a dict with following rules:
+       if string starts with ':' it is a channel
+       if string starts with 'sha256' it is a digest
+       else it is a release
+    """
+    if version is None:
+        version = "default"
+    if version[0] == ':' or version.startswith('channel:'):
+        parts = {'key': 'channel', 'value': version.split(':')[1]}
+    elif version.startswith('sha256:'):
+        parts = {'key': 'digest', 'value': version.split('sha256:')[1]}
+    else:
+        parts = {'key': 'version', 'value': version}
+    return parts
 
 
 def split_package_name(name):
@@ -78,6 +99,24 @@ def mkdir_p(path):
             raise
 
 
+def colorize(status):
+    msg = {}
+    if os.getenv("APPR_COLORIZE_OUTPUT", "true") == "true":
+        msg = {
+            'ok': 'green',
+            'created': 'yellow',
+            'updated': 'cyan',
+            'replaced': 'yellow',
+            'absent': 'green',
+            'deleted': 'red',
+            'protected': 'magenta'}
+    color = msg.get(status, None)
+    if color:
+        return colored(status, color)
+    else:
+        return status
+
+
 class Singleton(type):
     _instances = {}
 
@@ -88,13 +127,16 @@ class Singleton(type):
 
 
 def convert_utf8(data):
-    if isinstance(data, basestring):
-        return str(data)
-    elif isinstance(data, collections.Mapping):
-        return dict(map(convert_utf8, data.iteritems()))
-    elif isinstance(data, collections.Iterable):
-        return type(data)(map(convert_utf8, data))
-    else:
+    try:
+        if isinstance(data, basestring):
+            return str(data)
+        elif isinstance(data, collections.Mapping):
+            return dict(map(convert_utf8, data.iteritems()))
+        elif isinstance(data, collections.Iterable):
+            return type(data)(map(convert_utf8, data))
+        else:
+            return data
+    except UnicodeEncodeError:
         return data
 
 
@@ -163,6 +205,14 @@ def symbol_by_name(name, aliases={}, imp=None, package=None, sep='.', default=No
     return default
 
 
+def flatten(array):
+    return list(itertools.chain(*array))
+
+
+def isbundled():
+    return getattr(sys, 'frozen', False)
+
+
 def get_current_script_path():
     executable = sys.executable
     if os.path.basename(executable) == "appr":
@@ -170,3 +220,13 @@ def get_current_script_path():
     else:
         path = sys.argv[0]
     return os.path.realpath(path)
+
+
+def abspath(relative_path):
+    """ Get absolute path """
+    if isbundled():
+        base_path = sys.executable
+    else:
+        base_path = os.path.abspath(".")
+
+    return os.path.realpath(os.path.join(base_path, relative_path))

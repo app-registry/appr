@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import requests
 
 import appr
@@ -43,5 +45,6 @@ class VersionCmd(CommandBase):
         return {"api-version": self.api_version, "client-version": self.client_version}
 
     def _render_console(self):
-        return "\n".join(
-            ["Api-version: %s" % self.api_version, "Client-version: %s" % self.client_version])
+        return "\n".join([
+            "Api-version: %s" % self.api_version,
+            "Client-version: %s" % self.client_version])

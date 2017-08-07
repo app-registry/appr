@@ -1,7 +1,6 @@
 import os
 from appr.utils import symbol_by_name
 
-
 DEFAULT_MEDIA_TYPE = 'kpm'
 DEFAULT_STORAGE_MODULE = "appr.models.kv.filesystem"
 DEFAULT_DB_CLASS = "%s.db:ApprDB" % DEFAULT_STORAGE_MODULE

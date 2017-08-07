@@ -1,10 +1,12 @@
-from flask import (jsonify, request, Blueprint, current_app, url_for)
+from __future__ import absolute_import, division, print_function
+
+from flask import Blueprint, current_app, jsonify, request, url_for
 
 import appr
 
 info_app = Blueprint(
     'info',
-    __name__,)
+    __name__, )
 
 
 @info_app.before_request
@@ -20,8 +22,7 @@ def pre_request_logging():
         "original_url": request.url,
         "path": request.path,
         "data": values,
-        "headers": dict(request.headers.to_list())
-    })
+        "headers": dict(request.headers.to_list())})
 
 
 @info_app.route("/")

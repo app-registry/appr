@@ -1,8 +1,9 @@
+from __future__ import absolute_import, division, print_function
+
 import pytest
-from appr.tests.test_models import ApprTestModels
+
 from appr.tests.conftest import db_names
-
-
+from appr.tests.test_models import ApprTestModels
 
 if 'redis' in db_names():
     class TestRedisModels(ApprTestModels):

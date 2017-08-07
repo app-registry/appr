@@ -1,8 +1,12 @@
-from operator import itemgetter
+from __future__ import absolute_import, division, print_function
+
 import collections
+from operator import itemgetter
+
 import pytest
-from appr.exception import (InvalidRelease, PackageAlreadyExists, PackageReleaseNotFound,
-                            Forbidden, ChannelNotFound, PackageNotFound)
+
+from appr.exception import (ChannelNotFound, Forbidden, InvalidRelease, PackageAlreadyExists,
+                            PackageNotFound, PackageReleaseNotFound, InvalidUsage)
 
 
 def convert_utf8(data):
@@ -58,15 +62,30 @@ class TestModels:
         assert sorted(newdb.Channel.dump_all(newdb.Blob)) == sorted(dbdata1['channels'])
 
     @pytest.mark.integration
-    def test_get_default_package(self, db_with_data1):
+    def test_get_default_package_media_type(self, db_with_data1):
         p = db_with_data1.Package.get("titi/rocketchat", 'default', 'kpm')
         assert p.package == "titi/rocketchat"
+
+    @pytest.mark.integration
+    def test_get_default_package(self, db_with_data1):
+        p = db_with_data1.Package.get("titi/rocketchat", 'default', '-')
+        assert p.package == "titi/rocketchat"
+        assert p.media_type == "kpm"
 
     @pytest.mark.integration
     def test_get_package_release_query(self, db_with_data1):
         p = db_with_data1.Package.get("titi/rocketchat", ">1.2", 'kpm')
         assert p.package == "titi/rocketchat"
         assert p.release == "2.0.1"
+        assert p.digest == "d3b54b7912fe770a61b59ab612a442eac52a8a5d8d05dbe92bf8f212d68aaa80"
+        assert p.media_type == "kpm"
+
+    @pytest.mark.integration
+    def test_get_package_detect_format(self, db_with_data1):
+        p = db_with_data1.Package.get("titi/rocketchat", ">1.2", '-')
+        assert p.package == "titi/rocketchat"
+        assert p.release == "2.0.1"
+        assert p.media_type == "kpm"
         assert p.digest == "d3b54b7912fe770a61b59ab612a442eac52a8a5d8d05dbe92bf8f212d68aaa80"
 
     @pytest.mark.integration
@@ -151,13 +170,22 @@ class TestModels:
         assert sorted(p.releases()) == sorted(['0.0.1', '1.0.1', '2.0.1'])
 
     @pytest.mark.integration
+    def test_list_package_media_types(self, db_with_data1):
+        assert sorted(db_with_data1.Package.manifests("titi/rocketchat", "0.0.1")) == ['helm', 'kpm']
+
+    @pytest.mark.integration
+    def test_get_package_multi_media_type(self, db_with_data1):
+        with pytest.raises(InvalidUsage):
+            db_with_data1.Package.get("titi/rocketchat", "0.0.1", "-")
+
+    @pytest.mark.integration
     def test_list_package_channels(self, db_with_data1):
         p = db_with_data1.Package.get("titi/rocketchat", '2.0.1', "kpm")
         assert p.channels(db_with_data1.Channel) == ['stable']
         p2 = db_with_data1.Package.get("titi/rocketchat", '1.0.1', "kpm")
         assert sorted(p2.channels(db_with_data1.Channel)) == sorted(['dev'])
-        assert sorted(p2.channels(db_with_data1.Channel, iscurrent=False)) == sorted(
-            ['dev', 'stable'])
+        assert sorted(p2.channels(db_with_data1.Channel, iscurrent=False)) == sorted([
+            'dev', 'stable'])
         p3 = db_with_data1.Package.get("titi/rocketchat", '0.0.1', "kpm")
         assert sorted(p3.channels(db_with_data1.Channel)) == sorted([])
 

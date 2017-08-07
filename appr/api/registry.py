@@ -1,20 +1,21 @@
+from __future__ import absolute_import, division, print_function
+
 import json
 from base64 import b64decode
-from flask import jsonify, request, Blueprint, current_app
-from appr.api.app import getvalues, repo_name
-import appr.api.impl.registry
-from appr.exception import (
-    ApprException, InvalidUsage, InvalidParams, InvalidRelease, UnableToLockResource,
-    UnauthorizedAccess, Unsupported, PackageAlreadyExists, PackageNotFound, ChannelNotFound,
-    PackageReleaseNotFound)
 
-from appr.models import Blob, DEFAULT_MEDIA_TYPE
-from appr.models import Package
-from appr.models import Channel
+from flask import Blueprint, current_app, jsonify, request
+
+import appr.api.impl.registry
+from appr.api.app import getvalues, repo_name
+from appr.exception import (
+    ApprException, ChannelNotFound, InvalidParams, InvalidRelease, InvalidUsage,
+    PackageAlreadyExists, PackageNotFound, PackageReleaseNotFound, UnableToLockResource,
+    UnauthorizedAccess, Unsupported)
+from appr.models import DEFAULT_MEDIA_TYPE, Blob, Channel, Package
 
 registry_app = Blueprint(
     'registry',
-    __name__,)
+    __name__, )
 
 
 @registry_app.errorhandler(Unsupported)
@@ -47,8 +48,7 @@ def pre_request_logging():
         "original_url": request.url,
         "path": request.path,
         "data": values,
-        "headers": dict(request.headers.to_list())
-    })
+        "headers": dict(request.headers.to_list())})
 
 
 @registry_app.route("/test_error")
@@ -178,8 +178,8 @@ def show_package_release_manifests(namespace, package_name, release):
 
 
 # CHANNELS
-@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/channels",
-                    methods=['GET'], strict_slashes=False)
+@registry_app.route("/api/v1/packages/<string:namespace>/<string:package_name>/channels", methods=[
+    'GET'], strict_slashes=False)
 def list_channels(namespace, package_name):
     reponame = repo_name(namespace, package_name)
     result = appr.api.impl.registry.list_channels(reponame, Channel)

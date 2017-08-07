@@ -1,5 +1,7 @@
-from appr.display import print_package_info
+from __future__ import absolute_import, division, print_function
+
 from appr.commands.command_base import CommandBase
+from appr.display import print_package_info
 
 
 class ShowCmd(CommandBase):

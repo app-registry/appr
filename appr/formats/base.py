@@ -1,27 +1,28 @@
+from __future__ import absolute_import, division, print_function
+
 import io
-import tempfile
-import tarfile
 import os.path
+import tarfile
+import tempfile
 
 from requests.utils import urlparse
 
-from appr.client import ApprClient
 import appr.pack as packager
+from appr.client import ApprClient
 
 
-class KubBase(object):
+class FormatBase(object):
     media_type = NotImplementedError
     target = NotImplementedError
     kub_class = NotImplementedError
     manifest_file = []
     appr_client = ApprClient
 
-    def __init__(self, name, version='default', endpoint=None, ssl_verify=True):
+    def __init__(self, name, version=None, endpoint=None, ssl_verify=True, **kwargs):
         self._deploy_name = name
-
+        self._deploy_version = version or {"key": "version", "value": 'default'}
         self.endpoint = endpoint
         self._registry = self.appr_client(endpoint=self.endpoint, requests_verify=ssl_verify)
-        self._deploy_version = version
         self._package = None
         self._manifest = None
 
@@ -29,7 +30,7 @@ class KubBase(object):
     def package(self):
         if self._package is None:
             result = self._fetch_package()
-            self._package = packager.ApprPackage(result, b64_encoded=False)
+            self._package = packager.ApprPackage(result, b64_encoded=True)
         return self._package
 
     def _create_manifest(self):
@@ -87,7 +88,8 @@ class KubBase(object):
             with open(filepath, "rb") as tarf:
                 return tarf.read()
         else:
-            return self._registry.pull(self._deploy_name, self._deploy_version, self.media_type)
+            return self._registry.pull_json(self._deploy_name, self._deploy_version,
+                                            self.media_type)['blob']
 
     def make_tarfile(self, source_dir):
         output = io.BytesIO()

@@ -1,5 +1,7 @@
-from appr.commands.command_base import CommandBase
+from __future__ import absolute_import, division, print_function
+
 from appr.api.gevent_app import GeventApp
+from appr.commands.command_base import CommandBase
 
 
 class RunServerCmd(CommandBase):
@@ -17,9 +19,12 @@ class RunServerCmd(CommandBase):
 
     @classmethod
     def _add_arguments(cls, parser):
-        parser.add_argument("-p", "--port", nargs="?", default=5000, type=int, help="server port listen")
-        parser.add_argument("-b", "--bind", nargs="?", default="0.0.0.0", help="server bind address")
-        parser.add_argument("--db-class", nargs="?", default="filesystem", help="db class for storage")
+        parser.add_argument("-p", "--port", nargs="?", default=5000, type=int,
+                            help="server port listen")
+        parser.add_argument("-b", "--bind", nargs="?", default="0.0.0.0",
+                            help="server bind address")
+        parser.add_argument("--db-class", nargs="?", default="filesystem",
+                            help="db class for storage")
 
     def _render_dict(self):
         return self.status

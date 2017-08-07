@@ -1,13 +1,17 @@
+from __future__ import absolute_import, division, print_function
+
+import datetime
+import hashlib
 import json
 import re
-import hashlib
-import datetime
+
 import semantic_version
-from appr.semver import last_version, select_version
+
 from appr.exception import (
-    InvalidRelease, PackageAlreadyExists, raise_package_not_found, PackageReleaseNotFound)
+    InvalidUsage, InvalidRelease, PackageAlreadyExists, PackageReleaseNotFound, raise_package_not_found)
 
 from appr.models.blob_base import BlobBase
+from appr.semver import last_version, select_version
 
 SCHEMA_VERSION = "v0"
 
@@ -97,8 +101,7 @@ class PackageBase(object):
             "mediaType": self.content_media_type,
             "size": self.blob_size,
             "digest": self.digest,
-            "urls": []
-        }
+            "urls": []}
 
     @classmethod
     def view_manifests(cls, package_name, release, manifest_only=False, media_type=None):
@@ -122,8 +125,7 @@ class PackageBase(object):
         return [
             item
             for release in cls.all_releases(package, media_type=media_type)
-            for item in cls.view_manifests(package, release, False, media_type=media_type)
-        ]
+            for item in cls.view_manifests(package, release, False, media_type=media_type)]
 
     @property
     def data(self):
@@ -134,8 +136,7 @@ class PackageBase(object):
             "release": self.release,
             "metadata": self.metadata,
             "mediaType": self.manifest_media_type,
-            "content": self.content_descriptor()
-        }
+            "content": self.content_descriptor()}
         self._data.update(d)
         return self._data
 
@@ -154,8 +155,16 @@ class PackageBase(object):
         try:
             semantic_version.Version(release)
         except ValueError as e:
-            raise InvalidRelease(e.message, {"version": release})
+            raise InvalidRelease(str(e), {"version": release})
         return None
+
+    @classmethod
+    def _find_media_type(cls, package, release):
+        manifests = cls.manifests(package, release)
+        if len(manifests) != 1:
+            raise InvalidUsage("media-type non specified: [%s]" % ','.join(manifests))
+        else:
+            return manifests[0]
 
     @classmethod
     def get(cls, package, release, media_type):
@@ -183,9 +192,7 @@ class PackageBase(object):
                 raise InvalidRelease(e.message, {"release": release_query})
 
     def pull(self, release_query=None, media_type=None):
-        media_type = get_media_type(media_type)
-        if media_type is None:
-            media_type = self.media_type
+        # Find release
         if release_query is None:
             release_query = self.release
         package = self.package
@@ -195,6 +202,12 @@ class PackageBase(object):
                                                                                      package),
                                          {"package": package,
                                           "release_query": release_query})
+        # Find media_type
+        if media_type == "-":
+            media_type = self._find_media_type(package, str(release))
+        media_type = get_media_type(media_type)
+        if media_type is None:
+            media_type = self.media_type
 
         self.data = self._fetch(package, str(release), media_type)
         return self
@@ -202,9 +215,9 @@ class PackageBase(object):
     def save(self, force=False, **kwargs):
         self.check_release(self.release)
         if self.isdeleted_release(self.package, self.release) and not force:
-            raise PackageAlreadyExists("Package release %s existed" % self.package,
-                                       {"package": self.package,
-                                        "release": self.release})
+            raise PackageAlreadyExists("Package release %s existed" % self.package, {
+                "package": self.package,
+                "release": self.release})
         self.blob.save(self.content_media_type)
         self._save(force, **kwargs)
 
@@ -253,4 +266,5 @@ class PackageBase(object):
 
     @classmethod
     def manifests(cls, package, release):
+        """ Returns an array of string """
         raise NotImplementedError

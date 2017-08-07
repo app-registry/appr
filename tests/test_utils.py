@@ -1,6 +1,9 @@
+from __future__ import absolute_import, division, print_function
+
 import os
 
 import pytest
+
 import appr.utils
 
 
@@ -61,3 +64,65 @@ def test_parse_package_name(package, expected):
 def test_parse_bad_package_name(package, expected):
     with pytest.raises(ValueError):
         assert appr.utils.parse_package_name(package) == expected
+
+
+@pytest.mark.parametrize("array,expected", [
+    ([], []),
+    ([[3]], [3]),
+    ([[4, 5]], [4, 5]),
+    ([[4, 5], []], [4, 5]),
+    ([[4, 5], [3, 4]], [4, 5, 3, 4]),
+])
+def test_flatten(array, expected):
+    assert appr.utils.flatten(array) == expected
+
+
+def test_convert_utf8():
+    data = {u"test": {u"test2": u"test3"},
+            u"array": [u"a1", u"a2"], u"int": 5}
+    assert {"test": {"test2": "test3"},
+            "array": ["a1", "a2"], "int": 5} == appr.utils.convert_utf8(data)
+
+
+def test_colorize(monkeypatch):
+    assert appr.utils.colorize('ok') == "\x1b[32mok\x1b[0m"
+    monkeypatch.setenv("APPR_COLORIZE_OUTPUT", "false")
+    assert appr.utils.colorize('ok') == "ok"
+
+
+@pytest.mark.parametrize("version,expected", [
+    ("v2.3.0", {
+        "key": "version",
+        "value": "v2.3.0"
+    }),
+    (":v2.3.0", {
+        "key": "channel",
+        "value": "v2.3.0"
+    }),
+    (":stable", {
+        "key": "channel",
+        "value": "stable"
+    }),
+    ("stable", {
+        "key": "version",
+        "value": "stable"
+    }),
+    ("stable", {
+        "key": "version",
+        "value": "stable"
+    }),
+    ("sha256:4242a432aehf", {
+        "key": "digest",
+        "value": "4242a432aehf"
+    }),
+    ("sha256-4242", {
+        "key": "version",
+        "value": "sha256-4242"
+    }),
+    ("sha256-4242", {
+        "key": "version",
+        "value": "sha256-4242"
+    }),
+])
+def test_parse_version_req(version, expected):
+    assert appr.utils.parse_version_req(version) == expected

@@ -1,0 +1,3 @@
+#!/bin/sh
+mkdir -p ~/.appr
+docker run -ti --rm -v $PWD:/appr/local -v ~/.kube:/appr/.kube -v ~/.minikube:$HOME/.minikube -v ~/.appr:/appr/.appr quay.io/appr/appr:kubectl $@

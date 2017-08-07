@@ -1,11 +1,17 @@
-from __future__ import print_function
-import argparse
-import json
+from __future__ import absolute_import, division, print_function
 
-import yaml
+import argparse
+import copy
+import json
+import os
+import re
+
 import requests
+import yaml
+
 from appr.client import ApprClient
 from appr.utils import parse_package_name, parse_version, split_package_name
+from appr.render_jsonnet import RenderJsonnet
 
 
 def _set_package(parser, namespace, dest, package_parts):
@@ -40,11 +46,53 @@ class PackageSplit(argparse.Action):
         _set_package(parser, namespace, self.dest, package_parts)
 
 
+class LoadVariables(argparse.Action):
+    def _parse_cmd(self, var):
+        r = {}
+        try:
+            return json.loads(var)
+        except:
+            for v in var.split(","):
+                sp = re.match("(.+?)=(.+)", v)
+                if sp is None:
+                    raise ValueError("Malformed variable: %s" % v)
+                key, value = sp.group(1), sp.group(2)
+                r[key] = value
+        return r
+
+    def _load_from_file(self, filename, ext):
+        with open(filename, 'r') as f:
+            if ext in ['.yml', '.yaml']:
+                return yaml.load(f.read())
+            elif ext == '.json':
+                return json.loads(f.read())
+            elif ext in [".jsonnet", "libjsonnet"]:
+                r = RenderJsonnet()
+                return r.render_jsonnet(f.read())
+            else:
+                raise ValueError("File extension is not in [yaml, json, jsonnet]: %s" % filename)
+
+    def load_variables(self, var):
+        _, ext = os.path.splitext(var)
+        if ext not in ['.yaml', '.yml', '.json', '.jsonnet']:
+            return self._parse_cmd(var)
+        else:
+            return self._load_from_file(var, ext)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        items = copy.copy(argparse._ensure_value(namespace, self.dest, {}))
+        try:
+            items.update(self.load_variables(values))
+        except ValueError as exc:
+            raise parser.error(option_string + ": " + str(exc))
+        setattr(namespace, self.dest, items)
+
+
 class CommandBase(object):
     name = 'command-base'
     help_message = 'describe the command'
     RegistryClient = ApprClient
-    default_media_type = None
+    default_media_type = "-"
     parse_unknown = False
     output_default = 'text'
 
@@ -113,25 +161,24 @@ class CommandBase(object):
     @classmethod
     def _add_registryhost_option(cls, parser):
         parser.add_argument("-H", "--registry-host", default=None, help=argparse.SUPPRESS)
-        parser.add_argument("-k", "--insecure", action="store_true",
-                            default=False, help="turn off verification of the https certificate")
-        parser.add_argument("--cacert", nargs='?', default=None, help="CA certificate to verify peer against (SSL)")
+        parser.add_argument("-k", "--insecure", action="store_true", default=False,
+                            help="turn off verification of the https certificate")
+        parser.add_argument("--cacert", nargs='?', default=None,
+                            help="CA certificate to verify peer against (SSL)")
 
     @classmethod
     def _add_output_option(cls, parser):
-        parser.add_argument("--output", default=cls.output_default, choices=['text', 'none', 'json', 'yaml'],
-                            help="output format")
+        parser.add_argument("--output", default=cls.output_default, choices=[
+            'text', 'none', 'json', 'yaml'], help="output format")
 
     @classmethod
-    def _add_mediatype_option(cls, parser, default=None, required=True):
-        if default is None:
-            default = cls.default_media_type
+    def _add_mediatype_option(cls, parser, default="-", required=False):
         if default is not None:
             required = False
 
         parser.add_argument(
             "-t", "--media-type", default=default, required=required,
-            help='package format: [kpm, kpm-compose, helm, docker-compose, kubernetes]')
+            help='package format: [kpm, kpm-compose, helm, docker-compose, kubernetes, appr]')
 
     @classmethod
     def _add_packagename_option(cls, parser):
@@ -150,6 +197,7 @@ class CommandBase(object):
     @classmethod
     def _add_registryhost_arg(cls, parser):
         parser.add_argument("registry_host", nargs=1, action=RegistryHost, help='registry API url')
-        parser.add_argument("-k", "--insecure", action="store_true",
-                            default=False, help="turn off verification of the https certificate")
-        parser.add_argument("--cacert", nargs='?', default=None, help="CA certificate to verify peer against (SSL)")
+        parser.add_argument("-k", "--insecure", action="store_true", default=False,
+                            help="turn off verification of the https certificate")
+        parser.add_argument("--cacert", nargs='?', default=None,
+                            help="CA certificate to verify peer against (SSL)")
