@@ -23,7 +23,6 @@ environment:
     # - PYTHON: "C:\\Python35-x64"
 
 install:
-  - ECHO "Installed SDKs:"
   - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
 
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
@@ -36,8 +35,8 @@ install:
   # # We need wheel installed to build wheels
   - "pip install -r requirements_dev.txt"
   # - "pip install jsonnet"
-   - "pip install -e ."
-   - "pip install -e git+https://github.com/pyinstaller/pyinstaller.git#egg=pyinstaller"
+  - "pip install -e ."
+  - "pip install -e git+https://github.com/pyinstaller/pyinstaller.git#egg=pyinstaller"
 build: off
 
 
@@ -55,7 +54,7 @@ after_test:
   # - "7z a registry-%BIN_NAME%-helm-plugin.zip registry\\*.*"
   # - ps: "ls dist"
   # - ps: "ls registry"
-  - "C:\\projects\\appr\\registry\\appr.exe version quay.io"
+  - "C:\\projects\\appr\\dist\\appr.exe version quay.io"
 
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report.

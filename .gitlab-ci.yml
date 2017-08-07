@@ -1,10 +1,11 @@
 stages:
+  - release
+
+  - build
   - init
   - unit-tests
   - code-style
   - integration-tests
-  - build
-  - release
 variables:
   FAILFASTCI_NAMESPACE: 'failfast-ci'
   IMAGE: quay.io/appr/appr
@@ -66,14 +67,22 @@ pylint:
     - make pylint
 
 compile:
-  <<: *job
+  variables:
+    GIT_STRATEGY: none
+    DOCKER_HOST: tcp://localhost:2375
+  image: docker:17.06-git
   stage: release
+  services:
+     - docker:17.06-dind
   script:
-    - pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip
-    - pyinstaller --add-data "appr/jsonnet/:appr/jsonnet" --onefile bin/appr
-  artifacts:
-    paths:
-      - dist/appr
+    - mkdir /dist
+    - docker run --rm --entrypoint="/bin/sh" -v /dist:/dist quay.io/appr/appr:$CI_BUILD_REF_NAME -c 'cp /opt/bin/appr /dist/appr-alpine-x64'
+    - docker run --rm -v /dist:/dist quay.io/ant31/ghrelease:master --api-key $GITHUB_TOKEN --repo app-registry/appr --file /dist/appr-alpine-x64 --tag $CI_BUILD_REF_NAME
+  tags:
+    - kubernetes
+  only:
+    - tags
+
 
 .docker: &docker
   variables:
@@ -91,45 +100,31 @@ docker-build:
   stage: build
   script:
     - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
-  except:
-    - tags
-    - master
-
-docker-build:
-  <<: *docker
-  stage: init
-  script:
-    - make build-test
-  when: manual
-
-.docker-push: &docker-push
-  <<: *docker
-  stage: release
-  script:
-    - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
     - docker push $IMAGE:$CI_BUILD_REF_NAME
 
-docker-release:
-  <<: *docker-push
-  only:
-    - tags
-    - master
+# docker-build-test:
+#   <<: *docker
+#   stage: init
+#   script:
+#     - make build-test
+#   when: manual
 
-docker-push:
-  <<: *docker-push
-  except:
-    - tags
-    - master
-  when: manual
+# .docker-push: &docker-push
+#   <<: *docker
+# #  stage: release
+#   script:
+#     - docker build -t $IMAGE:$CI_BUILD_REF_NAME .
+#     - docker push $IMAGE:$CI_BUILD_REF_NAME
 
-pypi-release:
-  <<: *job
-  image: python:2.7
-  stage: release
-  script:
-    - make release
-  tags:
-    - kubernetes
-  when: manual
-  only:
-    - tags
+# docker-release:
+#   <<: *docker-push
+#   only:
+#     - tags
+#     - master
+
+# docker-push:
+#   <<: *docker-push
+#   except:
+#     - tags
+#     - master
+#   when: manual

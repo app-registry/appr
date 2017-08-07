@@ -7,12 +7,13 @@ RUN apk --no-cache --update add --virtual build-dependencies \
       python-dev build-base wget openssl-dev libffi-dev libstdc++
 COPY . $workdir
 WORKDIR $workdir
-
+RUN pip install jsonnet
 RUN pip install -e .
 
 RUN /pyinstaller/pyinstaller.sh --onefile --noconfirm \
     --add-data "appr/jsonnet/:appr/jsonnet" \
     --onefile \
+    --hidden-import _jsonnet \
     --log-level DEBUG \
     --clean \
     bin/appr
