@@ -111,6 +111,15 @@ class CommandBase(object):
         else:
             print(self._render_console())
 
+    def render_error(self, payload):
+        if self.output == 'json':
+            self._render_json(payload)
+        elif self.output == 'yaml':
+            self._render_yaml(payload)
+        else:
+            raise argparse.ArgumentTypeError("\n" + yaml.safe_dump(
+                payload, default_flow_style=False, width=float("inf")))
+
     @classmethod
     def call(cls, options, unknown=None, render=True):
         # @TODO(ant31): all methods should have the 'unknown' parameter
@@ -126,9 +135,14 @@ class CommandBase(object):
         except requests.exceptions.RequestException as exc:
             payload = {"message": str(exc)}
             if exc.response is not None:
-                payload["response"] = exc.response.content
-            raise argparse.ArgumentTypeError("\n" + yaml.safe_dump(
-                payload, default_flow_style=False, width=float("inf")))
+                content = None
+                try:
+                    content = exc.response.json()
+                except ValueError:
+                    content = exc.response.content
+                payload["response"] = content
+            self.render_error(payload)
+            exit(2)
         if render:
             self.render()
 
@@ -139,8 +153,10 @@ class CommandBase(object):
         cls._add_arguments(parser)
         parser.set_defaults(func=cls.call, which_cmd=cls.name, parse_unknown=cls.parse_unknown)
 
-    def _render_json(self):
-        print(json.dumps(self._render_dict(), indent=2, separators=(',', ': ')))
+    def _render_json(self, value=None):
+        if not value:
+            value = self._render_dict()
+        print(json.dumps(value, indent=2, separators=(',', ': ')))
 
     def _render_dict(self):
         raise NotImplementedError
@@ -148,8 +164,10 @@ class CommandBase(object):
     def _render_console(self):
         raise NotImplementedError
 
-    def _render_yaml(self):
-        print(yaml.safe_dump(self._render_dict(), default_flow_style=False))
+    def _render_yaml(self, value=None):
+        if not value:
+            value = self._render_dict()
+        print(yaml.safe_dump(value, default_flow_style=False, width=float("inf")))
 
     def _call(self):
         raise NotImplementedError

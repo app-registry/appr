@@ -1,3 +1,12 @@
+## 0.7.2 Released on
+
+- Add login cred per namespaces / repo
+- Fix json output on error
+
+## 0.7.1 Released on 2017-08-06
+
+- Auto-select media-type when possible, `--media-type` is now optional
+
 ## 0.7.0 Released on 2017-07-24
 
 - Introduce client-side deployments handling multiple formats:
