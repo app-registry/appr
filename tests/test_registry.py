@@ -30,6 +30,15 @@ def test_headers_without_auth():
 
 def test_headers_with_auth():
     r = ApprClient()
+    r.auth.add_token('http://localhost:5000/cnr', 'titi')
+    assert sorted(r.headers.keys()) == ["Authorization", 'Content-Type', 'User-Agent']
+    assert r.headers["Authorization"] == "titi"
+    assert r.headers["Content-Type"] == "application/json"
+    assert r.headers["User-Agent"] == "apprpy-cli/%s" % appr.__version__
+
+
+def test_headers_with_auth_star():
+    r = ApprClient()
     r.auth.add_token('*', 'titi')
     assert sorted(r.headers.keys()) == ["Authorization", 'Content-Type', 'User-Agent']
     assert r.headers["Authorization"] == "titi"

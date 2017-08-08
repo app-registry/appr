@@ -13,26 +13,47 @@ class ApprAuth(object):
     def __init__(self, conf_directory=DEFAULT_CONF_DIR):
         self.conf_directory = conf_directory
         home = os.path.expanduser("~")
-        old_path = "%s/%s/auth_token" % (home, conf_directory)
         path = "%s/%s/auths.yaml" % (home, conf_directory)
         mkdir_p(os.path.join(home, conf_directory))
         self.tokenfile = os.path.join(home, path)
         self._tokens = None
-        self._retro_compat(old_path)
+        self._retro_compat()
 
-    def _retro_compat(self, old):
-        oldtoken = self._old_token(old)
-        if oldtoken:
-            if self.tokens is None or '*' not in self.tokens['auths']:
-                self.add_token('*', oldtoken)
-            os.remove(old)
+    def _retro_compat(self):
+        new_tokens = {'auths': {}}
 
-    def _old_token(self, path):
-        if os.path.exists(path):
-            with open(path, 'r') as tokenfile:
-                return tokenfile.read()
+        if self.tokens is None:
+            return
+
+        rewrite = False
+        for domain, token in self.tokens['auths'].items():
+            if isinstance(token, basestring):
+                new_tokens['auths'].update(self._create_token(domain, token))
+                rewrite = True
+            else:
+                new_tokens['auths'][domain] = token
+        if rewrite:
+            self._write_tokens(new_tokens)
+            self._tokens = new_tokens
+
+    def _get_scope(self, scope):
+        data = {'namespace': "*", 'repo': "*"}
+        if scope:
+            sp = scope.split("/")
+            data = {'namespace': sp[0], 'repo': "*"}
+            if len(sp) == 2:
+                data['repo'] = sp[1]
+        return data
+
+    def _get_host(self, domain, scope):
+        if scope:
+            return "%s:%s" % (domain, scope)
         else:
-            return None
+            return domain
+
+    def _create_token(self, domain, auth, scope=None):
+        auth = {"token": auth, 'scope': self._get_scope(scope)}
+        return {self._get_host(domain, scope): auth}
 
     @property
     def tokens(self):
@@ -44,18 +65,26 @@ class ApprAuth(object):
                 return None
         return self._tokens
 
-    def token(self, host=None):
+    def token(self, domain, scope=None):
         if not self.tokens:
             return None
-        if host is None or host not in self.tokens['auths']:
-            host = '*'
-        return self.tokens['auths'].get(host, None)
 
-    def add_token(self, host, value):
+        hosts = [domain, '*']
+        if scope:
+            sp = scope.split("/")
+            hosts = ["%s:%s" % (domain, scope), "%s:%s" % (domain, sp[0])] + hosts
+
+        for host in hosts:
+            if host in self.tokens['auths']:
+                return self.tokens['auths'][host]['token']
+
+        return None
+
+    def add_token(self, host, value, scope=None):
         auths = self.tokens
         if auths is None:
             auths = {'auths': {}}
-        auths['auths'][host] = value
+        auths['auths'].update(self._create_token(host, value, scope=scope))
         self._write_tokens(auths)
 
     def _write_tokens(self, tokens):
@@ -63,8 +92,10 @@ class ApprAuth(object):
             tokenfile.write(
                 yaml.safe_dump(tokens, indent=2, default_style='"', default_flow_style=False))
 
-    def delete_token(self, host):
+    def delete_token(self, domain, scope=None):
+        host = self._get_host(domain, scope)
         auths = self.tokens
+
         if not auths or host not in auths['auths']:
             return None
         prev = auths['auths'].pop(host)

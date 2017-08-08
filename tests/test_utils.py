@@ -51,6 +51,29 @@ def test_parse_package_name(package, expected):
 
 
 @pytest.mark.parametrize("package,expected", [
+    ("localhost:5000", {"host": "localhost:5000", "namespace": None, "package": None, "version": None}),
+    ("http://appr.io", {"host": "http://appr.io", "namespace": None, "package": None, "version": None}),
+    ("http://appr.io/ns", {"host": "http://appr.io", "namespace": "ns", "package": None, "version": None}),
+    ("appr.io/ns", {"host": "appr.io", "namespace": "ns", "package": None, "version": None}),
+    ("https://appr.io/ns", {"host": "https://appr.io", "namespace": "ns", "package": None, "version": None}),
+    ("https://appr.io", {"host": "https://appr.io", "namespace": None, "package": None, "version": None}),
+
+    ("localhost:5000/foo/bar", {"host": "localhost:5000", "namespace": "foo", "package": "bar", "version": None}),
+    ("http://appr.io/foo/bar", {"host": "http://appr.io", "namespace": "foo", "package": "bar", "version": None}),
+    ("https://appr.io/foo/bar", {"host": "https://appr.io", "namespace": "foo", "package": "bar", "version": None}),
+    ("appr.io/foo/bar", {"host": "appr.io", "namespace": "foo", "package": "bar", "version": None}),
+    ("appr.io/foo/bar@3.4.4", {"host": "appr.io", "namespace": "foo", "package": "bar", "version": "@3.4.4"}),
+    ("appr.io/foo/bar@v3.4.4", {"host": "appr.io", "namespace": "foo", "package": "bar", "version": "@v3.4.4"}),
+    ("appr.io/foo/bar:stable", {"host": "appr.io", "namespace": "foo", "package": "bar", "version": ":stable"}),
+    ("appr.io/foo/bar:2.4-stable", {"host": "appr.io", "namespace": "foo", "package": "bar", "version": ":2.4-stable"}),
+    ("appr.io/foo/bar:2.4-stable+432.5.24-4324_5234", {"host": "appr.io", "namespace": "foo", "package": "bar", "version": ":2.4-stable+432.5.24-4324_5234"}),
+    ("appr.io/foo/bar@sha256:34245afe", {"host": "appr.io", "namespace": "foo", "package": "bar", "version": "@sha256:34245afe"}),
+    ])
+def test_split_package_name(package, expected):
+    assert appr.utils.split_package_name(package) == expected
+
+
+@pytest.mark.parametrize("package,expected", [
     ("foo/bar", {"host": None, "namespace": "foo", "package": "bar", "version": "default"}),
     ("bar/@24", {"host": "https://appr.io", "namespace": "foo", "package": "bar", "version": "default"}),
     ("appr.io:stable", {"host": "appr.io", "namespace": "foo", "package": "bar", "version": "default"}),
