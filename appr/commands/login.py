@@ -33,9 +33,9 @@ class LoginCmd(CommandBase):
     def _call(self):
         client = self.RegistryClient(self.registry_host, requests_verify=self.ssl_verify)
         if self.user is not None:
-            user = self.user
+            self.user = self.user
         else:
-            user = input("Username: ")
+            self.user = input("Username: ")
         if self.password is not None:
             p1 = self.password
         else:
@@ -52,10 +52,10 @@ class LoginCmd(CommandBase):
                 email = input("Email: ")
             if p1 != p2:
                 raise argparse.ArgumentError("password", message="Error: password mismatch")
-            client.signup(user, p1, p2, email)
+            client.signup(self.user, p1, p2, email)
             self.status = "Registration complete"
         else:
-            client.login(user, p1)
+            client.login(self.user, p1)
             self.status = "Login succeeded"
 
     def _render_dict(self):

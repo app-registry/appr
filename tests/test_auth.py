@@ -10,7 +10,7 @@ def test_fake_home(fake_home):
 
 
 def test_init_create_dir(fake_home):
-    ApprAuth()
+    ApprAuth(".appr")
     assert os.path.exists(os.path.join(str(fake_home), ".appr"))
 
 

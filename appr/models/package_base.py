@@ -7,8 +7,8 @@ import re
 
 import semantic_version
 
-from appr.exception import (
-    InvalidUsage, InvalidRelease, PackageAlreadyExists, PackageReleaseNotFound, raise_package_not_found)
+from appr.exception import (InvalidUsage, InvalidRelease, PackageAlreadyExists,
+                            PackageReleaseNotFound, raise_package_not_found)
 
 from appr.models.blob_base import BlobBase
 from appr.semver import last_version, select_version

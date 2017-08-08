@@ -171,7 +171,8 @@ class TestModels:
 
     @pytest.mark.integration
     def test_list_package_media_types(self, db_with_data1):
-        assert sorted(db_with_data1.Package.manifests("titi/rocketchat", "0.0.1")) == ['helm', 'kpm']
+        assert sorted(db_with_data1.Package.manifests("titi/rocketchat", "0.0.1")) == [
+            'helm', 'kpm']
 
     @pytest.mark.integration
     def test_get_package_multi_media_type(self, db_with_data1):
