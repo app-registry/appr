@@ -41,11 +41,16 @@ def all_commands():
         JsonnetCmd.name: JsonnetCmd, }
 
 
-def get_parser(commands):
-    parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(help='command help')
+def get_parser(commands, parser=None, subparsers=None):
+    if parser is None:
+        parser = argparse.ArgumentParser()
+
+    if subparsers is None:
+        subparsers = parser.add_subparsers(help='command help')
+
     for command_class in commands.values():
         command_class.add_parser(subparsers)
+
     return parser
 
 
