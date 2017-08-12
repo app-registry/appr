@@ -1,6 +1,15 @@
 ## 0.7.2 Released on
 
-- Add login cred per namespaces / repo
+- Add login/creds per namespaces / repo
+```shell
+# login for the domain
+$ appr login quay.io
+# login for the namespace
+$ appr login quay.io/ns1
+# login for the a repo
+$ appr login quay.io/ns1/repo1
+```
+
 - Fix json output on error
 
 ## 0.7.1 Released on 2017-08-06
