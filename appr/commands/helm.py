@@ -8,8 +8,17 @@ from appr.commands.command_base import CommandBase
 from appr.commands.pull import PullCmd
 from appr.plugins.helm import Helm
 
-
 LOCAL_DIR = os.path.dirname(__file__)
+
+
+def helm_description(cmd, examples):
+    return """
+Fetch a Chart from the app-registry and execute `helm {cmd}`.
+Helm's options can be passed on the command:
+$ appr helm {cmd} [APPR_OPTS] -- [HELM_OPTS]
+{examples}
+
+""".format(cmd=cmd, examples=examples)
 
 
 class HelmCmd(CommandBase):
@@ -69,9 +78,20 @@ class HelmCmd(CommandBase):
     def _add_arguments(cls, parser):
         from appr.commands.cli import get_parser, all_commands
         sub = parser.add_subparsers()
-        install_cmd = sub.add_parser('install', help="Run helm install. Same usage and option, see `helm install --help`")
-        upgrade_cmd = sub.add_parser('upgrade', help="Run helm upgrade\nSame usage and option, see `helm upgrade --help`")
-        dep_pull_cmd = sub.add_parser('dep', help="Download Charts from the requirements.yaml")
+        install_cmd = sub.add_parser(
+            'install', help="Fetch the Chart and execute `helm install`",
+            formatter_class=argparse.RawDescriptionHelpFormatter, description=helm_description(
+                "install",
+                "$ appr helm install quay.io/ant31/cookieapp -- --set imageTag=v0.4.5 --namespace demo"
+            ), epilog="\nhelm options:\n  See 'helm install --help'")
+        upgrade_cmd = sub.add_parser(
+            'upgrade', help="Fetch the Chart and execute `helm upgrade`",
+            formatter_class=argparse.RawDescriptionHelpFormatter, description=helm_description(
+                "upgrade",
+                "$ appr helm upgrade quay.io/ant31/cookieapp -- release-name --set foo=bar --set foo=newbar"
+            ), epilog="\nhelm options:\n  See 'helm upgrade --help'")
+        dep_pull_cmd = sub.add_parser(
+            'dep', help="Download Charts from the requirements.yaml using app-registry")
         cls._init_dep_args(dep_pull_cmd)
         cls._init_args(install_cmd)
         cls._init_args(upgrade_cmd)

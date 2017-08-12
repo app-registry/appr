@@ -181,7 +181,7 @@ class CommandBase(object):
         parser.add_argument("-H", "--registry-host", default=None, help=argparse.SUPPRESS)
         parser.add_argument("-k", "--insecure", action="store_true", default=False,
                             help="turn off verification of the https certificate")
-        parser.add_argument("--cacert", nargs='?', default=None,
+        parser.add_argument("--cacert", default=None,
                             help="CA certificate to verify peer against (SSL)")
 
     @classmethod
