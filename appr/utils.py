@@ -56,11 +56,20 @@ def parse_version_req(version):
 
 
 def split_package_name(name):
-    sp = name.split("/")
+    sp = re.sub(r"^https?://", "", name).split("/")
     package_parts = {"host": None, "namespace": None, "package": None, "version": None}
 
     if len(sp) >= 1:
-        package_parts["host"] = sp[0]
+        if name[-1] != "/":
+            name = name + "/"
+        match = re.match(r"(https?://)?(.+?)/.*", name)
+        host_groups = match.groups()
+
+        if host_groups[0] is not None:
+            host = ''.join(host_groups)
+        else:
+            host = host_groups[1]
+        package_parts["host"] = host
     if len(sp) >= 2:
         package_parts["namespace"] = sp[1]
     if len(sp) >= 3:

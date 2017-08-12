@@ -25,6 +25,7 @@ class ApprClient(object):
             config = ApprConfig()
         self.auth = auth
         self.config = config
+        self.package = None
         self.endpoint = self._configure_endpoint(endpoint)
         self.host = self.endpoint.geturl()
         self._headers = {
@@ -42,7 +43,7 @@ class ApprClient(object):
 
     def auth_token(self):
         """ return the Authorization bearer """
-        return self.auth.token(self.host)
+        return self.auth.token(self.host, scope=self.package)
 
     def _configure_endpoint(self, endpoint):
         if endpoint is None:
@@ -74,6 +75,7 @@ class ApprClient(object):
         return resp.json()
 
     def show_package(self, package, version, media_type=None):
+        self.package = package
         path = "/api/v1/packages/%s" % (package)
         if version and version != 'default':
             path = path + "/%s" % version
@@ -107,6 +109,7 @@ class ApprClient(object):
         return url
 
     def _pull_path(self, name, version_parts, media_type):
+        self.package = name
         if ishosted(name):
             sources = discover_sources(name, version_parts['value'], media_type)
             path = sources[0]
@@ -135,6 +138,7 @@ class ApprClient(object):
         return resp.json()
 
     def push(self, name, body, force=False):
+        self.package = name
         organization, pname = name.split("/")
         body['name'] = pname
         body['organization'] = organization
@@ -147,6 +151,7 @@ class ApprClient(object):
         return resp.json()
 
     def delete_package(self, name, version, media_type):
+        self.package = name
         organization, name = name.split("/")
         path = "/api/v1/packages/%s/%s/%s/%s" % (organization, name, version, media_type)
         resp = requests.delete(self._url(path), headers=self.headers, verify=self.verify)
@@ -154,6 +159,7 @@ class ApprClient(object):
         return resp.json()
 
     def _crud_channel(self, name, channel='', action='get'):
+        self.package = name
         if channel is None:
             channel = ''
         path = "/api/v1/packages/%s/channels/%s" % (name, channel)
@@ -182,7 +188,7 @@ class ApprClient(object):
         path = "%s/%s" % (channel, release)
         return self._crud_channel(name, path, 'delete')
 
-    def login(self, username, password):
+    def login(self, username, password, scope=None):
         path = "/api/v1/users/login"
         resp = requests.post(
             self._url(path), data=json.dumps({
@@ -191,7 +197,7 @@ class ApprClient(object):
                     "password": password}}), headers=self.headers, verify=self.verify)
         resp.raise_for_status()
         result = resp.json()
-        self.auth.add_token(self.host, result['token'])
+        self.auth.add_token(self.host, result['token'], scope=scope)
         return result
 
     def signup(self, username, password, password_confirmation, email):
