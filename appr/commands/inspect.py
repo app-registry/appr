@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-
+import os
 from appr.commands.command_base import CommandBase
 from appr.pack import ApprPackage
 
@@ -17,6 +17,9 @@ class InspectCmd(CommandBase):
         self.file = options.file
         self.tree = options.tree
         self.media_type = options.media_type
+        if options.media_type is self.default_media_type:
+            self.media_type = os.getenv("APPR_DEFAULT_MEDIA_TYPE", self.default_media_type)
+
         self.result = None
         self.format = options.media_type
         self.ssl_verify = options.cacert or not options.insecure

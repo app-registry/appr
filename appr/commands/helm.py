@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import os
 import tempfile
-
+from copy import copy
 from appr.commands.command_base import CommandBase
 from appr.commands.pull import PullCmd
 from appr.plugins.helm import Helm
@@ -11,10 +11,21 @@ from appr.plugins.helm import Helm
 LOCAL_DIR = os.path.dirname(__file__)
 
 
+def helm_description(cmd, examples):
+    return """
+Fetch a Chart from the app-registry and execute `helm {cmd}`.
+Helm's options can be passed on the command:
+$ appr helm {cmd} [APPR_OPTS] -- [HELM_OPTS]
+{examples}
+
+""".format(cmd=cmd, examples=examples)
+
+
 class HelmCmd(CommandBase):
     name = 'helm'
     help_message = 'Deploy with Helm on Kubernetes'
     parse_unknown = True
+    plugin_subcommands = ['dep', 'install', 'upgrade']
 
     def __init__(self, options):
         super(HelmCmd, self).__init__(options)
@@ -65,16 +76,31 @@ class HelmCmd(CommandBase):
 
     @classmethod
     def _add_arguments(cls, parser):
+        from appr.commands.cli import get_parser, all_commands
         sub = parser.add_subparsers()
-        install_cmd = sub.add_parser('install')
-        upgrade_cmd = sub.add_parser('upgrade')
-        dep_pull_cmd = sub.add_parser('dep')
+        install_cmd = sub.add_parser(
+            'install', help="Fetch the Chart and execute `helm install`",
+            formatter_class=argparse.RawDescriptionHelpFormatter, description=helm_description(
+                "install",
+                "$ appr helm install quay.io/ant31/cookieapp -- --set imageTag=v0.4.5 --namespace demo"
+            ), epilog="\nhelm options:\n  See 'helm install --help'")
+        upgrade_cmd = sub.add_parser(
+            'upgrade', help="Fetch the Chart and execute `helm upgrade`",
+            formatter_class=argparse.RawDescriptionHelpFormatter, description=helm_description(
+                "upgrade",
+                "$ appr helm upgrade quay.io/ant31/cookieapp -- release-name --set foo=bar --set foo=newbar"
+            ), epilog="\nhelm options:\n  See 'helm upgrade --help'")
+        dep_pull_cmd = sub.add_parser(
+            'dep', help="Download Charts from the requirements.yaml using app-registry")
         cls._init_dep_args(dep_pull_cmd)
         cls._init_args(install_cmd)
         cls._init_args(upgrade_cmd)
         install_cmd.set_defaults(func=cls._install)
         upgrade_cmd.set_defaults(func=cls._upgrade)
         dep_pull_cmd.set_defaults(func=cls._dep_pull)
+        other_cmds = copy(all_commands())
+        other_cmds.pop("helm")
+        get_parser(other_cmds, parser, sub, {'APPR_DEFAULT_MEDIA_TYPE': 'helm'})
 
     def _render_dict(self):
         return self.status

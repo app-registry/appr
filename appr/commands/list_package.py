@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-
+import os
 from appr.commands.command_base import CommandBase
 from appr.display import print_packages
 
@@ -7,6 +7,7 @@ from appr.display import print_packages
 class ListPackageCmd(CommandBase):
     name = 'list'
     help_message = "list packages"
+    default_media_type = None
 
     def __init__(self, options):
         super(ListPackageCmd, self).__init__(options)
@@ -15,13 +16,16 @@ class ListPackageCmd(CommandBase):
         self.organization = options.organization
         self.query = options.search
         self.media_type = options.media_type
+        if options.media_type is None:
+            self.media_type = os.getenv("APPR_DEFAULT_MEDIA_TYPE", None)
+
         self.result = None
         self.ssl_verify = options.cacert or not options.insecure
 
     @classmethod
     def _add_arguments(cls, parser):
         cls._add_registryhost_arg(parser)
-        cls._add_mediatype_option(parser, default=None, required=False)
+        cls._add_mediatype_option(parser, default=cls.default_media_type, required=False)
         parser.add_argument("-u", "--user", default=None, help="list packages owned by USER")
         parser.add_argument("-o", "--organization", default=None,
                             help="list ORGANIZATION packages")
