@@ -15,7 +15,7 @@ environment:
     # - PYTHON: "C:\\Python34"
     # - PYTHON: "C:\\Python35"
     - PYTHON: "C:\\Python27-x64"
-      BIN_NAME: appr-%APPVEYOR_REPO_TAG_NAME%-win-x64
+      BIN_NAME: appr-win-x64
       PYTHON_ARCH: "64"
       PYTHON_VERSION: "2.7.x"
     # - PYTHON: "C:\\Python33-x64"
