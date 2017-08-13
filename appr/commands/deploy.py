@@ -1,3 +1,7 @@
+from __future__ import absolute_import, division, print_function
+
+import os
+
 from appr.formats.utils import kub_factory
 from appr.commands.command_base import CommandBase, LoadVariables
 
@@ -5,6 +9,7 @@ from appr.commands.command_base import CommandBase, LoadVariables
 class DeployCmd(CommandBase):
     name = 'deploy'
     help_message = "deploy a package on kubernetes"
+    default_media_type = "kpm"
 
     def __init__(self, options):
         super(DeployCmd, self).__init__(options)
@@ -19,13 +24,16 @@ class DeployCmd(CommandBase):
         self.tmpdir = options.tmpdir
         self.variables = options.variables
         self.format = options.media_type
+        if options.media_type is self.default_media_type:
+            self.format = os.getenv("APPR_DEFAULT_MEDIA_TYPE", self.default_media_type)
+
         self.status = None
         self._kub = None
 
     @classmethod
     def _add_arguments(cls, parser):
         cls._add_registryhost_option(parser)
-        cls._add_mediatype_option(parser, default='kpm')
+        cls._add_mediatype_option(parser, default=cls.default_media_type)
         cls._add_packagename_option(parser)
         cls._add_packageversion_option(parser)
 

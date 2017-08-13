@@ -147,11 +147,12 @@ class CommandBase(object):
             self.render()
 
     @classmethod
-    def add_parser(cls, subparsers):
+    def add_parser(cls, subparsers, env=None):
         parser = subparsers.add_parser(cls.name, help=cls.help_message)
         cls._add_output_option(parser)
         cls._add_arguments(parser)
-        parser.set_defaults(func=cls.call, which_cmd=cls.name, parse_unknown=cls.parse_unknown)
+        parser.set_defaults(func=cls.call, env=env, which_cmd=cls.name,
+                            parse_unknown=cls.parse_unknown)
 
     def _render_json(self, value=None):
         if not value:
@@ -191,6 +192,8 @@ class CommandBase(object):
 
     @classmethod
     def _add_mediatype_option(cls, parser, default="-", required=False):
+        default = os.getenv("APPR_DEFAULT_MEDIA_TYPE", default)
+
         if default is not None:
             required = False
 

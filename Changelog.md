@@ -1,6 +1,7 @@
-## 0.7.2 Released on
+## 0.7.2 Released on 2017-08-13
 
 - Add login/creds per namespaces / repo
+
 ```shell
 # login for the domain
 $ appr login quay.io
@@ -9,6 +10,9 @@ $ appr login quay.io/ns1
 # login for the a repo
 $ appr login quay.io/ns1/repo1
 ```
+
+- Update helm plugin to expose all top-level commands under `appr helm`
+  to eliminate the shell script workaround.
 
 - Fix json output on error
 

@@ -26,6 +26,9 @@ class PushCmd(CommandBase):
         self.force = options.force
         self.manifest = None
         self.media_type = options.media_type
+        if options.media_type is self.default_media_type:
+            self.media_type = os.getenv("APPR_DEFAULT_MEDIA_TYPE", self.default_media_type)
+
         self.channel = options.channel
         self.version = options.version
         self.filter_files = True

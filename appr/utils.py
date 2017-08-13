@@ -55,6 +55,15 @@ def parse_version_req(version):
     return parts
 
 
+def getenv(value, envname, default=None):
+    if not value:
+        if default:
+            value = os.getenv(envname, default)
+        else:
+            value = os.environ[envname]
+    return value
+
+
 def split_package_name(name):
     sp = re.sub(r"^https?://", "", name).split("/")
     package_parts = {"host": None, "namespace": None, "package": None, "version": None}

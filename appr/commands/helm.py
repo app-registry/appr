@@ -100,7 +100,7 @@ class HelmCmd(CommandBase):
         dep_pull_cmd.set_defaults(func=cls._dep_pull)
         other_cmds = copy(all_commands())
         other_cmds.pop("helm")
-        get_parser(other_cmds, parser, sub)
+        get_parser(other_cmds, parser, sub, {'APPR_DEFAULT_MEDIA_TYPE': 'helm'})
 
     def _render_dict(self):
         return self.status
