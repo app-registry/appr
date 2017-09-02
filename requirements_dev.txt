@@ -2,7 +2,7 @@
 # -e git+https://github.com/ant31/pytest-sugar.git#egg=pytest-sugar
 
 # Missing: --add-data in pypi
-# -e git+https://github.com/pyinstaller/pyinstaller.git#egg=pyinstaller
+# -e git+https://github.com/ant31/pyinstaller.git#egg=pyinstaller
 
 bumpversion
 coverage
