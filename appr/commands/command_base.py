@@ -5,7 +5,7 @@ import copy
 import json
 import os
 import re
-
+import subprocess
 import requests
 import yaml
 
@@ -143,6 +143,11 @@ class CommandBase(object):
                 payload["response"] = content
             self.render_error(payload)
             exit(2)
+        except subprocess.CalledProcessError as exc:
+            payload = {"message": str(exc.output)}
+            self.render_error(payload)
+            exit(exc.returncode)
+
         if render:
             self.render()
 

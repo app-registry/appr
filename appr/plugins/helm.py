@@ -83,7 +83,4 @@ class Helm(object):
 
     def _call(self, cmd):
         command = ['helm'] + cmd
-        try:
-            return subprocess.check_output(command, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as exc:
-            return exc.output
+        return subprocess.check_output(command, stderr=subprocess.STDOUT)

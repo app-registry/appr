@@ -1,3 +1,8 @@
+## 0.7.3 Released on 2017-09-02
+
+- Fix #72: MacOS build
+- Fix #73: Exit with the same error-code than Helm
+
 ## 0.7.2 Released on 2017-08-13
 
 - Add login/creds per namespaces / repo

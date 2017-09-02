@@ -37,6 +37,7 @@ cli_requirements = [
 
 extra_requirements = [
     'urllib3[secure]<1.22',
+    'pyopenssl',
     'jinja2>=2.8',
     'jsonpatch',
     'tabulate',

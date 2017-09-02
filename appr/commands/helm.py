@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import os
 import tempfile
+import subprocess
 from copy import copy
 from appr.commands.command_base import CommandBase
 from appr.commands.pull import PullCmd
@@ -35,7 +36,12 @@ class HelmCmd(CommandBase):
         pull_cmd = PullCmd(options)
         pull_cmd.exec_cmd(render=False)
         helm_cli = Helm()
-        output = helm_cli.action(cmd, pull_cmd.path, helm_opts)
+        try:
+            output = helm_cli.action(cmd, pull_cmd.path, helm_opts)
+        except subprocess.CalledProcessError as exc:
+            payload = {"message": str(exc.output)}
+            self.render_error(payload)
+            exit(exc.returncode)
         self.status = {'result': output}
         self.render()
 
