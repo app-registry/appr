@@ -43,11 +43,12 @@ class Helm(object):
                 with open('%s-%s.tgz' % (name, release), 'wb') as tarfile:
                     tarfile.write(package.blob)
             package.extract(packagepath)
-
-            helm_deps[name] = {
+            dep.update({
                 'name': name,
                 'version': release,
-                'repository': 'file://%s/%s' % (packagepath, name)}
+                'repository': 'file://%s/%s' % (packagepath, name)
+            })
+            helm_deps[name] = dep
         return helm_deps
 
     def build_dep(self, dest=DEFAULT_CHARTS, overwrite=False):
