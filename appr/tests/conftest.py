@@ -170,7 +170,7 @@ def kv_prefix(monkeypatch):
 
 @pytest.fixture()
 def db():
-    from appr.models.db_base import ApprDB
+    from appr.models import ApprDB
     return ApprDB
 
 

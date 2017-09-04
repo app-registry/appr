@@ -1,3 +1,7 @@
+## 0.7.4 Released on [DEV]
+
+- Fix #67: Preserve Helm dependency options
+
 ## 0.7.3 Released on 2017-09-02
 
 - Fix #72: MacOS build
