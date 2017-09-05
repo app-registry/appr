@@ -57,10 +57,14 @@ class Helm(object):
             the requirements.yaml.
             Returns status
         """
+        if not os.path.isfile('requirements.yaml'):
+            return 'No requirements.yaml found'
         with open('requirements.yaml', 'rb') as requirefile:
             deps = yaml.safe_load(requirefile.read())
         helm_deps = {}
         if 'appr' in deps and deps['appr']:
+            if 'dependencies' not in deps:
+                deps['dependencies'] = []
             helm_deps = self.download_appr_deps(deps['appr'], dest)
             dict_deps = {dep['name']: dep for dep in deps['dependencies']}
             dict_deps.update(helm_deps)

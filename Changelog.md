@@ -1,6 +1,7 @@
 ## 0.7.4 Released on [DEV]
 
 - Fix #67: Preserve Helm dependency options
+- `appr helm dep` exits without error if `requirements.yaml` isn't present
 
 ## 0.7.3 Released on 2017-09-02
 
