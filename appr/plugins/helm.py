@@ -46,7 +46,7 @@ class Helm(object):
             dep.update({
                 'name': name,
                 'version': release,
-                'repository': 'file://%s/%s' % (packagepath, name)
+                'repository': 'file://%s' % os.path.join(packagepath, package_parts['package'])
             })
             helm_deps[name] = dep
         return helm_deps

@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-
+import os
 import json
 import pytest
 import requests_mock
@@ -12,6 +12,7 @@ from appr.api.impl.registry import pull
 def test_appr_dep(db_with_data1, tmpdir):
     version = '0.0.1'
     name = "titi/rocketchat"
+
     with requests_mock.mock() as m:
         response = pull(name, version, "helm", db_with_data1.Package, db_with_data1.Blob)
         m.get(DEFAULT_REGISTRY + DEFAULT_PREFIX + "/api/v1/packages/%s/%s/helm/pull" %
@@ -23,10 +24,11 @@ def test_appr_dep(db_with_data1, tmpdir):
             'version': version,
             'randomKey': 'oky'
         }], tempdir)
+        sp = name.split("/")
         assert deps == {
             'rocketchat': {
-                "repository": "file://%s/titi/rocketchat" % (tempdir, ),
-                "version": version,
+                "repository": "file://%s" % os.path.join(tempdir, sp[0], sp[1]),
+                "version": '0.0.1',
                 "name": 'rocketchat',
                 "randomKey": 'oky'
             },

@@ -5,13 +5,18 @@ import os.path
 
 import pytest
 
+from appr import SYSTEM
 from appr.pack import unpack_kub
 
-TAR_MD5SUM = "8ccd8af6ef21af7309839f1c521b6354"
-KUBEUI_FILES = ["manifest.yaml",
-                "README.md",
-                "templates/kube-ui-rc.yaml",
-                "templates/kube-ui-svc.yaml"]
+TAR_MD5SUM = {
+    'darwin': "8ccd8af6ef21af7309839f1c521b6354",
+    'linux': "8ccd8af6ef21af7309839f1c521b6354",
+    'windows': '20bf57e5d5dec33e51bf1f04bfde4367'
+}
+
+KUBEUI_FILES = [
+    "manifest.yaml", "README.md", "templates/kube-ui-rc.yaml", "templates/kube-ui-svc.yaml"
+]
 
 
 def _check_app(path):
@@ -33,7 +38,7 @@ def test_extract(kubeui_package, tmpdir):
 def test_pack(kubeui_package, tmpdir):
     d = str(tmpdir.mkdir("pack")) + "/kube-ui.tar"
     kubeui_package.pack(d)
-    assert hashlib.md5(open(d, "r").read()).hexdigest() == TAR_MD5SUM
+    assert hashlib.md5(open(d, "r").read()).hexdigest() == TAR_MD5SUM[SYSTEM]
 
 
 def test_tree(kubeui_package):
