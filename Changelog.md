@@ -1,4 +1,4 @@
-## 0.7.4 Released on [DEV]
+## 0.7.4 Released on 2017-09-22
 
 - Fix #83: Implements .helmignore
 - Fix #80: Updated the `appr plugins install helm` to download either windows or linux tarball
