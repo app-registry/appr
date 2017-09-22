@@ -9,9 +9,12 @@ import io
 import os
 import tarfile
 
+import pathspec
+
 AUTHORIZED_FILES = [
     "*.libsonnet", "*.libjsonnet", "*.jsonnet", "*.yaml", "README.md", "LICENSE", "AUTHORS",
-    "NOTICE", "manifests", "deps/*.kub"]
+    "NOTICE", "manifests", "deps/*.kub"
+]
 
 AUTHORIZED_TEMPLATES = ["*.yaml", "*.jsonnet", "*.libjsonnet", "*.yml", "*.j2", "*.libsonnet"]
 
@@ -28,24 +31,26 @@ def authorized_files():
     return files
 
 
+def ignore(pattern, path):
+    spec = pathspec.PathSpec.from_lines('gitwildmatch', pattern.splitlines())
+    return spec.match_file(path)
+
+
 def all_files():
     files = []
-    ignore_files = []
+    ignore_patterns = None
     for filename in ['.helmignore', '.apprignore', '.kpmignore']:
         if os.path.exists(filename):
             with open(filename, 'r') as f:
-                ignore_files = ignore_files + f.read().split("\n")
+                ignore_patterns = f.read()
+                break  # allow only one file
 
     for root, _, filenames in os.walk('.'):
         for filename in filenames:
             path = os.path.join(root, filename)
-            skip = False
-            for ignore_pattern in ignore_files:
-                if fnmatch.fnmatch(path, ignore_pattern):
-                    skip = True
-                    break
-            if not skip:
+            if ignore_patterns is None or not ignore(path, ignore_patterns):
                 files.append(path.replace("./", ""))
+
     return files
 
 

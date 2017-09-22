@@ -6,7 +6,7 @@ import os.path
 import pytest
 
 from appr import SYSTEM
-from appr.pack import unpack_kub
+from appr.pack import unpack_kub, ignore
 
 TAR_MD5SUM = {
     'darwin': "8ccd8af6ef21af7309839f1c521b6354",
@@ -54,3 +54,39 @@ def test_tree_filter(kubeui_package):
 def test_file(kubeui_package, data_dir):
     manifest = kubeui_package.file("manifest.yaml")
     assert manifest == open(data_dir + "/kube-ui/manifest.yaml", "r").read()
+
+
+@pytest.mark.parametrize(
+    "pattern,file_path,expected",
+    [
+        ('helm.txt', "helm.txt", True),
+        ('helm.*', "helm.txt", True),
+        ('helm.*', "rudder.txt", False),
+        ('*.txt', "tiller.txt", True),
+        ('*.txt', "cargo/a.txt", True),
+        ('cargo/*.txt', "cargo/a.txt", True),
+        ('cargo/*.*', "cargo/a.txt", True),
+        ('cargo/*.txt', "mast/a.txt", False),
+        ('ru[c-e]?er.txt', "rudder.txt", True),
+        ('templates/.?*', "templates/.dotfile", True),
+
+        # Directory tests
+        (".git", ".git/toto", True),
+        (".git", ".git/toto/titi", True),
+        ('cargo/', "cargo/", True),
+        ('cargo/', "cargo/a.txt", True),
+        ('cargo/', "mast/", False),
+        ('helm.txt/', "helm.txt", False),
+        # // Negation tests
+        ('!helm.txt', "helm.txt", False),
+        ('helm.txt\n!helm.txt', "helm.txt", False),
+        ('*\n!helm.txt', "tiller.txt", True),
+        ('*\n!*.txt', "cargo", True),
+        ('*\n!cargo/', "mast/a", True),
+        # Absolute path tests
+        ('/a.txt', "a.txt", True),
+        ('/a.txt', "cargo/a.txt", False),
+        ('/cargo/a.txt', "cargo/a.txt", True),
+    ])
+def test_ignore(pattern, file_path, expected):
+    assert ignore(pattern, file_path) is expected
