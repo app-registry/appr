@@ -1,5 +1,7 @@
 ## 0.7.4 Released on [DEV]
 
+- Fix #83: Implements .helmignore
+- Fix #80: Updated the `appr plugins install helm` to download either windows or linux tarball
 - Fix #67: Preserve Helm dependency options
 - `appr helm dep` exits without error if `requirements.yaml` isn't present
 

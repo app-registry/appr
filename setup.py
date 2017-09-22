@@ -33,6 +33,7 @@ cli_requirements = [
     'tabulate',
     'termcolor',
     'pyyaml',
+    "pathspec",
 ]
 
 extra_requirements = [
