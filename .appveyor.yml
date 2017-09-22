@@ -18,6 +18,7 @@ environment:
       BIN_NAME: appr-win-x64
       PYTHON_ARCH: "64"
       PYTHON_VERSION: "2.7.x"
+      APPR_TEST_DB: "filesystem"
     # - PYTHON: "C:\\Python33-x64"
     # - PYTHON: "C:\\Python34-x64"
     # - PYTHON: "C:\\Python35-x64"
@@ -37,25 +38,19 @@ install:
   # - "pip install jsonnet"
   - "pip install -e ."
   - "pip install -e git+https://github.com/pyinstaller/pyinstaller.git#egg=pyinstaller"
-build: off
-
-
-test_script: []
-  # Run the project tests
-  #- "py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests"
-
-after_test:
-  # If tests are successful, create binary packages for the project.
   - "pyinstaller --add-data appr/jsonnet;appr/jsonnet --onefile bin/appr"
   - ps: "ls dist"
   - "copy dist\\appr.exe %BIN_NAME%.exe"
-  # - "mkdir registry"
-  # - "copy dist\\appr.exe registry\\appr.exe"
-  # - "7z a registry-%BIN_NAME%-helm-plugin.zip registry\\*.*"
-  # - ps: "ls dist"
-  # - ps: "ls registry"
-  - "C:\\projects\\appr\\dist\\appr.exe version quay.io"
+build: off
 
+
+test_script:
+  # Run the project tests
+  - py.test --cov=appr --cov-report=html --cov-report=term-missing  --verbose tests -m "not live" -m "not jsonnet" --cov-config=.coverage-unit.ini
+  - "C:\\projects\\appr\\dist\\appr.exe version quay.io"
+  - "C:\\projects\\appr\\dist\\appr.exe plugins install helm"
+
+after_test: []
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report.
   - path: "%BIN_NAME%.exe"

@@ -1,11 +1,13 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+import shutil
 from os.path import expanduser
 import tarfile
 
 import requests
 
+from appr import SYSTEM
 from appr.commands.command_base import CommandBase
 from appr.utils import mkdir_p, get_current_script_path
 
@@ -14,28 +16,39 @@ LOCAL_DIR = os.path.dirname(__file__)
 
 def install_helm_plugin(plugin, plugin_info):
     version = plugin['name']
-    tarball_src = ("https://github.com/%s/releases/download/%s/registry-helm-plugin.tar.gz" %
-                   (plugin_info['repo'], version))
+    tarball_src = ("https://github.com/%s/releases/download/%s/helm-registry_%s.tar.gz" %
+                   (plugin_info['repo'], version, SYSTEM))
     helm_home = os.getenv("HELM_HOME", os.path.join(expanduser("~"), ".helm"))
     plugin_path = os.getenv("HELM_PLUGIN_DIR", os.path.join(helm_home, "plugins"))
     mkdir_p(plugin_path)
     tardest = os.path.join(plugin_path, "appr-helm-plugin-%s.tar.gz" % version)
     res = requests.get(tarball_src)
     res.raise_for_status()
+
     with open(tardest, "wb") as f:
         f.write(res.content)
+
     tar = tarfile.open(tardest, 'r:gz')
     tar.extractall(plugin_path)
     bin_path = os.path.join(plugin_path, "registry/appr")
+
     if os.path.exists(bin_path):
         os.remove(bin_path)
     execscript = get_current_script_path()
-    os.symlink(get_current_script_path(), bin_path)
+
+    if SYSTEM != "windows":
+        os.symlink(get_current_script_path(), bin_path)
+    else:
+        shutil.copy(get_current_script_path(), bin_path)
+
     return {
+        'source': tarball_src,
         'plugin-version': version,
         'status': 'installed',
+        'platform': SYSTEM,
         'path': os.path.join(plugin_path, 'registry'),
-        'symlink': execscript}
+        'symlink': execscript
+    }
 
 
 class PluginsCmd(CommandBase):
@@ -44,7 +57,9 @@ class PluginsCmd(CommandBase):
     plugins = {
         'helm': {
             'repo': 'app-registry/appr-helm-plugin',
-            'install_method': install_helm_plugin}}
+            'install_method': install_helm_plugin
+        }
+    }
     output_default = "yaml"
 
     def __init__(self, options):
