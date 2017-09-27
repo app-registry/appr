@@ -43,7 +43,7 @@ class ManifestChart(dict):
             with open(mfile) as f:
                 self._load_yaml(f.read())
         else:
-            raise Exception("Error: Chart not found.")
+            raise IOError("Error: Chart not found.")
 
     @property
     def keywords(self):
