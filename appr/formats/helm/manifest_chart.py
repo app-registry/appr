@@ -40,11 +40,11 @@ class ManifestChart(dict):
                 break
 
         if mfile is not None:
-          with open(mfile) as f:
-              self._load_yaml(f.read())
+            with open(mfile) as f:
+                self._load_yaml(f.read())
         else:
-          print("Error: Chart not found.", sys.stderr)
-          raise exc
+            print("Error: Chart not found.", sys.stderr)
+            raise exc
 
     @property
     def keywords(self):
