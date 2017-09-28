@@ -15,6 +15,7 @@ cache:
 .job: &job
   before_script:
   - pip install -e .
+  - pip install jsonnet
   - pip install -r requirements_dev.txt -U
   script:
     - make test db=$APPR_TEST_DB
