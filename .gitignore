@@ -92,3 +92,6 @@ ENV/
 
 #vscode
 .vscode
+
+#intellij
+.idea
