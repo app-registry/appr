@@ -1,12 +1,14 @@
 from __future__ import absolute_import, division, print_function
-import os
+
 import json
+import os
 import pytest
 import requests_mock
 import yaml
-from appr.plugins.helm import Helm
-from appr.client import DEFAULT_PREFIX, DEFAULT_REGISTRY
+
 from appr.api.impl.registry import pull
+from appr.client import DEFAULT_PREFIX, DEFAULT_REGISTRY
+from appr.plugins.helm import Helm
 
 
 def test_appr_dep(db_with_data1, tmpdir):
@@ -25,14 +27,12 @@ def test_appr_dep(db_with_data1, tmpdir):
             'randomKey': 'oky'
         }], tempdir)
         sp = name.split("/")
-        assert deps == {
-            'rocketchat': {
-                "repository": "file://%s" % os.path.join(tempdir, sp[0], sp[1]),
-                "version": '0.0.1',
-                "name": 'rocketchat',
-                "randomKey": 'oky'
-            },
-        }
+        assert deps == [{
+            "repository": "file://%s" % os.path.join(tempdir, sp[0], sp[1]),
+            "version": '0.0.1',
+            "name": 'rocketchat',
+            "randomKey": 'oky'
+        }]
 
 
 @pytest.fixture
@@ -42,33 +42,77 @@ def chhome(fake_home, monkeypatch):
 
 @pytest.mark.parametrize("req,expected", [
     ({
-        'dependencies': []
-    }, {
-        'dependencies': []
-    }),
+         'dependencies': []
+     }, 'No appr-registries dependencies'),
     ({
-        'dependencies': [],
-        'appr': []
-    }, {
-        'dependencies': [],
-        'appr': []
-    }),
+         'dependencies': [],
+         'appr': []
+     }, 'No appr-registries dependencies'),
     ({
-        'appr': [{
-            'name': '%s/titi/rocketchat' % DEFAULT_REGISTRY,
-            'version': '0.0.1'
-        }]
-    }, {
-        'dependencies': [],
-        'appr': [{
-            'name': '%s/titi/rocketchat' % DEFAULT_REGISTRY,
-            'version': '0.0.1'
-        }]
-    }),
+         'appr': [{
+             'name': '%s/titi/rocketchat' % DEFAULT_REGISTRY,
+             'version': '0.0.1'
+         }]
+     }, {
+         'dependencies': [{
+             'name': 'rocketchat',
+             'repository': ['titi','rocketchat'],
+             'version': '0.0.1'
+         }],
+         'appr': [{
+             'name': 'rocketchat',
+             'repository': ['titi','rocketchat'],
+             'version': '0.0.1'
+         }]
+     }),
+    ({
+         'appr': [{
+             'name': '%s/titi/rocketchat' % DEFAULT_REGISTRY,
+             'version': '0.0.1',
+             'alias': 'rocketchat1'
+         }, {
+             'name': '%s/titi/rocketchat' % DEFAULT_REGISTRY,
+             'version': '0.0.1',
+             'alias': 'rocketchat2'
+         }]
+     }, {
+         'dependencies': [{
+             'name': 'rocketchat',
+             'repository': ['titi','rocketchat'],
+             'version': '0.0.1',
+             'alias': 'rocketchat1'
+         }, {
+             'name': 'rocketchat',
+             'repository': ['titi','rocketchat'],
+             'version': '0.0.1',
+             'alias': 'rocketchat2'
+         }],
+         'appr': [{
+             'name': 'rocketchat',
+             'repository': ['titi','rocketchat'],
+             'version': '0.0.1',
+             'alias': 'rocketchat1'
+         }, {
+             'name': 'rocketchat',
+             'repository': ['titi','rocketchat'],
+             'version': '0.0.1',
+             'alias': 'rocketchat2'
+         }]
+     })
 ])
 def test_build_deps_with_empty_values(req, expected, db_with_data1, tmpdir, chhome):
     dest = str(tmpdir.mkdir("charts"))
     hp = Helm()
+    if isinstance(expected, dict):
+        for dep in expected['dependencies']:
+            dep.update({
+                'repository': "file://%s" % os.path.join(dest, dep['repository'][0], dep['repository'][1])
+            })
+        for dep in expected['appr']:
+            dep.update({
+                'repository': "file://%s" % os.path.join(dest, dep['repository'][0], dep['repository'][1])
+            })
+    print(expected)
     with requests_mock.mock() as m:
         for dep in req.get('appr', []):
             package = '/'.join(dep['name'].split("/")[-2:])
@@ -78,7 +122,10 @@ def test_build_deps_with_empty_values(req, expected, db_with_data1, tmpdir, chho
                   (package, dep['version']), content=json.dumps(response))
         with open("requirements.yaml", 'wb') as f:
             f.write(yaml.dump(req))
-        assert 'dependencies' in hp.build_dep(dest)
+        output = yaml.safe_load(hp.build_dep(dest))
+
+        print(output)
+        assert output == expected
 
 
 def test_build_deps_no_requirements(tmpdir, chhome):

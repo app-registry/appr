@@ -24,7 +24,7 @@ class Helm(object):
             returns a helm dependency list
         """
         mkdir_p(dest)
-        helm_deps = {}
+        helm_deps = []
         for dep in deps:
             package_parts = parse_package_name(dep['name'])
             name = package_parts['package']
@@ -48,7 +48,7 @@ class Helm(object):
                 'version': release,
                 'repository': 'file://%s' % os.path.join(packagepath, package_parts['package'])
             })
-            helm_deps[name] = dep
+            helm_deps.append(dep)
         return helm_deps
 
     def build_dep(self, dest=DEFAULT_CHARTS, overwrite=False):
@@ -66,9 +66,9 @@ class Helm(object):
             if 'dependencies' not in deps:
                 deps['dependencies'] = []
             helm_deps = self.download_appr_deps(deps['appr'], dest)
-            dict_deps = {dep['name']: dep for dep in deps['dependencies']}
-            dict_deps.update(helm_deps)
-            deps['dependencies'] = dict_deps.values()
+            updated_deps = [dep for dep in deps['dependencies']]
+            updated_deps.extend(helm_deps)
+            deps['dependencies'] = updated_deps
             requirement_output = yaml.safe_dump(deps, default_flow_style=False)
             if overwrite:
                 with open('requirements.yaml', 'wb') as requirefile:
