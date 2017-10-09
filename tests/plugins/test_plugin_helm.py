@@ -56,12 +56,12 @@ def chhome(fake_home, monkeypatch):
      }, {
          'dependencies': [{
              'name': 'rocketchat',
-             'repository': 'file://%s/titi/rocketchat',
+             'repository': ['titi','rocketchat'],
              'version': '0.0.1'
          }],
          'appr': [{
              'name': 'rocketchat',
-             'repository': 'file://%s/titi/rocketchat',
+             'repository': ['titi','rocketchat'],
              'version': '0.0.1'
          }]
      }),
@@ -78,23 +78,23 @@ def chhome(fake_home, monkeypatch):
      }, {
          'dependencies': [{
              'name': 'rocketchat',
-             'repository': 'file://%s/titi/rocketchat',
+             'repository': ['titi','rocketchat'],
              'version': '0.0.1',
              'alias': 'rocketchat1'
          }, {
              'name': 'rocketchat',
-             'repository': 'file://%s/titi/rocketchat',
+             'repository': ['titi','rocketchat'],
              'version': '0.0.1',
              'alias': 'rocketchat2'
          }],
          'appr': [{
              'name': 'rocketchat',
-             'repository': 'file://%s/titi/rocketchat',
+             'repository': ['titi','rocketchat'],
              'version': '0.0.1',
              'alias': 'rocketchat1'
          }, {
              'name': 'rocketchat',
-             'repository': 'file://%s/titi/rocketchat',
+             'repository': ['titi','rocketchat'],
              'version': '0.0.1',
              'alias': 'rocketchat2'
          }]
@@ -106,11 +106,11 @@ def test_build_deps_with_empty_values(req, expected, db_with_data1, tmpdir, chho
     if isinstance(expected, dict):
         for dep in expected['dependencies']:
             dep.update({
-                'repository': dep['repository'] % dest
+                'repository': "file://%s" % os.path.join(dest, dep['repository'][0], dep['repository'][1])
             })
         for dep in expected['appr']:
             dep.update({
-                'repository': dep['repository'] % dest
+                'repository': "file://%s" % os.path.join(dest, dep['repository'][0], dep['repository'][1])
             })
     print(expected)
     with requests_mock.mock() as m:
