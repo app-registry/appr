@@ -32,12 +32,18 @@ class ManifestChart(dict):
             raise exc
 
     def _load_from_path(self):
+        mfile = None
+
         for f in MANIFEST_FILES:
             if os.path.exists(f):
                 mfile = f
                 break
-        with open(mfile) as f:
-            self._load_yaml(f.read())
+
+        if mfile is not None:
+            with open(mfile) as f:
+                self._load_yaml(f.read())
+        else:
+            raise IOError("Error: Chart not found.")
 
     @property
     def keywords(self):
