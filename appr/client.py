@@ -214,6 +214,15 @@ class ApprClient(object):
         self.auth.add_token(self.host, result['token'])
         return result
 
+    def restore_dump(self, dump, secret):
+        path = "/api/v1/admin/reset_db"
+        resp = requests.post(self._url(path), data=json.dumps({
+            "dump": dump,
+            "secret": secret,
+        }), headers=self.headers, verify=self.verify)
+        resp.raise_for_status()
+        return resp.json()
+
     def generate(self, name, namespace=None, variables=None, version=None, shards=None):
         path = "/api/v1/packages/%s/generate" % name
         params = {}

@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-
+import os
 import json
 from base64 import b64decode
 
@@ -9,9 +9,9 @@ import appr.api.impl.registry
 from appr.api.app import getvalues, repo_name
 from appr.exception import (
     ApprException, ChannelNotFound, InvalidParams, InvalidRelease, InvalidUsage,
-    PackageAlreadyExists, PackageNotFound, PackageReleaseNotFound, UnableToLockResource,
+    PackageAlreadyExists, PackageNotFound, Forbidden, PackageReleaseNotFound, UnableToLockResource,
     UnauthorizedAccess, Unsupported)
-from appr.models import DEFAULT_MEDIA_TYPE, Blob, Channel, Package
+from appr.models import DEFAULT_MEDIA_TYPE, Blob, Channel, Package, ApprDB
 
 registry_app = Blueprint(
     'registry',
@@ -21,6 +21,7 @@ registry_app = Blueprint(
 @registry_app.errorhandler(Unsupported)
 @registry_app.errorhandler(PackageAlreadyExists)
 @registry_app.errorhandler(InvalidRelease)
+@registry_app.errorhandler(Forbidden)
 @registry_app.errorhandler(UnableToLockResource)
 @registry_app.errorhandler(UnauthorizedAccess)
 @registry_app.errorhandler(PackageNotFound)
@@ -64,6 +65,16 @@ def _pull(data, json_format=True):
         resp.headers['Content-Disposition'] = data['filename']
         resp.mimetype = 'application/x-gzip'
     return resp
+
+
+@registry_app.route("/api/v1/admin/reset_db", methods=['POST'], strict_slashes=False)
+def restore_db():
+    values = getvalues()
+    secret = values['secret']
+    if 'APPR_ADMIN_SECRET' not in os.environ or secret != os.environ["APPR_ADMIN_SECRET"]:
+        raise Forbidden("not allowed")
+    dump = values['dump']
+    return jsonify(appr.api.impl.registry.restore_db(dump, db_class=ApprDB))
 
 
 @registry_app.route(
@@ -135,9 +146,7 @@ def list_packages():
     namespace = values.get('namespace', None)
     result = appr.api.impl.registry.list_packages(namespace, Package, search=values.get(
         'query', None), media_type=values.get('media_type', None))
-    resp = current_app.make_response(json.dumps(result))
-    resp.mimetype = 'application/json'
-    return resp
+    return jsonify(result)
 
 
 @registry_app.route("/api/v1/packages/search", methods=['GET'], strict_slashes=False)

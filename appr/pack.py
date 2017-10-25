@@ -36,16 +36,17 @@ def ignore(pattern, path):
     return spec.match_file(path)
 
 
-def all_files():
+def all_files(srcpath="."):
     files = []
     ignore_patterns = None
     for filename in ['.helmignore', '.apprignore', '.kpmignore']:
+        filename = os.path.join(srcpath, filename)
         if os.path.exists(filename):
             with open(filename, 'r') as f:
                 ignore_patterns = f.read()
                 break  # allow only one file
 
-    for root, _, filenames in os.walk('.'):
+    for root, _, filenames in os.walk(srcpath):
         for filename in filenames:
             path = os.path.join(root, filename)
             if ignore_patterns is None or not ignore(path, ignore_patterns):
@@ -54,12 +55,13 @@ def all_files():
     return files
 
 
-def pack_kub(kub, filter_files=True, prefix=None):
+def pack_kub(kub, filter_files=False, prefix=None, srcpath="."):
     tar = tarfile.open(kub, "w:gz")
     if filter_files:
         files = authorized_files()
     else:
-        files = all_files()
+        os.stat(srcpath)
+        files = all_files(srcpath)
     for filepath in files:
         arcname = None
         if prefix:

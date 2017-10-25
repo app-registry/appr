@@ -26,6 +26,7 @@ server_requirements = [
     'flask-cors',
     'gunicorn>=19.7',
     "gevent",
+    "kubernetes"
 ]
 
 cli_requirements = [
@@ -76,10 +77,12 @@ setup(
     packages=[
         'appr',
         'appr.commands',
+        'appr.commands.package',
         'appr.plugins',
         'appr.formats',
         'appr.formats.helm',
         'appr.formats.appr',
+        'appr.controller',
         'appr.tests',
         'appr.api',
         'appr.api.impl',
@@ -89,7 +92,7 @@ setup(
         'appr.models.kv.redis',
         'appr.models.kv.filesystem',
     ],
-    scripts=['bin/appr', 'bin/apprc'],
+    scripts=['bin/appr', 'bin/apprc', 'bin/k8s-package'],
     package_dir={'appr': 'appr'},
     include_package_data=True,
     install_requires=requirements,

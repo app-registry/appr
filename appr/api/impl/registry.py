@@ -195,6 +195,14 @@ def list_packages(namespace, package_class, **kwargs):
     return resp
 
 
+def restore_db(dump, db_class):
+    """
+    Restore a db backup
+    """
+    db_class.reset_db()
+    return db_class.restore_backup(dump)
+
+
 def show_package(package, release, media_type, channel_class, package_class):
     """
     Returns package details

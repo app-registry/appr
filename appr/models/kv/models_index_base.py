@@ -150,7 +150,7 @@ class ModelsIndexBase(object):
     def releases(self, media_type=None):
         if media_type is not None:
             result = []
-            for release_name, release in self.releases_data['releases'].iteritems():
+            for release_name, release in self.releases_data['releases'].items():
                 if media_type in release['manifests']:
                     result.append(release_name)
         else:
@@ -169,7 +169,7 @@ class ModelsIndexBase(object):
             return self.release_manifests(release).keys()
         else:
             formats = set()
-            for _, release in self.releases_data['releases'].iteritems():
+            for _, release in self.releases_data['releases'].items():
                 [formats.add(x) for x in release['manifests'].keys()]
             return list(formats)
 
@@ -278,7 +278,7 @@ class ModelsIndexBase(object):
             raise_channel_not_found(self.package, channel)
 
         releases = [
-            release for release, x in self.releases_data['releases'].iteritems()
+            release for release, x in self.releases_data['releases'].items()
             if channel in x['channels']]
         ordered_releases = [
             str(x) for x in sorted(appr.semver.versions(releases, False), reverse=True)]
@@ -297,7 +297,7 @@ class ModelsIndexBase(object):
                     "%s/%s" % (namespace, name)
                     for name in self.packages_data['packages'][namespace].keys()]
         else:
-            for namespace, packages in self.packages_data['packages'].iteritems():
+            for namespace, packages in self.packages_data['packages'].items():
                 for name in packages.keys():
                     result.append("%s/%s" % (namespace, name))
         return result
@@ -311,8 +311,8 @@ class ModelsIndexBase(object):
             if namespace in self.packages_data['packages']:
                 result = self.packages_data['packages'][namespace].values()
         else:
-            for namespace, packages in self.packages_data['packages'].iteritems():
-                for _, data in packages.iteritems():
+            for namespace, packages in self.packages_data['packages'].items():
+                for _, data in packages.items():
                     result.append(data)
         return result
 
