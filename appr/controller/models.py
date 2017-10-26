@@ -1,30 +1,37 @@
 import os
-
+import json
 import tempfile
-import yaml
-from appr.utils import get_media_type, content_media_type, manifest_media_type
-from copy import deepcopy
 import logging
+
+from copy import deepcopy
+
 import requests
-from kubernetes import client as k8s_client, config, watch
+import yaml
+
+from kubernetes import client as k8s_client, config
 from appr.pack import pack_kub, ApprPackage
 from appr.utils import package_filename, mkdir_p
 from appr.exception import PackageAlreadyExists
+import appr.controller.kubectl as kubectl
 
 CRD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "crd")
-
+logging.basicConfig()
 logger = logging.getLogger('k8s_events')
-
 logger.setLevel(logging.DEBUG)
-
 config.load_kube_config()
 v1 = k8s_client.CoreV1Api()
 v1ext = k8s_client.ExtensionsV1beta1Api()
 custom_api = k8s_client.CustomObjectsApi()
 
 
+def load_spec(crd_file):
+    with open(os.path.join(os.path.dirname(__file__), "crd", crd_file)) as f:
+        return yaml.load(f.read())
+
+
 class CrdModel(object):
     kind = None
+    crd_spec = None
 
     def __init__(self, name):
         self.cr_instance = self.generate_cr(self.kind, name)
@@ -97,6 +104,7 @@ class CrdModel(object):
 
 class DescriptorCr(CrdModel):
     kind = "Descriptor"
+    crd_spec = load_spec("descriptor.crd.yaml")
 
     def __init__(self, name, media_type=None):
         super(DescriptorCr, self).__init__(name)
@@ -105,6 +113,18 @@ class DescriptorCr(CrdModel):
     @property
     def media_type(self):
         return self.spec['mediaType']
+
+    @classmethod
+    def from_chart(cls, chart):
+        descriptor = cls(chart['name'], 'helm')
+
+        for key in [
+                'sources', 'maintainers', 'appVersion', 'icon', 'keywords', 'description',
+                'appName', "created"
+        ]:
+            if key in chart:
+                descriptor.add_field(key, chart[key])
+        return descriptor
 
     @media_type.setter
     def media_type(self, value):
@@ -120,13 +140,23 @@ class DescriptorCr(CrdModel):
 
     def transform(self):
         self.cr_instance['metadata']['labels']['mediaType'] = self.media_type
+        for k, v in self.crd_spec['spec']['validation']['openAPIV3Schema']['properties'].items():
+            if k not in self.cr_instance['spec']:
+                val = ''
+                if v['type'] == 'array':
+                    val = []
+                elif v['type'] == 'object':
+                    val = {}
+                self.cr_instance['spec'][k] = val  # "# %s # %s" % (val, v.get('description', ''))
 
 
 class PackageCr(DescriptorCr):
     kind = "Package"
     crd_plural = 'packages'
     crd_group = 'manifest.k8s.io'
-    crd_version = 'v1alpha'
+    crd_version = 'v1alpha1'
+    columns = "NAME:metadata.name,APP:spec.packageName,VERSION:spec.packageVersion,MEDIATYPE:spec.mediaType,digest:spec.content.digest"
+    crd_spec = load_spec("package.crd.yaml")
 
     def __init__(self, name, version, media_type=None, descriptor=None):
         super(PackageCr, self).__init__(name, media_type)
@@ -151,6 +181,37 @@ class PackageCr(DescriptorCr):
             'digest'][0:10]
         self.cr_instance['metadata']['labels']['packageName'] = self.package_name
         self.cr_instance['metadata']['labels']['mediaType'] = self.media_type
+
+    @classmethod
+    def from_helm_index(cls, index, offline=False):
+        packages = []
+        missed = []
+        for name, releases in index['entries'].items():
+            for release in releases:
+                descriptor = DescriptorCr.from_chart(release).render()
+                version = release['version']
+                package = cls(name, version, 'helm', descriptor=descriptor)
+                urls = release['urls']
+                try:
+                    logger.info("- %s.%s" % (name, version))
+                    package.add_url(urls[0], offline)
+                    packages.append(package.render())
+                    if package.content['digest'] != release['digest']:
+                        logger.error("warning: %s.%s" % (name, version))
+                        logger.error("%s != %s" % (package.content['digest'], release['digest']))
+                except requests.exceptions.RequestException as e:
+                    missed.append((name, version))
+        list_packages = {
+            "apiVersion": "v1",
+            "items": packages,
+            "kind": "List",
+            "metadata": {
+                "resourceVersion": "",
+                "selfLink": ""
+            }
+        }
+
+        return list_packages
 
     @property
     def version(self):
@@ -205,11 +266,14 @@ class PackageCr(DescriptorCr):
             'digest': appr_package.digest
         })
 
-    def add_url(self, url):
+    def add_url(self, url, offline=False):
         resp = requests.get(url, stream=True)
         resp.raise_for_status()
-        appr_package = ApprPackage(resp.content, b64_encoded=False)
-        self._add_source(appr_package, {'urls': [url]})
+        appr_package = ApprPackage(resp.raw.data, b64_encoded=False)
+        if offline:
+            self._add_source(appr_package, {'blob': appr_package.b64blob})
+        else:
+            self._add_source(appr_package, {'urls': [url]})
 
     @property
     def content(self):
@@ -244,7 +308,42 @@ class PackageCr(DescriptorCr):
 
     @classmethod
     def get(cls, name, namespace='default'):
-        cls.load(
-            custom_api.get_namespaced_custom_object(group=cls.crd_group, version=cls.crd_version,
-                                                    plural=cls.crd_plural, name=name,
-                                                    namespace=namespace))
+        return cls.load(json.loads(kubectl.get(cls.crd_plural, name, namespace, ["-o", "json"])))
+
+    @classmethod
+    def delete(cls, name, namespace='default'):
+        return kubectl.delete(cls.crd_plural, name, namespace)
+
+    @classmethod
+    def list(cls, name=None, namespace='default', output='text', filters=None, opts=None):
+        if not opts:
+            opts = []
+        if not filters:
+            filters = {}
+        labels = []
+        for k, v in filters.items():
+            labels.append("%s=%s" % (k, v))
+
+        opts += ['-l', ','.join(labels)]
+        if name:
+            opts.append(name)
+
+        if output == 'text':
+            opts = opts + ['-o', "custom-columns=%s" % cls.columns]
+        else:
+            opts = opts + ['-o', output]
+        res = kubectl.list(cls.crd_plural, namespace, opts)
+        if output == "yaml":
+            return yaml.load(res)
+        elif output == "json":
+            return json.loads(res)
+        else:
+            return res
+
+    @classmethod
+    def find(cls, filters, namespace="default"):
+        results = cls.list(filters=filters, output='json', namespace=namespace)
+        if not results['items']:
+            return None
+        else:
+            return cls.load(results['items'][0])

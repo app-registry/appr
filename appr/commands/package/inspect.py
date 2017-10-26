@@ -16,6 +16,7 @@ class InspectCmd(CommandBase):
         self.from_file = options.from_file
         self.namespace = options.namespace
         self.resource = options.resource
+        self.digest = options.digest
         self.status = {}
         self.package = None
         self.path = None
@@ -30,6 +31,7 @@ class InspectCmd(CommandBase):
         src_group.add_argument("--from-file", default=None, help="Read content from a local file")
         src_group.add_argument("resource", nargs='?', default=None,
                                help="kubernetes resource name")
+        src_group.add_argument("--digest", default=None, help="get by digest")
 
         parser.add_argument("-n", "--namespace", default="default", help="kubernetes namespace")
 
@@ -41,11 +43,12 @@ class InspectCmd(CommandBase):
         if self.from_file:
             with open(self.from_file, 'r') as fsource:
                 source = yaml.safe_load(fsource)
+            package_cr = PackageCr.load(source)
+        elif self.digest:
+            package_cr = PackageCr.find({'digest': self.digest[0:10]}, self.namespace)
         else:
-            # TODO(ant31)
-            source = "execute: kubectl get package %s -o yaml --export --namespace %s" % (
-                self.resource, self.namespace)
-        package_cr = PackageCr.load(source)
+            package_cr = PackageCr.get(self.resource, self.namespace)
+
         self.package = package_cr.appr_package
         if self.file:
             self.result = self.package.file(self.file)

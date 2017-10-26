@@ -14,7 +14,7 @@ class ExtractCmd(CommandBase):
         self.dest = options.dest
         self.tarball = options.tarball
         self.from_file = options.from_file
-
+        self.digest = options.digest
         self.namespace = options.namespace
         self.resource = options.resource
         self.status = {}
@@ -26,6 +26,8 @@ class ExtractCmd(CommandBase):
             with open(self.from_file, 'r') as fsource:
                 source = yaml.safe_load(fsource)
             self.package = PackageCr.load(source)
+        elif self.digest:
+            self.package = PackageCr.find({'digest': self.digest[0:10]}, self.namespace)
         else:
             self.package = PackageCr.get(self.resource, self.namespace)
 
@@ -35,7 +37,7 @@ class ExtractCmd(CommandBase):
     def _add_arguments(cls, parser):
         cls._add_output_option(parser)
         src_group = parser.add_mutually_exclusive_group()
-
+        src_group.add_argument("--digest", default=None, help="get by digest")
         src_group.add_argument("--from-file", default=None, help="Read content from a local file")
         src_group.add_argument("resource", nargs='?', default=None,
                                help="kubernetes resource name")

@@ -7,6 +7,7 @@ from appr.commands.package.generate import GenerateCmd
 from appr.commands.package.extract import ExtractCmd
 from appr.commands.package.version import VersionCmd
 from appr.commands.package.inspect import InspectCmd
+from appr.commands.package.get import GetCmd
 
 
 def all_commands():
@@ -15,6 +16,7 @@ def all_commands():
         ExtractCmd.name: ExtractCmd,
         InspectCmd.name: InspectCmd,
         GenerateCmd.name: GenerateCmd,
+        GetCmd.name: GetCmd,
     }
 
 
