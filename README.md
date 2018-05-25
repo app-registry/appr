@@ -132,7 +132,7 @@ Data storage is specified by the `STORAGE` environment variable. The following a
 - [`etcd`](https://github.com/coreos/etcd)
 - [`redis`](https://github.com/antirez/redis)
 
-## Demo using using [Helm](https://github.com/kubernetes/helm) charts
+## Demo using [Helm](https://github.com/kubernetes/helm) charts
 
 ### Publish a chart
 
