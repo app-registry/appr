@@ -82,7 +82,7 @@ def split_package_name(name):
     if len(sp) >= 2:
         package_parts["namespace"] = sp[1]
     if len(sp) >= 3:
-        match = re.match(r"^([a-z0-9_-]+?)([:@][a-z0-9._+-]+|@sha256:[a-z0-9]+)?$", sp[2])
+        match = re.match(r"^([a-z0-9_-]+?)([:@][a-z0-9._+-]+|@sha256:[a-z0-9]+)?$", sp[2], re.I)
         package, version = match.groups()
         package_parts['package'] = package
         package_parts['version'] = version
@@ -91,7 +91,7 @@ def split_package_name(name):
 
 def parse_package_name(name, regexp=PACKAGE_REGEXP):
     package_regexp = regexp
-    match = re.match(package_regexp, name)
+    match = re.match(package_regexp, name, re.I)
     if match is None:
         raise ValueError(
             "Package '%s' does not match format 'registry/namespace/name[@version|:channel]'" %
