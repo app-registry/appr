@@ -48,7 +48,7 @@ def all_files():
     for root, _, filenames in os.walk('.'):
         for filename in filenames:
             path = os.path.join(root, filename)
-            if ignore_patterns is None or not ignore(path, ignore_patterns):
+            if ignore_patterns is None or not ignore(ignore_patterns, path):
                 files.append(path.replace("./", ""))
 
     return files
