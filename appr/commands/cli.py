@@ -77,4 +77,4 @@ def cli():
         if os.getenv("APPR_DEBUG", "false") == "true":
             raise
         else:
-            parser.error(exc.message)
+            parser.error(exc)

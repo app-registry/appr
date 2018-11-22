@@ -22,7 +22,6 @@ class ApprDB(object):
         for package_data in data['packages']:
             i += 1
             package = cls.Package(package_data['package'], package_data['release'])
-
             package.data = package_data
             package.blob = cls.Blob(package.package, package_data['blob'])
             try:
@@ -42,12 +41,7 @@ class ApprDB(object):
                 #                                                       channel.package, channel.name, package.release)
 
         i = 0
-        size = len(data['channels'])
-        for channel_data in data['channels']:
-            i += 1
-            channel = cls.Channel(channel_data['name'], channel_data['package'])
-            channel.add_release(channel_data['current'], cls.Package)
-            print("%s/%s  restored-channel: %s" % (str(i), str(size), channel.name))
+        return {'restored': size}
 
     @classmethod
     def restore_backup_from_file(cls, filepath):
