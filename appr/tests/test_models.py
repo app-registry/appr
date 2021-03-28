@@ -10,7 +10,7 @@ from appr.exception import (ChannelNotFound, Forbidden, InvalidRelease, PackageA
 
 
 def convert_utf8(data):
-    if isinstance(data, basestring):
+    if isinstance(data, str):
         return str(data)
     elif isinstance(data, collections.Mapping):
         return dict(map(convert_utf8, data.items()))

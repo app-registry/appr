@@ -146,7 +146,7 @@ class Singleton(type):
 
 def convert_utf8(data):
     try:
-        if isinstance(data, basestring):
+        if isinstance(data, str):
             return str(data)
         elif isinstance(data, collections.Mapping):
             return dict(map(convert_utf8, data.items()))
@@ -202,7 +202,7 @@ def symbol_by_name(name, aliases={}, imp=None, package=None, sep='.', default=No
     if imp is None:
         imp = importlib.import_module
 
-    if not isinstance(name, basestring):
+    if not isinstance(name, str):
         return name  # already a class
 
     name = aliases.get(name) or name

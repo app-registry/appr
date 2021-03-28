@@ -1,12 +1,9 @@
 #!/usr/bin/env python
-from __future__ import absolute_import, division, print_function
-
 import os
 
-from gevent.wsgi import WSGIServer
+from gevent.pywsgi import WSGIServer
 
 from appr.api.app import create_app
-
 
 class GeventApp(object):
     def __init__(self, options=None):

@@ -27,7 +27,7 @@ class ApprAuth(object):
 
         rewrite = False
         for domain, token in self.tokens['auths'].items():
-            if isinstance(token, basestring):
+            if isinstance(token, str):
                 new_tokens['auths'].update(self._create_token(domain, token))
                 rewrite = True
             else:

@@ -76,6 +76,8 @@ setup(
         'appr.commands',
         'appr.plugins',
         'appr.formats',
+        'appr.platforms',
+        'appr.jsonnet',
         'appr.formats.helm',
         'appr.formats.appr',
         'appr.tests',

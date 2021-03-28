@@ -34,3 +34,4 @@ tabulate
 termcolor
 pyyaml
 pathspec
+jsonpatch
