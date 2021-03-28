@@ -12,8 +12,6 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 base_requirements = [
-    'future',
-    'futures',
     'requests',
 ]
 

@@ -149,7 +149,7 @@ def convert_utf8(data):
         if isinstance(data, basestring):
             return str(data)
         elif isinstance(data, collections.Mapping):
-            return dict(map(convert_utf8, data.iteritems()))
+            return dict(map(convert_utf8, data.items()))
         elif isinstance(data, collections.Iterable):
             return type(data)(map(convert_utf8, data))
         else:

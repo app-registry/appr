@@ -80,7 +80,7 @@ class Kub(KubBase):
         return self._resources
 
     def _apply_patches(self, resources):
-        for _, resource in resources.iteritems():
+        for _, resource in resources.items():
             if self.namespace:
                 if 'namespace' in resource['value']['metadata']:
                     op = 'replace'
