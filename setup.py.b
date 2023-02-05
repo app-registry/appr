@@ -1,0 +1,105 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# yapf:disable
+
+from setuptools import setup
+
+with open('README.md') as readme_file:
+    readme = readme_file.read()
+
+base_requirements = [
+    'requests',
+]
+
+server_requirements = [
+    'redis',
+    'python-etcd',
+    'semantic_version',
+    'flask',
+    'Flask>=0.10.1',
+    'flask-cors',
+    'gunicorn>=19.7',
+    "gevent",
+]
+
+cli_requirements = [
+    'urllib3<1.22',
+    'tabulate',
+    'termcolor',
+    'pyyaml',
+    "pathspec",
+]
+
+extra_requirements = [
+    'urllib3[secure]<1.22',
+    'pyopenssl',
+    'jinja2>=2.8',
+    'jsonpatch',
+    'tabulate',
+    'ecdsa',
+    'cryptography',
+    ]
+
+optional_requirements = ['jsonnet']
+
+test_requirements = [
+    "pytest",
+    "coverage",
+    "pytest-cov",
+    "pytest-ordering",
+    "requests-mock"
+    "coverage>=4.0",
+    "flake8",
+    "pytest-flask>=0.10.0",
+    "tox>=2.1.1",
+    "sphinxcontrib-napoleon",
+    "gunicorn>=0.19",
+]
+
+requirements = base_requirements + cli_requirements + server_requirements + extra_requirements
+
+
+setup(
+    name='appr',
+    version='0.7.4',
+    description="cloud-native app registry server",
+    long_description=readme,
+    author="Antoine Legrand",
+    author_email='2t.antoine@gmail.com',
+    url='https://github.com/app-registry/appr-server',
+    packages=[
+        'appr',
+        'appr.commands',
+        'appr.plugins',
+        'appr.formats',
+        'appr.platforms',
+        'appr.jsonnet',
+        'appr.formats.helm',
+        'appr.formats.appr',
+        'appr.tests',
+        'appr.api',
+        'appr.api.impl',
+        'appr.models',
+        'appr.models.kv',
+        'appr.models.kv.etcd',
+        'appr.models.kv.redis',
+        'appr.models.kv.filesystem',
+    ],
+    scripts=['bin/appr', 'bin/apprc'],
+    package_dir={'appr': 'appr'},
+    include_package_data=True,
+    install_requires=requirements,
+    license="Apache License version 2",
+    zip_safe=False,
+    keywords=['apprclient', 'apprclientpy', 'kubernetes'],
+    classifiers=[
+        'Development Status :: 2 - Pre-Alpha',
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        "Programming Language :: Python :: 2",
+        'Programming Language :: Python :: 2.7',
+    ],
+    setup_requires=['pytest-runner'],
+    test_suite='tests',
+    dependency_links=['https://github.com/requests/requests/tarball/master#egg=requests'],
+    tests_require=test_requirements,)

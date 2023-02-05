@@ -47,14 +47,14 @@ def deploy_result():
 
 def test_empty_list():
     out = print_packages([])
-    res = unicode("\n".join(["app    release    downloads    manifests",
+    res = str("\n".join(["app    release    downloads    manifests",
                      "-----  ---------  -----------  -----------"]))
     assert _strip_spaces(out) == _strip_spaces(res)
 
 
 def test_print_packages(package_list):
     out = print_packages(package_list)
-    res = unicode("\n".join(["app    release      downloads  manifests",
+    res = str("\n".join(["app    release      downloads  manifests",
                              "-----  ---------  -----------  -----------",
                              "/o1/p1  1.4.0               45  kpm\n/o1/p2  1.4.0               45  kpm"]))
 
@@ -63,8 +63,8 @@ def test_print_packages(package_list):
 
 def test_print_empty_deploy_result():
     out = print_deploy_result([])
-    res = u'\n'.join(["package    release    type    name    namespace    status",
-                      "---------  ---------  ------  ------  -----------  --------"])
+    res = str('\n'.join(["package    release    type    name    namespace    status",
+                      "---------  ---------  ------  ------  -----------  --------"]))
     assert _strip_spaces(out) == _strip_spaces(res)
 
 
