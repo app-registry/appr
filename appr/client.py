@@ -57,8 +57,8 @@ class ApprClient(object):
             else:
                 scheme = "https://"
             endpoint = scheme + endpoint
-        if 'URL_PREFIX' in os.environ:
-            return urlparse(endpoint + os.environ['URL_PREFIX'])
+        if 'APPR_URL_PREFIX' in os.environ:
+            return urlparse(endpoint + os.environ['APPR_URL_PREFIX'])
         return urlparse(endpoint + DEFAULT_PREFIX)
 
     @property
