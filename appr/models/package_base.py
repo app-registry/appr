@@ -12,25 +12,9 @@ from appr.exception import (InvalidUsage, InvalidRelease, PackageAlreadyExists,
 
 from appr.models.blob_base import BlobBase
 from appr.semver import last_version, select_version
+from appr.utils import get_media_type, content_media_type, manifest_media_type
 
 SCHEMA_VERSION = "v0"
-
-
-def get_media_type(mediatype):
-    if mediatype:
-        match = re.match(r"application/vnd\.appr\.package-manifest\.(.+?)\.(.+).json", mediatype)
-        if match:
-            mediatype = match.group(1)
-    return mediatype
-
-
-def content_media_type(media_type):
-    return "application/vnd.appr.package.%s.%s.tar+gzip" % (media_type, SCHEMA_VERSION)
-
-
-def manifest_media_type(media_type):
-    return "application/vnd.appr.package-manifest.%s.%s.json" % (get_media_type(media_type),
-                                                                 SCHEMA_VERSION)
 
 
 def digest_manifest(manifest):

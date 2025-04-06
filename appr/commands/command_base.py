@@ -192,8 +192,8 @@ class CommandBase(object):
 
     @classmethod
     def _add_output_option(cls, parser):
-        parser.add_argument("--output", default=cls.output_default, choices=[
-            'text', 'none', 'json', 'yaml'], help="output format")
+        parser.add_argument("--output", default=cls.output_default,
+                            choices=['text', 'none', 'file', 'json', 'yaml'], help="output format")
 
     @classmethod
     def _add_mediatype_option(cls, parser, default="-", required=False):

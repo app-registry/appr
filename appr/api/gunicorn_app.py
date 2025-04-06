@@ -2,7 +2,7 @@
 from __future__ import absolute_import, division, print_function
 
 import gunicorn.app.base
-from gunicorn.six import iteritems
+from gunicorn.six import items
 
 from appr.api.app import create_app
 
@@ -17,11 +17,11 @@ class GunicornApp(gunicorn.app.base.BaseApplication):
         super(GunicornApp, self).__init__(self.args_options)
 
     def load_config(self):
-        config = dict([(key, value) for key, value in iteritems(vars(self.args_options))
+        config = dict([(key, value) for key, value in items(vars(self.args_options))
                        if key in self.cfg.settings and value is not None])
-        for key, value in iteritems(self.defaults):
+        for key, value in items(self.defaults):
             config[key] = value
-        for key, value in iteritems(config):
+        for key, value in items(config):
             self.cfg.set(key.lower(), value)
 
     def load(self):

@@ -11,6 +11,7 @@ from termcolor import colored
 
 PACKAGE_REGEXP = r"^(.*?\/)([a-z0-9_-]+\/[a-z0-9_-]+)([:@][a-z0-9._+-]+|@sha256:[a-z0-9]+)?$"
 
+SCHEMA_VERSION = "v0"
 
 def get_media_type(mediatype):
     if mediatype:
@@ -18,6 +19,15 @@ def get_media_type(mediatype):
         if match:
             mediatype = match.group(1)
     return mediatype
+
+
+def content_media_type(media_type):
+    return "application/vnd.appr.package.%s.%s.tar+gzip" % (media_type, SCHEMA_VERSION)
+
+
+def manifest_media_type(media_type):
+    return "application/vnd.appr.package-manifest.%s.%s.json" % (get_media_type(media_type),
+                                                                 SCHEMA_VERSION)
 
 
 def package_filename(name, version, media_type):
@@ -149,7 +159,7 @@ def convert_utf8(data):
         if isinstance(data, basestring):
             return str(data)
         elif isinstance(data, collections.Mapping):
-            return dict(map(convert_utf8, data.iteritems()))
+            return dict(map(convert_utf8, data.items()))
         elif isinstance(data, collections.Iterable):
             return type(data)(map(convert_utf8, data))
         else:
@@ -202,7 +212,7 @@ def symbol_by_name(name, aliases={}, imp=None, package=None, sep='.', default=No
     if imp is None:
         imp = importlib.import_module
 
-    if not isinstance(name, basestring):
+    if not isinstance(name, str):
         return name  # already a class
 
     name = aliases.get(name) or name

@@ -13,7 +13,7 @@ def convert_utf8(data):
     if isinstance(data, basestring):
         return str(data)
     elif isinstance(data, collections.Mapping):
-        return dict(map(convert_utf8, data.iteritems()))
+        return dict(map(convert_utf8, data.items()))
     elif isinstance(data, collections.Iterable):
         return type(data)(map(convert_utf8, data))
     else:
@@ -93,7 +93,7 @@ class TestModels:
         blob = db_with_data1.Blob.get(
             "titi/rocketchat", "d3b54b7912fe770a61b59ab612a442eac52a8a5d8d05dbe92bf8f212d68aaa80")
         assert blob.digest == "d3b54b7912fe770a61b59ab612a442eac52a8a5d8d05dbe92bf8f212d68aaa80"
-        assert blob.size == 778L
+        assert blob.size == 778
 
     @pytest.mark.integration
     def test_get_package_absent_manifest(self, db_with_data1):

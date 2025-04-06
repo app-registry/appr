@@ -55,7 +55,8 @@ class PullCmd(CommandBase):
             "pull": self.package,
             "media_type": self.media_type,
             "version": self.version,
-            "path": self.path}
+            "path": self.path
+        }
 
     def _render_console(self):
         return "Pull package: %s... \n%s" % (self.package, self.path)

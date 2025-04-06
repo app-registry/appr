@@ -36,7 +36,7 @@ class PackageKvBase(PackageBase):
             package_name = package_info['namespace'] + "/" + package_info['name']
             releaseindex = cls.index_class(package_name)
             for release in releaseindex.releases():
-                for _, package_data in releaseindex.release_manifests(release).iteritems():
+                for _, package_data in releaseindex.release_manifests(release).items():
                     package_data['channels'] = releaseindex.release_channels(release)
                     package_data['blob'] = releaseindex.get_blob(package_data['content']['digest'])
                     result.append(package_data)
@@ -73,9 +73,9 @@ class PackageKvBase(PackageBase):
                 manifest_list = [media_type]
 
             view = {
-                'releases': available_releases,
+                'releases': list(available_releases),
                 'default': available_releases[0],
-                'manifests': manifest_list,
+                'manifests': list(manifest_list),
                 'name': package_name,
                 'visibility': 'public',
                 'created_at': created_at}
